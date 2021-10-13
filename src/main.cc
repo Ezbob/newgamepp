@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "raylib.h"
-#include "entt/entt.hpp"
+#include "entt/entity/registry.hpp"
 #include <cmath>
 
 struct position {
@@ -50,6 +50,11 @@ int main(void)
         registry.emplace<position>(entity, 10, 10);
         registry.emplace<dimension>(entity, 20, 20);
         registry.emplace<velocity>(entity, 100.f, 100.f);
+
+        const auto entity2 = registry.create();
+        registry.emplace<position>(entity2, screenWidth - 10,  screenHeight - 10);
+        registry.emplace<dimension>(entity2, 20, 20);
+        registry.emplace<velocity>(entity2, -100.f, -100.f);
     }
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
