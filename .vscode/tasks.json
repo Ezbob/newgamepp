@@ -13,6 +13,22 @@
         "type": "shell",
         "command": "cmake --build build; .\\build\\Debug\\main.exe"
       }
+    },
+    {
+      "label": "setup",
+      "group": "build",
+      "windows": {
+        "type": "shell",
+        "command": "cmake -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_CMAKE_TOOLCHAIN} -S . -B build"
+      }
+    },
+    {
+      "label": "clean",
+      "group": "build",
+      "windows": {
+        "type": "shell",
+        "command": "rmdir -Force build"
+      }
     }
   ]
 }
