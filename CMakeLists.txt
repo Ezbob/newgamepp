@@ -10,6 +10,6 @@ find_package(EnTT CONFIG REQUIRED)
 
 add_executable(main "")
 
-target_sources(main PRIVATE main.cc)
+target_sources(main PRIVATE src/main.cc)
 target_link_libraries(main PRIVATE ${raylib_LIBRARIES} EnTT::EnTT)
 target_include_directories(main PRIVATE ${raylib_INCLUDE_DIRS})
