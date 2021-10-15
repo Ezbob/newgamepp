@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
+cmake_minimum_required(VERSION 3.11)
 
 project(test_raylib CXX)
 
@@ -11,11 +11,11 @@ find_package(EnTT CONFIG REQUIRED)
 add_executable(main "")
 
 if(WIN32)
-set(real_raylib_lib ${raylib_LIBRARIES})
-set(real_raylib_include ${raylib_INCLUDE_DIRS})
+    set(real_raylib_lib ${raylib_LIBRARIES})
+    set(real_raylib_include ${raylib_INCLUDE_DIRS})
 else()
-set(real_raylib_lib ${RAYLIB_LIBRARIES})
-set(real_raylib_include ${RAYLIB_INCLUDE_DIRS})
+    set(real_raylib_lib ${RAYLIB_LIBRARIES})
+    set(real_raylib_include ${RAYLIB_INCLUDE_DIRS})
 endif()
 
 
