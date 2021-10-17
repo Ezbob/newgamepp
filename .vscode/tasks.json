@@ -10,14 +10,23 @@
         "isDefault": true
       },
       "windows": {
+        // tested with powershell
         "type": "shell",
         "command": "cmake --build build; .\\build\\Debug\\main.exe"
+      },
+      "linux": {
+        "type": "shell",
+        "command": "cmake --build build && ./build/main"
       }
     },
     {
       "label": "setup",
       "group": "build",
       "windows": {
+        "type": "shell",
+        "command": "cmake -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_CMAKE_TOOLCHAIN} -S . -B build"
+      },
+      "linux": {
         "type": "shell",
         "command": "cmake -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_CMAKE_TOOLCHAIN} -S . -B build"
       }
@@ -28,6 +37,10 @@
       "windows": {
         "type": "shell",
         "command": "rmdir -Force build"
+      },
+      "linux": {
+        "type": "shell",
+        "command": "rm -rf build"
       }
     }
   ]
