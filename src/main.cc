@@ -23,6 +23,9 @@ struct velocity {
     float dy;
 };
 
+
+float g_dt = 0.f;
+
 void draw(entt::registry &reg) {
     auto view = reg.view<const position, const dimension>();
 
@@ -34,13 +37,13 @@ void draw(entt::registry &reg) {
 void update(entt::registry &reg) {
     auto view = reg.view<position, const velocity>();
 
-    float dt = GetFrameTime();
-    view.each([dt](auto &pos, const auto &vel) {
-        pos.x += (int) (vel.dx * dt) ;
-        pos.y += (int) (vel.dy * dt);
+    view.each([](auto &pos, const auto &vel) {
+        pos.x += (int) (vel.dx * g_dt) ;
+        pos.y += (int) (vel.dy * g_dt);
     });
 
 }
+
 
 int main(void)
 {
@@ -67,16 +70,26 @@ int main(void)
     SetTargetFPS(60);
 
     Rectangle r {
-        10,
-        200,
-        200,
-        110
+        10.f,
+        200.f,
+        200.f,
+        110.f
     };
+
+    Rectangle header {
+        0.f,
+        0.f,
+        180.f,
+        28.f
+    };
+
+    Vector2 startDrag {0.f, 0.f};
 
     bool drawWindow = true;
 
     while (!WindowShouldClose())
     {
+        g_dt = GetFrameTime();
 
         update(registry);
 
@@ -85,8 +98,29 @@ int main(void)
                 drawWindow = false;
             }
         }
-        if (IsKeyPressed('r')) {
-            drawWindow = true;
+
+        if (IsKeyPressed('R')) {
+            drawWindow = !drawWindow;
+        }
+
+        Vector2 pos = GetMousePosition();
+
+        if (IsMouseButtonPressed(0)) {
+            header.x = r.x;
+            header.y = r.y;
+            if (CheckCollisionPointRec(pos, header)) {
+                startDrag.x = pos.x;
+                startDrag.y = pos.y;
+            }
+        }
+
+        if (IsMouseButtonDown(0)) {
+            header.x = r.x;
+            header.y = r.y;
+            if (CheckCollisionPointRec(pos, header)) {
+                r.x += (pos.x - startDrag.x);
+                r.y += (pos.y - startDrag.y);
+            }
         }
 
         // Draw
