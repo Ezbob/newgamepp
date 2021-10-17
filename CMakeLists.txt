@@ -8,6 +8,11 @@ find_package(Threads REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 
+add_library(raygui INTERFACE "")
+target_include_directories(raygui
+    INTERFACE ${CMAKE_CURRENT_LIST_DIR}/libs/raygui/src/
+)
+
 add_executable(main "")
 
 if(WIN32)
@@ -18,7 +23,6 @@ else()
     set(real_raylib_include ${RAYLIB_INCLUDE_DIRS})
 endif()
 
-
 target_sources(main PRIVATE src/main.cc)
-target_link_libraries(main PRIVATE ${real_raylib_lib} EnTT::EnTT ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(main PRIVATE ${real_raylib_lib} EnTT::EnTT ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} raygui)
 target_include_directories(main PRIVATE ${real_raylib_include})

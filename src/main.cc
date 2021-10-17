@@ -1,8 +1,12 @@
+#include "raylib.h"
+
+#define RAYGUI_IMPLEMENTATION
+
 #include <stdio.h>
 #include <stdbool.h>
-#include "raylib.h"
 #include "entt/entity/registry.hpp"
 #include <cmath>
+#include "raygui.h"
 
 struct position {
     int x;
@@ -62,10 +66,29 @@ int main(void)
 
     SetTargetFPS(60);
 
+    Rectangle r {
+        10,
+        200,
+        200,
+        110
+    };
+
+    bool drawWindow = true;
+
     while (!WindowShouldClose())
     {
 
         update(registry);
+
+        if (drawWindow) {
+            if (GuiWindowBox(r, "Whello")) {
+                drawWindow = false;
+            }
+        }
+        if (IsKeyPressed('r')) {
+            drawWindow = true;
+        }
+
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
