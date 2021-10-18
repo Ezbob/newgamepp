@@ -60,9 +60,70 @@ Vector2 norm(Vector2 &v) {
     return result;
 }
 
+class DebugGUI {
+
+private:
+    Rectangle r {
+        10.f,
+        200.f,
+        200.f,
+        110.f
+    };
+
+    Rectangle header {
+        0.f,
+        0.f,
+        60.f,
+        28.f
+    };
+
+    bool drawWindow = true;
+    bool isDragging = false;
+
+public:
+
+    void render() {
+        if (drawWindow) {
+            if (GuiWindowBox(r, "Whello")) {
+                drawWindow = false;
+            }
+        }
+
+        if (IsKeyPressed('R')) {
+            drawWindow = !drawWindow;
+        }
+
+        Vector2 mousepos = GetMousePosition();
+
+        if (IsMouseButtonPressed(0)) {
+            header.x = r.x;
+            header.y = r.y;
+            if (CheckCollisionPointRec(mousepos, header)) {
+                isDragging = true;
+            }
+        }
+
+        if (IsMouseButtonUp(0)) {
+            isDragging = false;
+        }
+
+        if (IsMouseButtonDown(0)) {
+            header.x = r.x;
+            header.y = r.y;
+            if (isDragging) {
+                r.x += (mousepos.x - r.x) - (header.width / 2);
+                r.y += (mousepos.y - r.y) - (header.height / 2);
+            }
+        }
+    }
+};
+
+
+
 int main(void)
 {
     entt::registry registry;
+    DebugGUI dgui;
 
     const int screenWidth = 800;
     const int screenHeight = 450;
@@ -84,25 +145,6 @@ int main(void)
 
     SetTargetFPS(60);
 
-    Rectangle r {
-        10.f,
-        200.f,
-        200.f,
-        110.f
-    };
-
-    Rectangle header {
-        0.f,
-        0.f,
-        60.f,
-        28.f
-    };
-
-    Vector2 startDrag {0.f, 0.f};
-
-    bool drawWindow = true;
-    bool isDragging = false;
-
 
     while (!WindowShouldClose())
     {
@@ -110,40 +152,7 @@ int main(void)
 
         update(registry);
 
-        if (drawWindow) {
-            if (GuiWindowBox(r, "Whello")) {
-                drawWindow = false;
-            }
-        }
-
-        if (IsKeyPressed('R')) {
-            drawWindow = !drawWindow;
-        }
-
-        Vector2 mousepos = GetMousePosition();
-
-        if (IsMouseButtonPressed(0)) {
-            header.x = r.x;
-            header.y = r.y;
-            if (CheckCollisionPointRec(mousepos, header)) {
-                startDrag.x = mousepos.x;
-                startDrag.y = mousepos.y;
-                isDragging = true;
-            }
-        }
-
-        if (IsMouseButtonUp(0)) {
-            isDragging = false;
-        }
-
-        if (IsMouseButtonDown(0)) {
-            header.x = r.x;
-            header.y = r.y;
-            if (isDragging) {
-                r.x += (mousepos.x - r.x) - (header.width / 2);
-                r.y += (mousepos.y - r.y) - (header.height / 2);
-            }
-        }
+        dgui.render();
 
         // Draw
         //----------------------------------------------------------------------------------
