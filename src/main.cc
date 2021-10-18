@@ -44,6 +44,21 @@ void update(entt::registry &reg) {
 
 }
 
+float len(Vector2 &v) {
+    return sqrt(pow(v.x, 2) + pow(v.y, 2));
+}
+
+Vector2 norm(Vector2 &v) {
+    static Vector2 zero{0.f, 0.f};
+    float l = len(v);
+    if (l <= 0) {
+        return zero;
+    }
+    Vector2 result;
+    result.x = v.x / l;
+    result.y = v.y / l;
+    return result;
+}
 
 int main(void)
 {
@@ -59,7 +74,7 @@ int main(void)
         registry.emplace<velocity>(entity, 100.f, 100.f);
 
         const auto entity2 = registry.create();
-        registry.emplace<position>(entity2, screenWidth - 10,  screenHeight - 10);
+        registry.emplace<position>(entity2, screenWidth - 30,  screenHeight - 30);
         registry.emplace<dimension>(entity2, 20, 20);
         registry.emplace<velocity>(entity2, -100.f, -100.f);
     }
@@ -79,13 +94,15 @@ int main(void)
     Rectangle header {
         0.f,
         0.f,
-        180.f,
+        60.f,
         28.f
     };
 
     Vector2 startDrag {0.f, 0.f};
 
     bool drawWindow = true;
+    bool isDragging = false;
+
 
     while (!WindowShouldClose())
     {
@@ -103,23 +120,28 @@ int main(void)
             drawWindow = !drawWindow;
         }
 
-        Vector2 pos = GetMousePosition();
+        Vector2 mousepos = GetMousePosition();
 
         if (IsMouseButtonPressed(0)) {
             header.x = r.x;
             header.y = r.y;
-            if (CheckCollisionPointRec(pos, header)) {
-                startDrag.x = pos.x;
-                startDrag.y = pos.y;
+            if (CheckCollisionPointRec(mousepos, header)) {
+                startDrag.x = mousepos.x;
+                startDrag.y = mousepos.y;
+                isDragging = true;
             }
+        }
+
+        if (IsMouseButtonUp(0)) {
+            isDragging = false;
         }
 
         if (IsMouseButtonDown(0)) {
             header.x = r.x;
             header.y = r.y;
-            if (CheckCollisionPointRec(pos, header)) {
-                r.x += (pos.x - startDrag.x);
-                r.y += (pos.y - startDrag.y);
+            if (isDragging) {
+                r.x += (mousepos.x - r.x) - (header.width / 2);
+                r.y += (mousepos.y - r.y) - (header.height / 2);
             }
         }
 
