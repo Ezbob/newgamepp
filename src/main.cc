@@ -48,20 +48,24 @@ void update(entt::registry &reg) {
 void debug_velocity(entt::registry &reg, Rectangle &r) {
     auto view = reg.view<velocity>();
 
-    size_t i = 2;
+    size_t i = 1;
 
     view.each([&r, &i](auto &vel) {
-        float out = GuiSlider({r.x + 35, r.y + (35 * i), 120, 25}, "MIN", "MAX", vel.dx, -300.f, 300.f);
+        std::string s = fmt::format("{0}", vel.dx);
+
+        GuiLabel({r.x + 200, r.y + (35 * i), 120, 25}, "Velocity: ");
+        GuiTextBox({r.x + 245, r.y + (35 * i), 120, 25}, const_cast<char *>(s.c_str()), static_cast<int>(s.size()), false);
+
+        float out = GuiSlider({r.x + 35, r.y + (35 * i), 120, 25}, "Min", "Max", vel.dx, -300.f, 300.f);
         vel.dx = out;
         vel.dy = out;
-        std::string a = fmt::format("VAL {0}", vel.dx);
-        GuiTextBox({r.x + 35 + 160, r.y + (35 * i), 120, 25}, const_cast<char *>(a.c_str()), 15, false);
+
         i++;
     });
 }
 
 float len(Vector2 &v) {
-    return sqrt(pow(v.x, 2) + pow(v.y, 2));
+    return sqrtf(powf(v.x, 2) + powf(v.y, 2));
 }
 
 Vector2 norm(Vector2 &v) {
@@ -108,10 +112,6 @@ public:
         if (drawWindow) {
             if (GuiWindowBox(r, "Whello")) {
                 drawWindow = false;
-            }
-
-            if (GuiButton({ r.x + 35, r.y + 35, 120, 25 }, "DONT PRESS THIS")) {
-                
             }
 
             debug_velocity(reg, r);
@@ -181,8 +181,6 @@ int main(void)
 
         update(registry);
 
-        dgui.render();
-
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
@@ -190,6 +188,8 @@ int main(void)
         ClearBackground(BLACK);
 
         draw(registry);
+
+        dgui.render();
 
         EndDrawing();
     }
