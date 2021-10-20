@@ -7,6 +7,7 @@
 #include "entt/entity/registry.hpp"
 #include <cmath>
 #include "raygui.h"
+#include "fmt/core.h"
 
 struct position {
     int x;
@@ -38,10 +39,25 @@ void update(entt::registry &reg) {
     auto view = reg.view<position, const velocity>();
 
     view.each([](auto &pos, const auto &vel) {
-        pos.x += (int) (vel.dx * g_dt) ;
+        pos.x += (int) (vel.dx * g_dt);
         pos.y += (int) (vel.dy * g_dt);
     });
 
+}
+
+void debug_velocity(entt::registry &reg, Rectangle &r) {
+    auto view = reg.view<velocity>();
+
+    size_t i = 2;
+
+    view.each([&r, &i](auto &vel) {
+        float out = GuiSlider({r.x + 35, r.y + (35 * i), 120, 25}, "MIN", "MAX", vel.dx, -300.f, 300.f);
+        vel.dx = out;
+        vel.dy = out;
+        std::string a = fmt::format("VAL {0}", vel.dx);
+        GuiTextBox({r.x + 35 + 160, r.y + (35 * i), 120, 25}, const_cast<char *>(a.c_str()), 15, false);
+        i++;
+    });
 }
 
 float len(Vector2 &v) {
@@ -66,8 +82,8 @@ private:
     Rectangle r {
         10.f,
         200.f,
-        200.f,
-        110.f
+        400.f,
+        400.f
     };
 
     Rectangle header {
@@ -77,16 +93,29 @@ private:
         28.f
     };
 
+    std::vector<Rectangle> children;
+
     bool drawWindow = true;
     bool isDragging = false;
 
+    entt::registry &reg;
+
 public:
+
+    DebugGUI (entt::registry &r) : reg(r) {}
 
     void render() {
         if (drawWindow) {
             if (GuiWindowBox(r, "Whello")) {
                 drawWindow = false;
             }
+
+            if (GuiButton({ r.x + 35, r.y + 35, 120, 25 }, "DONT PRESS THIS")) {
+                
+            }
+
+            debug_velocity(reg, r);
+
         }
 
         if (IsKeyPressed('R')) {
@@ -123,10 +152,10 @@ public:
 int main(void)
 {
     entt::registry registry;
-    DebugGUI dgui;
+    DebugGUI dgui{registry};
 
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 900;
+    const int screenHeight = 650;
 
     {
         const auto entity = registry.create();
