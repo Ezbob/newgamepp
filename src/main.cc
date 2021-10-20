@@ -46,26 +46,6 @@ void update(entt::registry &reg) {
 
 }
 
-/*
-void debug_velocity(entt::registry &reg, Rectangle &r) {
-    auto view = reg.view<velocity>();
-
-    size_t i = 1;
-
-    view.each([&r, &i](auto &vel) {
-        std::string s = fmt::format("{0}", vel.dx);
-
-        GuiLabel({r.x + 200, r.y + (35 * i), 120, 25}, "Velocity: ");
-        GuiTextBox({r.x + 245, r.y + (35 * i), 120, 25}, const_cast<char *>(s.c_str()), static_cast<int>(s.size()), false);
-
-        float out = GuiSlider({r.x + 35, r.y + (35 * i), 120, 25}, "Min", "Max", vel.dx, -300.f, 300.f);
-        vel.dx = out;
-        vel.dy = out;
-
-        i++;
-    });
-}
-*/
 
 float len(Vector2 &v) {
     return sqrtf(powf(v.x, 2) + powf(v.y, 2));
