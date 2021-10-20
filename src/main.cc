@@ -181,8 +181,6 @@ int main(void)
 
         update(registry);
 
-        dgui.render();
-
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
@@ -190,6 +188,8 @@ int main(void)
         ClearBackground(BLACK);
 
         draw(registry);
+
+        dgui.render();
 
         EndDrawing();
     }
