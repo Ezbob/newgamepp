@@ -34,25 +34,6 @@ void update(entt::registry &reg) {
 
 }
 
-
-float len(Vector2 &v) {
-    return sqrtf(powf(v.x, 2) + powf(v.y, 2));
-}
-
-Vector2 norm(Vector2 &v) {
-    static Vector2 zero{0.f, 0.f};
-    float l = len(v);
-    if (l <= 0) {
-        return zero;
-    }
-    Vector2 result;
-    result.x = v.x / l;
-    result.y = v.y / l;
-    return result;
-}
-
-
-
 int main(void)
 {
     entt::registry registry;
