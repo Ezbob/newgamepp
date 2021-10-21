@@ -12,11 +12,27 @@
       "windows": {
         // tested with powershell
         "type": "shell",
-        "command": "cmake --build build; .\\build\\Debug\\main.exe"
+        "command": ".\\build\\Debug\\main.exe"
       },
       "linux": {
         "type": "shell",
-        "command": "cmake --build build && ./build/main"
+        "command": "./build/main"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "label": "build",
+      "group": "build",
+      "windows": {
+        // tested with powershell
+        "type": "shell",
+        "command": "cmake --build build"
+      },
+      "linux": {
+        "type": "shell",
+        "command": "cmake --build build"
       }
     },
     {
