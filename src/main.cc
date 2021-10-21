@@ -69,61 +69,59 @@ Vector2 norm(Vector2 &v) {
 class DebugGUI {
 
 private:
-    Rectangle r {
+    Rectangle windowBoundary_ {
         10.f,
         200.f,
         400.f,
         400.f
     };
 
-    Rectangle header {
+    Rectangle header_ {
         0.f,
         0.f,
-        60.f,
+        90.f,
         28.f
     };
 
-    std::vector<Rectangle> children;
+    bool drawWindow_ = true;
+    bool isDragging_ = false;
+    Vector2 mousepos_;
+    bool mousepressed_ = false;
 
-    bool drawWindow = true;
-    bool isDragging = false;
-    Vector2 mousepos;
-    bool mousepressed = false;
+    entt::registry &registry_;
 
-    entt::registry &reg;
+    std::optional<entt::entity> selected_;
 
-    std::optional<entt::entity> selected;
-
-    std::array<SliderField, 2> sliderfields = {
-        SliderField{"Velocity X: "},
-        SliderField{"Velocity Y: "}
+    std::array<SliderField, 2> sliderfields_ = {
+        SliderField{windowBoundary_, "Velocity X: "},
+        SliderField{windowBoundary_, "Velocity Y: "}
     };
 
 
     void drawEntity() {
-        if (selected) {
-            auto entity = selected.value();
+        if (selected_) {
+            auto entity = selected_.value();
 
             size_t i = 0;
-            if (reg.has<velocity>(entity)) {
-                auto &vel = reg.get<velocity>(entity);
+            if (registry_.has<velocity>(entity)) {
+                auto &vel = registry_.get<velocity>(entity);
 
-                sliderfields[i++].render(i, r, mousepressed, mousepos, vel.dx);
-                sliderfields[i++].render(i, r, mousepressed, mousepos, vel.dy);
+                sliderfields_[i++].render(i, mousepressed_, mousepos_, vel.dx);
+                sliderfields_[i++].render(i, mousepressed_, mousepos_, vel.dy);
             }
         }
     }
 
 public:
 
-    DebugGUI (entt::registry &r) : reg(r) {}
+    DebugGUI (entt::registry &r) : registry_(r) {}
 
     void doGui() {
-        mousepos = GetMousePosition();
-        mousepressed = IsMouseButtonPressed(0);
+        mousepos_ = GetMousePosition();
+        mousepressed_ = IsMouseButtonPressed(0);
 
-        if (mousepressed) {
-            auto view = reg.view<position, dimension>();
+        if (mousepressed_) {
+            auto view = registry_.view<position, dimension>();
 
             for (auto ent : view) {
                 auto const &pos = view.get<position>(ent);
@@ -134,43 +132,43 @@ public:
                     (float)(dim.w),
                     (float)(dim.h)
                 };
-                if (CheckCollisionPointRec(mousepos, entityBox)) {
-                    selected = ent;
+                if (CheckCollisionPointRec(mousepos_, entityBox)) {
+                    selected_ = ent;
                     break;
                 }
             }
         }
 
-        if (drawWindow && selected.has_value()) {
-            if (GuiWindowBox(r, "Debug - selected")) {
-                selected = std::nullopt;
+        if (drawWindow_ && selected_.has_value()) {
+            if (GuiWindowBox(windowBoundary_, "Entity Selected")) {
+                selected_ = std::nullopt;
             } else {
                 drawEntity();
             }
         }
 
-        if (IsKeyPressed('R') && selected.has_value()) {
-            drawWindow = !drawWindow;
+        if (IsKeyPressed('R') && selected_.has_value()) {
+            drawWindow_ = !drawWindow_;
         }
 
-        if (mousepressed) {
-            header.x = r.x;
-            header.y = r.y;
-            if (CheckCollisionPointRec(mousepos, header)) {
-                isDragging = true;
+        if (mousepressed_) {
+            header_.x = windowBoundary_.x;
+            header_.y = windowBoundary_.y;
+            if (CheckCollisionPointRec(mousepos_, header_)) {
+                isDragging_ = true;
             }
         }
 
         if (IsMouseButtonUp(0)) {
-            isDragging = false;
+            isDragging_ = false;
         }
 
         if (IsMouseButtonDown(0)) {
-            header.x = r.x;
-            header.y = r.y;
-            if (isDragging) {
-                r.x += (mousepos.x - r.x) - (header.width / 2);
-                r.y += (mousepos.y - r.y) - (header.height / 2);
+            header_.x = windowBoundary_.x;
+            header_.y = windowBoundary_.y;
+            if (isDragging_) {
+                windowBoundary_.x += (mousepos_.x - windowBoundary_.x) - (header_.width / 2);
+                windowBoundary_.y += (mousepos_.y - windowBoundary_.y) - (header_.height / 2);
             }
         }
     }

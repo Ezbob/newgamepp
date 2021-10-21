@@ -4,6 +4,7 @@
 #include "raygui.h"
 
 SliderField::SliderField(
+  Rectangle &parent,
   std::string const & label,
   std::string const & minLabel,
   std::string const & maxLabel,
@@ -13,10 +14,12 @@ SliderField::SliderField(
         , sliderMinText_(minLabel)
         , sliderMaxText_(maxLabel)
         , minSlider_(minValue)
-        , maxSlider_(maxValue) {}
+        , maxSlider_(maxValue)
+        , parent_(parent) {}
 
-void SliderField::render(int stackIndex, Rectangle &parent, bool mousepressed, Vector2 &mousepos, float &data) {
-    Rectangle sliderBounds = {parent.x + 35, parent.y + (35 * stackIndex), 120, 25};
+
+void SliderField::render(int stackIndex, bool mousepressed, Vector2 &mousepos, float &data) {
+    Rectangle sliderBounds = {parent_.x + 35, parent_.y + (35 * stackIndex), 120, 25};
     Rectangle labelBounds = sliderBounds;
     Rectangle valueBounds = labelBounds;
 
