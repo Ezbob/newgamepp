@@ -24,14 +24,23 @@ else()
     set(real_raylib_include ${RAYLIB_INCLUDE_DIRS})
 endif()
 
-target_sources(main PRIVATE src/main.cc)
-target_link_libraries(main 
-    PRIVATE 
-    EnTT::EnTT
-    ${real_raylib_lib}
-    ${CMAKE_DL_LIBS}
-    ${CMAKE_THREAD_LIBS_INIT}
-    raygui
-    fmt::fmt
+target_sources(main 
+    PRIVATE
+        src/main.cc
+        src/SliderField.cc
 )
-target_include_directories(main PRIVATE ${real_raylib_include})
+
+target_link_libraries(main 
+    PRIVATE
+        EnTT::EnTT
+        ${real_raylib_lib}
+        ${CMAKE_DL_LIBS}
+        ${CMAKE_THREAD_LIBS_INIT}
+        raygui
+        fmt::fmt
+)
+target_include_directories(main 
+    PRIVATE
+        ${real_raylib_include}
+        src/
+)

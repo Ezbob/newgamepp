@@ -9,6 +9,9 @@
 #include "raygui.h"
 #include "fmt/core.h"
 #include <optional>
+#include <array>
+
+#include "SliderField.hh"
 
 struct position {
     int x;
@@ -84,33 +87,29 @@ private:
 
     bool drawWindow = true;
     bool isDragging = false;
+    Vector2 mousepos;
+    bool mousepressed = false;
 
     entt::registry &reg;
 
     std::optional<entt::entity> selected;
+
+    std::array<SliderField, 2> sliderfields = {
+        SliderField{"Velocity X: "},
+        SliderField{"Velocity Y: "}
+    };
 
 
     void drawEntity() {
         if (selected) {
             auto entity = selected.value();
 
-            size_t i = 1;
+            size_t i = 0;
             if (reg.has<velocity>(entity)) {
                 auto &vel = reg.get<velocity>(entity);
 
-                std::string s = fmt::format("{0}", vel.dx);
-                GuiLabel({r.x + 200, r.y + (35 * i), 120, 25}, "X Velocity: ");
-                GuiTextBox({r.x + 265, r.y + (35 * i), 120, 25}, const_cast<char *>(s.c_str()), static_cast<int>(s.size()), false);
-                float out = GuiSlider({r.x + 35, r.y + (35 * i), 120, 25}, "Min", "Max", vel.dx, -300.f, 300.f);
-                vel.dx = out;
-                i++;
-
-                s = fmt::format("{0}", vel.dy);
-                GuiLabel({r.x + 200, r.y + (35 * i), 120, 25}, "Y Velocity: ");
-                GuiTextBox({r.x + 265, r.y + (35 * i), 120, 25}, const_cast<char *>(s.c_str()), static_cast<int>(s.size()), false);
-                out = GuiSlider({r.x + 35, r.y + (35 * i), 120, 25}, "Min", "Max", vel.dy, -300.f, 300.f);
-                vel.dy = out;
-                i++;
+                sliderfields[i++].render(i, r, mousepressed, mousepos, vel.dx);
+                sliderfields[i++].render(i, r, mousepressed, mousepos, vel.dy);
             }
         }
     }
@@ -120,21 +119,22 @@ public:
     DebugGUI (entt::registry &r) : reg(r) {}
 
     void doGui() {
-        Vector2 mousepos = GetMousePosition();
+        mousepos = GetMousePosition();
+        mousepressed = IsMouseButtonPressed(0);
 
-        if (!selected.has_value()) {
+        if (mousepressed) {
             auto view = reg.view<position, dimension>();
 
             for (auto ent : view) {
                 auto const &pos = view.get<position>(ent);
                 auto const &dim = view.get<dimension>(ent);
                 Rectangle entityBox {
-                    pos.x,
-                    pos.y,
-                    dim.w,
-                    dim.h
+                    (float)(pos.x),
+                    (float)(pos.y),
+                    (float)(dim.w),
+                    (float)(dim.h)
                 };
-                if (IsMouseButtonPressed(0) && CheckCollisionPointRec(mousepos, entityBox)) {
+                if (CheckCollisionPointRec(mousepos, entityBox)) {
                     selected = ent;
                     break;
                 }
@@ -153,7 +153,7 @@ public:
             drawWindow = !drawWindow;
         }
 
-        if (IsMouseButtonPressed(0)) {
+        if (mousepressed) {
             header.x = r.x;
             header.y = r.y;
             if (CheckCollisionPointRec(mousepos, header)) {
@@ -210,6 +210,8 @@ int main(void)
 
         update(registry);
 
+        dgui.doGui();
+
         BeginDrawing();
 
         ClearBackground(BLACK);
@@ -217,8 +219,6 @@ int main(void)
         draw(registry);
 
         EndDrawing();
-
-        dgui.doGui();
     }
 
     CloseWindow();
