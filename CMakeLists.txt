@@ -29,6 +29,7 @@ target_sources(main
         src/main.cc
         src/gui/SliderField.cc
         src/gui/DebugGUI.cc
+        src/gui/EntityWindow.cc
 )
 
 target_link_libraries(main 
