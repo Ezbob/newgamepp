@@ -27,8 +27,8 @@ endif()
 target_sources(main 
     PRIVATE
         src/main.cc
-        src/SliderField.cc
-        src/DebugGUI.cc
+        src/gui/SliderField.cc
+        src/gui/DebugGUI.cc
 )
 
 target_link_libraries(main 

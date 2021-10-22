@@ -11,8 +11,7 @@
 #include <optional>
 #include <array>
 #include "Components.hh"
-#include "SliderField.hh"
-#include "DebugGUI.hh"
+#include "gui/DebugGUI.hh"
 
 float g_dt = 0.f;
 
