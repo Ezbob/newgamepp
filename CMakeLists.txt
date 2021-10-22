@@ -14,8 +14,6 @@ target_include_directories(raygui
     INTERFACE ${CMAKE_CURRENT_LIST_DIR}/libs/raygui/src/
 )
 
-add_executable(main "")
-
 if(WIN32)
     set(real_raylib_lib ${raylib_LIBRARIES})
     set(real_raylib_include ${raylib_INCLUDE_DIRS})
@@ -24,15 +22,15 @@ else()
     set(real_raylib_include ${RAYLIB_INCLUDE_DIRS})
 endif()
 
-target_sources(main 
+add_executable(main "")
+target_sources(main
     PRIVATE
         src/main.cc
         src/gui/SliderField.cc
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
 )
-
-target_link_libraries(main 
+target_link_libraries(main
     PRIVATE
         EnTT::EnTT
         ${real_raylib_lib}
@@ -41,7 +39,7 @@ target_link_libraries(main
         raygui
         fmt::fmt
 )
-target_include_directories(main 
+target_include_directories(main
     PRIVATE
         ${real_raylib_include}
         src/
