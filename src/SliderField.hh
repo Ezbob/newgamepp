@@ -9,12 +9,14 @@ class SliderField {
 
 public:
     SliderField(
+      Rectangle &parent,
       std::string const & label,
       std::string const & minLabel = "Min",
       std::string const & maxLabel = "Max",
-      float minValue = -300.f, float maxValue = 300.f);
+      float minValue = -300.f,
+      float maxValue = 300.f);
 
-    void render(int stackIndex, Rectangle &parent, bool mousepressed, Vector2 &mousepos, float &data);
+    void render(int stackIndex,  bool mousepressed, Vector2 &mousepos, float &data);
 private:
     bool fieldEditable_ = false;
     std::array<char, 16> buffer_;
@@ -23,4 +25,5 @@ private:
     std::string sliderMaxText_;
     float minSlider_;
     float maxSlider_;
+    Rectangle &parent_;
 };

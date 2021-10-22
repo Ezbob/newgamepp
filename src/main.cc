@@ -10,29 +10,14 @@
 #include "fmt/core.h"
 #include <optional>
 #include <array>
-
+#include "Components.hh"
 #include "SliderField.hh"
-
-struct position {
-    int x;
-    int y;
-};
-
-struct dimension {
-    int w;
-    int h;
-};
-
-struct velocity {
-    float dx;
-    float dy;
-};
-
+#include "DebugGUI.hh"
 
 float g_dt = 0.f;
 
 void draw(entt::registry &reg) {
-    auto view = reg.view<const position, const dimension>();
+    auto view = reg.view<const Position, const Dimensions>();
 
     view.each([](const auto &pos, const auto &dim) {
         DrawRectangle(pos.x, pos.y, dim.w, dim.h, WHITE);
@@ -40,7 +25,7 @@ void draw(entt::registry &reg) {
 }
 
 void update(entt::registry &reg) {
-    auto view = reg.view<position, const velocity>();
+    auto view = reg.view<Position, const Velocity>();
 
     view.each([](auto &pos, const auto &vel) {
         pos.x += (int) (vel.dx * g_dt);
@@ -48,135 +33,6 @@ void update(entt::registry &reg) {
     });
 
 }
-
-
-float len(Vector2 &v) {
-    return sqrtf(powf(v.x, 2) + powf(v.y, 2));
-}
-
-Vector2 norm(Vector2 &v) {
-    static Vector2 zero{0.f, 0.f};
-    float l = len(v);
-    if (l <= 0) {
-        return zero;
-    }
-    Vector2 result;
-    result.x = v.x / l;
-    result.y = v.y / l;
-    return result;
-}
-
-class DebugGUI {
-
-private:
-    Rectangle r {
-        10.f,
-        200.f,
-        400.f,
-        400.f
-    };
-
-    Rectangle header {
-        0.f,
-        0.f,
-        60.f,
-        28.f
-    };
-
-    std::vector<Rectangle> children;
-
-    bool drawWindow = true;
-    bool isDragging = false;
-    Vector2 mousepos;
-    bool mousepressed = false;
-
-    entt::registry &reg;
-
-    std::optional<entt::entity> selected;
-
-    std::array<SliderField, 2> sliderfields = {
-        SliderField{"Velocity X: "},
-        SliderField{"Velocity Y: "}
-    };
-
-
-    void drawEntity() {
-        if (selected) {
-            auto entity = selected.value();
-
-            size_t i = 0;
-            if (reg.has<velocity>(entity)) {
-                auto &vel = reg.get<velocity>(entity);
-
-                sliderfields[i++].render(i, r, mousepressed, mousepos, vel.dx);
-                sliderfields[i++].render(i, r, mousepressed, mousepos, vel.dy);
-            }
-        }
-    }
-
-public:
-
-    DebugGUI (entt::registry &r) : reg(r) {}
-
-    void doGui() {
-        mousepos = GetMousePosition();
-        mousepressed = IsMouseButtonPressed(0);
-
-        if (mousepressed) {
-            auto view = reg.view<position, dimension>();
-
-            for (auto ent : view) {
-                auto const &pos = view.get<position>(ent);
-                auto const &dim = view.get<dimension>(ent);
-                Rectangle entityBox {
-                    (float)(pos.x),
-                    (float)(pos.y),
-                    (float)(dim.w),
-                    (float)(dim.h)
-                };
-                if (CheckCollisionPointRec(mousepos, entityBox)) {
-                    selected = ent;
-                    break;
-                }
-            }
-        }
-
-        if (drawWindow && selected.has_value()) {
-            if (GuiWindowBox(r, "Debug - selected")) {
-                selected = std::nullopt;
-            } else {
-                drawEntity();
-            }
-        }
-
-        if (IsKeyPressed('R') && selected.has_value()) {
-            drawWindow = !drawWindow;
-        }
-
-        if (mousepressed) {
-            header.x = r.x;
-            header.y = r.y;
-            if (CheckCollisionPointRec(mousepos, header)) {
-                isDragging = true;
-            }
-        }
-
-        if (IsMouseButtonUp(0)) {
-            isDragging = false;
-        }
-
-        if (IsMouseButtonDown(0)) {
-            header.x = r.x;
-            header.y = r.y;
-            if (isDragging) {
-                r.x += (mousepos.x - r.x) - (header.width / 2);
-                r.y += (mousepos.y - r.y) - (header.height / 2);
-            }
-        }
-    }
-};
-
-
 
 int main(void)
 {
@@ -188,14 +44,14 @@ int main(void)
 
     {
         const auto entity = registry.create();
-        registry.emplace<position>(entity, 10, 10);
-        registry.emplace<dimension>(entity, 20, 20);
-        registry.emplace<velocity>(entity, 0.f, 0.f);
+        registry.emplace<Position>(entity, 10, 10);
+        registry.emplace<Dimensions>(entity, 20, 20);
+        registry.emplace<Velocity>(entity, 0.f, 0.f);
 
         const auto entity2 = registry.create();
-        registry.emplace<position>(entity2, screenWidth - 30,  screenHeight - 30);
-        registry.emplace<dimension>(entity2, 20, 20);
-        registry.emplace<velocity>(entity2, 0.f, 0.f);
+        registry.emplace<Position>(entity2, screenWidth - 30,  screenHeight - 30);
+        registry.emplace<Dimensions>(entity2, 20, 20);
+        registry.emplace<Velocity>(entity2, 0.f, 0.f);
     }
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -210,13 +66,13 @@ int main(void)
 
         update(registry);
 
-        dgui.doGui();
 
         BeginDrawing();
 
         ClearBackground(BLACK);
 
         draw(registry);
+        dgui.doGui();
 
         EndDrawing();
     }
