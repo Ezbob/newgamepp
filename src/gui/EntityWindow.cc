@@ -10,7 +10,7 @@ void EntityWindow::drawEntity() {
     auto entity = selected_.value();
 
     int i = 0;
-    if (registry_.has<Position>(entity)) {
+    if (registry_.any_of<Position>(entity)) {
       auto &pos = registry_.get<Position>(entity);
 
       i++;
@@ -22,7 +22,7 @@ void EntityWindow::drawEntity() {
       positionYField_.render(mousepressed_, mousepos_, pos.y, i);
     }
 
-    if (registry_.has<Velocity>(entity)) {
+    if (registry_.any_of<Velocity>(entity)) {
       auto &vel = registry_.get<Velocity>(entity);
 
       ++i;

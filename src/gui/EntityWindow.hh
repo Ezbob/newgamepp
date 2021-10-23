@@ -4,7 +4,6 @@
 #include <array>
 #include <optional>
 
-#define RAYGUIDEF extern "C"
 #include "raylib.h"
 #include "fields/SliderField.hh"
 #include "fields/TextField.hh"

@@ -1,4 +1,3 @@
-#define RAYGUIDEF extern "C"
 #include "SliderField.hh"
 #include <charconv>
 #include "raygui.h"

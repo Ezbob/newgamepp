@@ -14,14 +14,6 @@ target_include_directories(raygui
     INTERFACE ${CMAKE_CURRENT_LIST_DIR}/libs/raygui/src/
 )
 
-if(WIN32)
-    set(real_raylib_lib ${raylib_LIBRARIES})
-    set(real_raylib_include ${raylib_INCLUDE_DIRS})
-else()
-    set(real_raylib_lib ${RAYLIB_LIBRARIES})
-    set(real_raylib_include ${RAYLIB_INCLUDE_DIRS})
-endif()
-
 add_executable(main "")
 target_sources(main
     PRIVATE
@@ -34,7 +26,7 @@ target_sources(main
 target_link_libraries(main
     PRIVATE
         EnTT::EnTT
-        ${real_raylib_lib}
+        ${RAYLIB_LIBRARIES}
         ${CMAKE_DL_LIBS}
         ${CMAKE_THREAD_LIBS_INIT}
         raygui
@@ -42,6 +34,6 @@ target_link_libraries(main
 )
 target_include_directories(main
     PRIVATE
-        ${real_raylib_include}
+        ${RAYLIB_LIBRARIES}
         src/
 )

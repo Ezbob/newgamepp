@@ -54,6 +54,7 @@ int main(void)
     }
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screenWidth, screenHeight, "Raylib [raylib] example");
 
     SetTargetFPS(60);

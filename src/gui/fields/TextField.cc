@@ -1,7 +1,6 @@
 
 #include "TextField.hh"
 #include <charconv>
-#define RAYGUIDEF extern "C"
 #include "raygui.h"
 
 TextField::TextField(Rectangle &parent, Rectangle bounds)
