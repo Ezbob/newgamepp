@@ -12,7 +12,8 @@
             "intelliSenseMode": "msvc-x64",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/libs/raylib/src"
+                "${workspaceFolder}/libs/raygui/src",
+                "${env:VCPKG_ROOT}/installed/x64-windows/include"
             ]
         }
     ],
