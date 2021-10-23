@@ -27,10 +27,12 @@ void EntityWindow::drawEntity() {
 
       ++i;
       GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Velocity X: ");
+      velocityXField_.render(mousepressed_,  mousepos_, vel.dx, i);
       sliderfields_[0].render(mousepressed_, mousepos_, vel.dx, i);
 
       ++i;
       GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Velocity Y: ");
+      velocityYField_.render(mousepressed_,  mousepos_, vel.dy, i);
       sliderfields_[1].render(mousepressed_, mousepos_, vel.dy, i);
     }
   }

@@ -11,6 +11,7 @@ class SliderField {
 public:
     SliderField(
       Rectangle &parent,
+      Rectangle bounds,
       std::string const& minLabel = "Min",
       std::string const& maxLabel = "Max",
       float minValue = -300.f,
@@ -24,5 +25,5 @@ private:
     float minSlider_;
     float maxSlider_;
     Rectangle &parent_;
-    TextField valueField_;
+    Rectangle bounds_;
 };
