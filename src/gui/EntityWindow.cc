@@ -9,12 +9,29 @@ void EntityWindow::drawEntity() {
   if (selected_) {
     auto entity = selected_.value();
 
-    size_t i = 0;
+    int i = 0;
+    if (registry_.has<Position>(entity)) {
+      auto &pos = registry_.get<Position>(entity);
+
+      i++;
+      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Position X: ");
+      positionXField_.render(mousepressed_, mousepos_, pos.x, i);
+
+      i++;
+      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Position Y: ");
+      positionYField_.render(mousepressed_, mousepos_, pos.y, i);
+    }
+
     if (registry_.has<Velocity>(entity)) {
       auto &vel = registry_.get<Velocity>(entity);
 
-      sliderfields_[i++].render(i, mousepressed_, mousepos_, vel.dx);
-      sliderfields_[i++].render(i, mousepressed_, mousepos_, vel.dy);
+      ++i;
+      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Velocity X: ");
+      sliderfields_[0].render(mousepressed_, mousepos_, vel.dx, i);
+
+      ++i;
+      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Velocity Y: ");
+      sliderfields_[1].render(mousepressed_, mousepos_, vel.dy, i);
     }
   }
 }

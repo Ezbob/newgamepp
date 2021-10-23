@@ -5,26 +5,23 @@
 
 SliderField::SliderField(
   Rectangle &parent,
-  std::string const & label,
   std::string const & minLabel,
   std::string const & maxLabel,
   float minValue,
   float maxValue)
-        : label_(label)
-        , sliderMinText_(minLabel)
+        : sliderMinText_(minLabel)
         , sliderMaxText_(maxLabel)
         , minSlider_(minValue)
         , maxSlider_(maxValue)
         , parent_(parent) {}
 
 
-void SliderField::render(int stackIndex, bool mousepressed, Vector2 &mousepos, float &data) {
-    Rectangle sliderBounds = {parent_.x + 35, parent_.y + (35 * stackIndex), 120, 25};
-    Rectangle labelBounds = sliderBounds;
-    Rectangle valueBounds = labelBounds;
+void SliderField::render(bool mousepressed, Vector2 &mousepos, float &data, int stackIndex) {
+    Rectangle sliderBounds = {parent_.x + 10, parent_.y + (35 * stackIndex), 120, 25};
+    Rectangle valueBounds = sliderBounds;
 
-    labelBounds.x += 160;
-    valueBounds.x += 220;
+    sliderBounds.x += 220;
+    valueBounds.x += 60;
 
     if (mousepressed) {
         if (CheckCollisionPointRec(mousepos, valueBounds)) {
@@ -35,7 +32,7 @@ void SliderField::render(int stackIndex, bool mousepressed, Vector2 &mousepos, f
     }
 
     data = GuiSlider(sliderBounds, sliderMinText_.c_str(), sliderMaxText_.c_str(), data, minSlider_, maxSlider_);
-    GuiLabel(labelBounds, label_.c_str());
+    //GuiLabel(labelBounds, label_.c_str());
 
     if (!fieldEditable_) {
         buffer_.fill('\0');

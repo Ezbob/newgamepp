@@ -6,7 +6,8 @@
 
 #define RAYGUIDEF extern "C"
 #include "raylib.h"
-#include "SliderField.hh"
+#include "fields/SliderField.hh"
+#include "fields/TextField.hh"
 #include "entt/entity/registry.hpp"
 #include "Components.hh"
 
@@ -27,19 +28,22 @@ private:
     28.f
   };
 
+  bool drawWindow_ = true;
+  bool isDragging_ = false;
+  Vector2 mousepos_;
+  bool mousepressed_ = false;
+
   entt::registry &registry_;
 
   std::optional<entt::entity> selected_;
 
   std::array<SliderField, 2> sliderfields_ = {
-      SliderField{windowBoundary_, "Velocity X: "},
-      SliderField{windowBoundary_, "Velocity Y: "}
+      SliderField{windowBoundary_},
+      SliderField{windowBoundary_}
   };
 
-  bool drawWindow_ = true;
-  bool isDragging_ = false;
-  Vector2 mousepos_;
-  bool mousepressed_ = false;
+  TextField positionXField_ = TextField{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  TextField positionYField_ = TextField{windowBoundary_, Rectangle{70, 35, 120, 25}};
 
   void drawEntity();
 public:

@@ -26,7 +26,8 @@ add_executable(main "")
 target_sources(main
     PRIVATE
         src/main.cc
-        src/gui/SliderField.cc
+        src/gui/fields/SliderField.cc
+        src/gui/fields/TextField.cc
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
 )
