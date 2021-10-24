@@ -35,16 +35,16 @@ private:
 
   entt::registry &registry_;
 
-  std::array<SliderField, 2> sliderfields_ = {
-      SliderField{windowBoundary_, Rectangle{230, 35, 120, 25}},
-      SliderField{windowBoundary_, Rectangle{230, 35, 120, 25}}
-  };
+  TextField nameField_{windowBoundary_, {70, 35, 120, 25}};
 
-  TextField positionXField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
-  TextField positionYField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  SliderField sliderVelocityXField_{windowBoundary_, {230, 35, 120, 25}};
+  SliderField sliderVelocityYField_{windowBoundary_, {230, 35, 120, 25}};
 
-  TextField velocityXField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
-  TextField velocityYField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  TextField positionXField_{windowBoundary_, {70, 35, 120, 25}};
+  TextField positionYField_{windowBoundary_, {70, 35, 120, 25}};
+
+  TextField velocityXField_{windowBoundary_, {70, 35, 120, 25}};
+  TextField velocityYField_{windowBoundary_, {70, 35, 120, 25}};
 
   void drawEntity(entt::entity &entity);
 

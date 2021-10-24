@@ -1,8 +1,9 @@
 
 #pragma once
 
-#include <array>
+#include <vector>
 #include "raylib.h"
+#include <string>
 
 class TextField {
 
@@ -11,10 +12,11 @@ public:
 
   void render(bool mousepressed, Vector2 &mousepos, float &data, int stackIndex = 1);
   void render(bool mousepressed, Vector2 &mousepos, int &data, int stackIndex = 1);
+  void render(bool mousepressed, Vector2 &mousepos, std::string &data, int stackIndex = 1);
 
 private:
   bool editable_ = false;
   Rectangle &parent_;
   Rectangle bounds_;
-  std::array<char, 16> buffer_;
+  std::vector<char> buffer_;
 };

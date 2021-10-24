@@ -5,10 +5,10 @@
 SliderField::SliderField(
   Rectangle &parent,
   Rectangle bounds,
-  std::string const & minLabel,
-  std::string const & maxLabel,
   float minValue,
-  float maxValue)
+  float maxValue,
+  std::string const & minLabel,
+  std::string const & maxLabel)
         : bounds_(bounds)
         , sliderMinText_(minLabel)
         , sliderMaxText_(maxLabel)
