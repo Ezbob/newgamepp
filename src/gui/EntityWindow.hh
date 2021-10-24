@@ -37,18 +37,18 @@ private:
 
   TextField nameField_{windowBoundary_, {70, 35, 120, 25}};
 
-  SliderField sliderVelocityXField_{windowBoundary_, {230, 35, 120, 25}};
-  SliderField sliderVelocityYField_{windowBoundary_, {230, 35, 120, 25}};
 
   TextField positionXField_{windowBoundary_, {70, 35, 120, 25}};
   TextField positionYField_{windowBoundary_, {70, 35, 120, 25}};
 
-  TextField velocityXField_{windowBoundary_, {70, 35, 120, 25}};
-  TextField velocityYField_{windowBoundary_, {70, 35, 120, 25}};
+  TextField velocityXField_{windowBoundary_, {70, 37, 120, 25}};
+  TextField velocityYField_{windowBoundary_, {70, 37, 120, 25}};
+  SliderField sliderVelocityXField_{windowBoundary_, {230, 37, 120, 25}};
+  SliderField sliderVelocityYField_{windowBoundary_, {230, 37, 120, 25}};
+
 
   void drawEntity(entt::entity &entity);
 
-  //void findEntity();
 public:
 
   EntityWindow(entt::registry &);

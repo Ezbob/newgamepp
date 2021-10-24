@@ -3,6 +3,7 @@
 #include <charconv>
 #include "raygui.h"
 
+
 TextField::TextField(Rectangle &parent, Rectangle bounds)
   : parent_(parent)
   , bounds_(bounds)
@@ -84,20 +85,13 @@ void TextField::render(bool mousepressed, Vector2 &mousepos, std::string &data, 
         editable_ = false;
       }
     }
-    /*
+
     if (!editable_) {
-      std::copy(buffer_.data(), buffer_.data() + buffer_.size(), data);
+      GuiTextBox(bounds, data.data(), data.size(), editable_);
+    } else {
+      data.copy(buffer_.data(), buffer_.size());
+      GuiTextBox(bounds, buffer_.data(), buffer_.size(), editable_);
+
+      data = std::string(buffer_.data());
     }
-    */
-    GuiTextBox(bounds, data.data(), data.size(), false);
-    /*
-    if ( editable_ ) {
-        int value = 0;
-        auto [ptr, ec] = std::from_chars(buffer_.data(), buffer_.data() + buffer_.size(), value);
-        if (ec == std::errc())
-        {
-            data = value;
-        }
-    }
-    */
 }
