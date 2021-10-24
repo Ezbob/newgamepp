@@ -27,9 +27,10 @@ private:
     28.f
   };
 
+  Vector2 mousepos_;
+
   bool drawWindow_ = true;
   bool isDragging_ = false;
-  Vector2 mousepos_;
   bool mousepressed_ = false;
 
   entt::registry &registry_;
@@ -41,11 +42,11 @@ private:
       SliderField{windowBoundary_, Rectangle{230, 35, 120, 25}}
   };
 
-  TextField positionXField_ = TextField{windowBoundary_, Rectangle{70, 35, 120, 25}};
-  TextField positionYField_ = TextField{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  TextField positionXField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  TextField positionYField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
 
-  TextField velocityXField_ = TextField{windowBoundary_, Rectangle{70, 35, 120, 25}};
-  TextField velocityYField_ = TextField{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  TextField velocityXField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
+  TextField velocityYField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
 
   void drawEntity();
 public:
