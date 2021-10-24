@@ -38,31 +38,32 @@ void EntityWindow::drawEntity() {
   }
 }
 
+void EntityWindow::findEntity() {
+  auto view = registry_.view<Position, Dimensions>();
+
+  for (auto ent : view) {
+    auto const &pos = view.get<Position>(ent);
+    auto const &dim = view.get<Dimensions>(ent);
+    Rectangle entityBox {
+      (float)(pos.x),
+      (float)(pos.y),
+      (float)(dim.w),
+      (float)(dim.h)
+    };
+    if (CheckCollisionPointRec(mousepos_, entityBox)) {
+      selected_ = ent;
+      break;
+    }
+  }
+}
+
 void EntityWindow::doGui() {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
-  if (mousepressed_) {
-    auto view = registry_.view<Position, Dimensions>();
-
-    for (auto ent : view) {
-      auto const &pos = view.get<Position>(ent);
-      auto const &dim = view.get<Dimensions>(ent);
-      Rectangle entityBox {
-        (float)(pos.x),
-        (float)(pos.y),
-        (float)(dim.w),
-        (float)(dim.h)
-      };
-      if (CheckCollisionPointRec(mousepos_, entityBox)) {
-        selected_ = ent;
-        break;
-      }
-    }
-  }
-
   if (drawWindow_ && selected_.has_value()) {
     if (GuiWindowBox(windowBoundary_, "Entity Selected")) {
+      // click on close window
       selected_ = std::nullopt;
     } else {
       drawEntity();
@@ -79,6 +80,8 @@ void EntityWindow::doGui() {
     if (CheckCollisionPointRec(mousepos_, header_)) {
       isDragging_ = true;
     }
+
+    findEntity();
   }
 
   if (IsMouseButtonUp(0)) {

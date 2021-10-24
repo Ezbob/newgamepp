@@ -49,6 +49,8 @@ private:
   TextField velocityYField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
 
   void drawEntity();
+
+  void findEntity();
 public:
 
   EntityWindow(entt::registry &);
