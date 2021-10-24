@@ -15,3 +15,7 @@ struct Velocity {
     float dx;
     float dy;
 };
+
+struct Name {
+    std::string name;
+};

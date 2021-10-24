@@ -5,72 +5,58 @@
 
 EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
 
-void EntityWindow::drawEntity() {
-  if (selected_) {
-    auto entity = selected_.value();
+void EntityWindow::drawEntity(entt::entity &entity) {
 
-    int i = 0;
-    if (registry_.any_of<Position>(entity)) {
-      auto &pos = registry_.get<Position>(entity);
+  int i = 0;
+  if (registry_.any_of<Position>(entity)) {
+    auto &pos = registry_.get<Position>(entity);
 
-      i++;
-      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Position X: ");
-      positionXField_.render(mousepressed_, mousepos_, pos.x, i);
+    i++;
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Position X: ");
+    positionXField_.render(mousepressed_, mousepos_, pos.x, i);
 
-      i++;
-      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Position Y: ");
-      positionYField_.render(mousepressed_, mousepos_, pos.y, i);
-    }
-
-    if (registry_.any_of<Velocity>(entity)) {
-      auto &vel = registry_.get<Velocity>(entity);
-
-      ++i;
-      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Velocity X: ");
-      velocityXField_.render(mousepressed_,  mousepos_, vel.dx, i);
-      sliderfields_[0].render(mousepressed_, mousepos_, vel.dx, i);
-
-      ++i;
-      GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Velocity Y: ");
-      velocityYField_.render(mousepressed_,  mousepos_, vel.dy, i);
-      sliderfields_[1].render(mousepressed_, mousepos_, vel.dy, i);
-    }
+    i++;
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Position Y: ");
+    positionYField_.render(mousepressed_, mousepos_, pos.y, i);
   }
+
+  if (registry_.any_of<Velocity>(entity)) {
+    auto &vel = registry_.get<Velocity>(entity);
+
+    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 33 * (1 + i), 380, 25.f * (1 + i)}, "Velocity");
+    ++i;
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "X: ");
+    velocityXField_.render(mousepressed_,  mousepos_, vel.dx, i);
+    sliderfields_[0].render(mousepressed_, mousepos_, vel.dx, i);
+
+    ++i;
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Y: ");
+    velocityYField_.render(mousepressed_,  mousepos_, vel.dy, i);
+    sliderfields_[1].render(mousepressed_, mousepos_, vel.dy, i);
+  }
+
+  if (registry_.any_of<Position, Dimensions>(entity)) {
+    auto &pos = registry_.get<Position>(entity);
+    auto &dim = registry_.get<Dimensions>(entity);
+
+    DrawRectangleLinesEx({(float)pos.x - 5.f, (float)pos.y - 5.f, (float)dim.w + 10.f, (float)dim.h + 10.f}, 1, GREEN);
+  }
+
 }
 
-void EntityWindow::findEntity() {
-  auto view = registry_.view<Position, Dimensions>();
-
-  for (auto ent : view) {
-    auto const &pos = view.get<Position>(ent);
-    auto const &dim = view.get<Dimensions>(ent);
-    Rectangle entityBox {
-      (float)(pos.x),
-      (float)(pos.y),
-      (float)(dim.w),
-      (float)(dim.h)
-    };
-    if (CheckCollisionPointRec(mousepos_, entityBox)) {
-      selected_ = ent;
-      break;
-    }
-  }
-}
-
-void EntityWindow::doGui() {
+bool EntityWindow::doGui(entt::entity &entity) {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
-  if (drawWindow_ && selected_.has_value()) {
+  if (drawWindow_) {
     if (GuiWindowBox(windowBoundary_, "Entity Selected")) {
-      // click on close window
-      selected_ = std::nullopt;
-    } else {
-      drawEntity();
+      return false;
     }
+
+    drawEntity(entity);
   }
 
-  if (IsKeyPressed('R') && selected_.has_value()) {
+  if (IsKeyPressed('R')) {
     drawWindow_ = !drawWindow_;
   }
 
@@ -80,8 +66,6 @@ void EntityWindow::doGui() {
     if (CheckCollisionPointRec(mousepos_, header_)) {
       isDragging_ = true;
     }
-
-    findEntity();
   }
 
   if (IsMouseButtonUp(0)) {
@@ -96,4 +80,6 @@ void EntityWindow::doGui() {
       windowBoundary_.y += (mousepos_.y - windowBoundary_.y) - (header_.height / 2);
     }
   }
+
+  return true;
 }

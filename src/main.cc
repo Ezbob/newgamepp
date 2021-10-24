@@ -30,11 +30,10 @@ void update(entt::registry &reg) {
         pos.x += (int) (vel.dx * g_dt);
         pos.y += (int) (vel.dy * g_dt);
     });
-
 }
 
-int main(void)
-{
+int main(void) {
+
     entt::registry registry;
     DebugGUI dgui{registry};
 
@@ -46,11 +45,13 @@ int main(void)
         registry.emplace<Position>(entity, 10, 10);
         registry.emplace<Dimensions>(entity, 20, 20);
         registry.emplace<Velocity>(entity, 0.f, 0.f);
+        registry.emplace<Name>(entity, "Hello");
 
         const auto entity2 = registry.create();
         registry.emplace<Position>(entity2, screenWidth - 30,  screenHeight - 30);
         registry.emplace<Dimensions>(entity2, 20, 20);
         registry.emplace<Velocity>(entity2, 0.f, 0.f);
+        registry.emplace<Name>(entity2, "Yeet");
     }
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
@@ -58,7 +59,6 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Raylib [raylib] example");
 
     SetTargetFPS(60);
-
 
     while (!WindowShouldClose())
     {

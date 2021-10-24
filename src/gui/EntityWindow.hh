@@ -35,8 +35,6 @@ private:
 
   entt::registry &registry_;
 
-  std::optional<entt::entity> selected_;
-
   std::array<SliderField, 2> sliderfields_ = {
       SliderField{windowBoundary_, Rectangle{230, 35, 120, 25}},
       SliderField{windowBoundary_, Rectangle{230, 35, 120, 25}}
@@ -48,13 +46,13 @@ private:
   TextField velocityXField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
   TextField velocityYField_{windowBoundary_, Rectangle{70, 35, 120, 25}};
 
-  void drawEntity();
+  void drawEntity(entt::entity &entity);
 
-  void findEntity();
+  //void findEntity();
 public:
 
   EntityWindow(entt::registry &);
 
-  void doGui();
+  bool doGui(entt::entity &entity);
 
 };
