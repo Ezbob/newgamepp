@@ -2,13 +2,13 @@
 #pragma once
 
 struct Position {
-    int x;
-    int y;
+    float x;
+    float y;
 };
 
 struct Dimensions {
-    int w;
-    int h;
+    float w;
+    float h;
 };
 
 struct Velocity {

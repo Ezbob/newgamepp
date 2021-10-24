@@ -19,7 +19,7 @@ void draw(entt::registry &reg) {
     auto view = reg.view<const Position, const Dimensions>();
 
     view.each([](const auto &pos, const auto &dim) {
-        DrawRectangle(pos.x, pos.y, dim.w, dim.h, WHITE);
+        DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);
     });
 }
 
@@ -27,8 +27,8 @@ void update(entt::registry &reg) {
     auto view = reg.view<Position, const Velocity>();
 
     view.each([](auto &pos, const auto &vel) {
-        pos.x += (int) (vel.dx * g_dt);
-        pos.y += (int) (vel.dy * g_dt);
+        pos.x += (vel.dx * g_dt);
+        pos.y += (vel.dy * g_dt);
     });
 }
 
@@ -42,14 +42,14 @@ int main(void) {
 
     {
         const auto entity = registry.create();
-        registry.emplace<Position>(entity, 10, 10);
-        registry.emplace<Dimensions>(entity, 20, 20);
+        registry.emplace<Position>(entity, 10.f, 10.f);
+        registry.emplace<Dimensions>(entity, 20.f, 20.f);
         registry.emplace<Velocity>(entity, 0.f, 0.f);
         registry.emplace<Name>(entity, "Hello");
 
         const auto entity2 = registry.create();
-        registry.emplace<Position>(entity2, screenWidth - 30,  screenHeight - 30);
-        registry.emplace<Dimensions>(entity2, 20, 20);
+        registry.emplace<Position>(entity2, (float)(screenWidth - 30.f),  (float)(screenHeight - 30.f));
+        registry.emplace<Dimensions>(entity2, 20.f, 20.f);
         registry.emplace<Velocity>(entity2, 0.f, 0.f);
         registry.emplace<Name>(entity2, "Yeet");
     }

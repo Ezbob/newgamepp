@@ -31,13 +31,8 @@ std::optional<entt::entity> DebugGUI::findEntity(entt::registry &registry, Vecto
     for (auto ent : view) {
         auto const &pos = view.get<Position>(ent);
         auto const &dim = view.get<Dimensions>(ent);
-        Rectangle entityBox {
-            (float)(pos.x),
-            (float)(pos.y),
-            (float)(dim.w),
-            (float)(dim.h)
-        };
-        if (CheckCollisionPointRec(mousePos, entityBox)) {
+
+        if (CheckCollisionPointRec(mousePos, {pos.x, pos.y, dim.w, dim.h})) {
             return ent;
         }
     }
