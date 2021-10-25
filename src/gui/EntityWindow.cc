@@ -56,7 +56,7 @@ void EntityWindow::drawEntity(entt::entity &entity) {
 
 }
 
-bool EntityWindow::doGui(entt::entity &entity) {
+bool EntityWindow::render(entt::entity &entity) {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
@@ -66,10 +66,6 @@ bool EntityWindow::doGui(entt::entity &entity) {
     }
 
     drawEntity(entity);
-  }
-
-  if (IsKeyPressed('R')) {
-    drawWindow_ = !drawWindow_;
   }
 
   if (mousepressed_) {

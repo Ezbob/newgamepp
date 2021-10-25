@@ -21,6 +21,7 @@ target_sources(main
         src/gui/fields/TextField.cc
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
+        src/gui/EntityChooser.cc
 )
 target_link_libraries(main
     PRIVATE

@@ -53,6 +53,6 @@ public:
 
   EntityWindow(entt::registry &);
 
-  bool doGui(entt::entity &entity);
+  bool render(entt::entity &entity);
 
 };

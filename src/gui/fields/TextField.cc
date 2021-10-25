@@ -90,6 +90,7 @@ void TextField::render(bool mousepressed, Vector2 &mousepos, std::string &data, 
       GuiTextBox(bounds, data.data(), data.size(), editable_);
     } else {
       data.copy(buffer_.data(), buffer_.size());
+
       GuiTextBox(bounds, buffer_.data(), buffer_.size(), editable_);
 
       data = std::string(buffer_.data());
