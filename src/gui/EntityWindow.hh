@@ -27,9 +27,8 @@ private:
     28.f
   };
 
-  Vector2 mousepos_;
+  Vector2 mousepos_ = {0.f, 0.f};
 
-  bool drawWindow_ = true;
   bool isDragging_ = false;
   bool mousepressed_ = false;
 
@@ -51,7 +50,7 @@ private:
 
 public:
 
-  EntityWindow(entt::registry &);
+  explicit EntityWindow(entt::registry &);
 
   bool render(entt::entity &entity);
 

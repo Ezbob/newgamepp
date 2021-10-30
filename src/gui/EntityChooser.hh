@@ -10,7 +10,7 @@
 class EntityChooser {
 
 public:
-  EntityChooser(entt::registry &);
+  explicit EntityChooser(entt::registry &);
   ~EntityChooser() = default;
 
   bool render();
@@ -31,7 +31,6 @@ private:
   };
 
   int selectedIndex_ = 0;
-  bool drawWindow_ = false;
   bool mousepressed_ = false;
   bool isDragging_ = false;
   bool editable_ = false;
@@ -45,9 +44,9 @@ private:
     edit_mode
   } mode_ = EntityMode::no_render;
 
-  Vector2 mousepos_;
+  Vector2 mousepos_ = {};
 
   entt::registry &registry_;
 
-  std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos);
+  static std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos);
 };

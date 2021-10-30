@@ -13,20 +13,21 @@ void EntityWindow::drawEntity(entt::entity &entity) {
     auto &name = registry_.get<Components::Name>(entity);
 
     i++;
-    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Name: ");
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "Name: ");
     nameField_.render(mousepressed_, mousepos_, name.name, i);
   }
 
   if (registry_.any_of<Components::Position>(entity)) {
     auto &pos = registry_.get<Components::Position>(entity);
 
-    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 33.f * (1 + i), 380, 70.f}, "Position");
+    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 33.f * (1.f + static_cast<float>(i)), 380, 70.f},
+                "Position");
     i++;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 35.f * i, 120, 25}, "X: ");
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "X: ");
     positionXField_.render(mousepressed_, mousepos_, pos.x, i);
 
     i++;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 35.f * i, 120, 25}, "Y: ");
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "Y: ");
     positionYField_.render(mousepressed_, mousepos_, pos.y, i);
   }
 
@@ -35,15 +36,16 @@ void EntityWindow::drawEntity(entt::entity &entity) {
 
     float spacing = (i > 0) ? 12.f : 0.f;
 
-    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + spacing + 33.f * (1 + i), 380, 74.f}, "Velocity");
+    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + spacing + 33.f * (1.f + static_cast<float>(i)), 380, 74.f},
+                "Velocity");
     ++i;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * i, 120, 25}, "X: ");
-    velocityXField_.render(mousepressed_,  mousepos_, vel.dx, i);
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * static_cast<float>(i), 120, 25}, "X: ");
+    velocityXField_.render(mousepressed_, mousepos_, vel.dx, i);
     sliderVelocityXField_.render(mousepressed_, mousepos_, vel.dx, i);
 
     ++i;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * i, 120, 25}, "Y: ");
-    velocityYField_.render(mousepressed_,  mousepos_, vel.dy, i);
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * static_cast<float>(i), 120, 25}, "Y: ");
+    velocityYField_.render(mousepressed_, mousepos_, vel.dy, i);
     sliderVelocityYField_.render(mousepressed_, mousepos_, vel.dy, i);
   }
 
@@ -51,22 +53,20 @@ void EntityWindow::drawEntity(entt::entity &entity) {
     auto &pos = registry_.get<Components::Position>(entity);
     auto &dim = registry_.get<Components::Dimensions>(entity);
 
-    DrawRectangleLinesEx({(float)pos.x - 5.f, (float)pos.y - 5.f, (float)dim.w + 10.f, (float)dim.h + 10.f}, 1, GREEN);
+    DrawRectangleLinesEx({(float) pos.x - 5.f, (float) pos.y - 5.f, (float) dim.w + 10.f, (float) dim.h + 10.f}, 1,
+                         GREEN);
   }
-
 }
 
 bool EntityWindow::render(entt::entity &entity) {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
-  if (drawWindow_) {
-    if (GuiWindowBox(windowBoundary_, "Entity Selected")) {
-      return false;
-    }
-
-    drawEntity(entity);
+  if (GuiWindowBox(windowBoundary_, "Entity Selected")) {
+    return false;
   }
+
+  drawEntity(entity);
 
   if (mousepressed_) {
     header_.x = windowBoundary_.x;

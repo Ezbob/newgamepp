@@ -2,10 +2,16 @@
 #include "DebugGUI.hh"
 #include "raylib.h"
 
-DebugGUI::DebugGUI(entt::registry &r) : entityChooser_(r), registry_(r) {}
+DebugGUI::DebugGUI(entt::registry &r) : entityChooser_(r) {}
 
 void DebugGUI::doGui() {
 
-    entityChooser_.render();
+  if (IsKeyPressed('R')) {
+    drawWindow_ = !drawWindow_;
+  }
+  if (drawWindow_) {
+    if ( !entityChooser_.render() ) {
+      drawWindow_ = false;
+    }
+  }
 }
-

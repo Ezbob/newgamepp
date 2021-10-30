@@ -10,38 +10,32 @@ bool EntityChooser::render() {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
-  if (drawWindow_) {
-    if ( GuiWindowBox(windowBoundary_, "Entity selector") ) {
-      drawWindow_ = false;
-    }
-
-    text_.clear();
-    auto const view = registry_.view<Components::Name>();
-    for (auto const &e : view) {
-      Components::Name const &name = view.get<Components::Name>(e);
-      text_.push_back(name.name.c_str());
-    }
-
-    if (GuiDropdownBoxEx({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26},
-      text_.data(), text_.size(), &selectedIndex_, editable_) ) {
-      editable_ = !editable_;
-    }
-
-    if (GuiButton({windowBoundary_.x + 10, windowBoundary_.y + (windowBoundary_.height - 36.f), 100, 26}, "Edit entity")) {
-      mode_ = EntityMode::edit_mode;
-      selected_ = view[selectedIndex_];
-    }
-
-    if (mode_ == EntityMode::edit_mode && selected_) {
-      if (!entityWindow_.render(selected_.value())) {
-        mode_ = EntityMode::no_render;
-        selected_.reset();
-      }
-    }
+  if (bool isClicked = GuiWindowBox(windowBoundary_, "Entity Debugger"); isClicked) {
+    return false;
   }
 
-  if (IsKeyPressed('R')) {
-    drawWindow_ = !drawWindow_;
+  text_.clear();
+  auto const view = registry_.view<Components::Name>();
+  for (auto const &e : view) {
+    Components::Name const &name = view.get<Components::Name>(e);
+    text_.push_back(name.name.c_str());
+  }
+
+  if (GuiDropdownBoxEx({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26},
+    text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_) ) {
+    editable_ = !editable_;
+  }
+
+  if (GuiButton({windowBoundary_.x + 10, windowBoundary_.y + (windowBoundary_.height - 36.f), 100, 26}, "Edit entity")) {
+    mode_ = EntityMode::edit_mode;
+    selected_ = view[selectedIndex_];
+  }
+
+  if (mode_ == EntityMode::edit_mode && selected_) {
+    if (!entityWindow_.render(selected_.value())) {
+      mode_ = EntityMode::no_render;
+      selected_.reset();
+    }
   }
 
   if (mousepressed_) {
@@ -69,7 +63,6 @@ bool EntityChooser::render() {
       windowBoundary_.y += (mousepos_.y - windowBoundary_.y) - (header_.height / 2);
     }
   }
-
 
   return true;
 }
