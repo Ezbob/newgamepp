@@ -2,14 +2,8 @@
 
 #define RAYGUI_IMPLEMENTATION
 
-#include <stdio.h>
-#include <stdbool.h>
 #include "entt/entity/registry.hpp"
-#include <cmath>
 #include "raygui.h"
-#include "fmt/core.h"
-#include <optional>
-#include <array>
 #include "Components.hh"
 #include "gui/DebugGUI.hh"
 
@@ -32,7 +26,7 @@ void update(entt::registry &reg) {
     });
 }
 
-int main(void) {
+int main() {
 
     entt::registry registry;
     DebugGUI dgui{registry};
