@@ -36,7 +36,6 @@ private:
 
   TextField nameField_{windowBoundary_, {70, 35, 120, 25}};
 
-
   TextField positionXField_{windowBoundary_, {70, 35, 120, 25}};
   TextField positionYField_{windowBoundary_, {70, 35, 120, 25}};
 

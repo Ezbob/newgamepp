@@ -21,12 +21,14 @@ bool EntityChooser::render() {
     text_.push_back(name.name.c_str());
   }
 
-  if (GuiDropdownBoxEx({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26},
+  GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26}, "Choose entity:");
+  if (GuiDropdownBoxEx({windowBoundary_.x + 120, windowBoundary_.y + 30, 100, 26},
     text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_) ) {
     editable_ = !editable_;
   }
 
-  if (GuiButton({windowBoundary_.x + 10, windowBoundary_.y + (windowBoundary_.height - 36.f), 100, 26}, "Edit entity")) {
+  GuiLine({windowBoundary_.x + 5,  windowBoundary_.y + (windowBoundary_.height - 46.f), windowBoundary_.width - 10, 0 }, "Controls:");
+  if (GuiButton({windowBoundary_.x + 10, windowBoundary_.y + (windowBoundary_.height - 35.f), 100, 26}, "Edit entity") && mode_ == EntityMode::no_render) {
     mode_ = EntityMode::edit_mode;
     selected_ = view[selectedIndex_];
   }
