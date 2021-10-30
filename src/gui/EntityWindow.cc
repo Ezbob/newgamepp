@@ -9,16 +9,16 @@ void EntityWindow::drawEntity(entt::entity &entity) {
 
   int i = 0;
 
-  if (registry_.any_of<Name>(entity)) {
-    auto &name = registry_.get<Name>(entity);
+  if (registry_.any_of<Components::Name>(entity)) {
+    auto &name = registry_.get<Components::Name>(entity);
 
     i++;
     GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 35 * i, 120, 25}, "Name: ");
     nameField_.render(mousepressed_, mousepos_, name.name, i);
   }
 
-  if (registry_.any_of<Position>(entity)) {
-    auto &pos = registry_.get<Position>(entity);
+  if (registry_.any_of<Components::Position>(entity)) {
+    auto &pos = registry_.get<Components::Position>(entity);
 
     GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 33.f * (1 + i), 380, 70.f}, "Position");
     i++;
@@ -30,8 +30,8 @@ void EntityWindow::drawEntity(entt::entity &entity) {
     positionYField_.render(mousepressed_, mousepos_, pos.y, i);
   }
 
-  if (registry_.any_of<Velocity>(entity)) {
-    auto &vel = registry_.get<Velocity>(entity);
+  if (registry_.any_of<Components::Velocity>(entity)) {
+    auto &vel = registry_.get<Components::Velocity>(entity);
 
     float spacing = (i > 0) ? 12.f : 0.f;
 
@@ -47,9 +47,9 @@ void EntityWindow::drawEntity(entt::entity &entity) {
     sliderVelocityYField_.render(mousepressed_, mousepos_, vel.dy, i);
   }
 
-  if (registry_.any_of<Position, Dimensions>(entity)) {
-    auto &pos = registry_.get<Position>(entity);
-    auto &dim = registry_.get<Dimensions>(entity);
+  if (registry_.any_of<Components::Position, Components::Dimensions>(entity)) {
+    auto &pos = registry_.get<Components::Position>(entity);
+    auto &dim = registry_.get<Components::Dimensions>(entity);
 
     DrawRectangleLinesEx({(float)pos.x - 5.f, (float)pos.y - 5.f, (float)dim.w + 10.f, (float)dim.h + 10.f}, 1, GREEN);
   }

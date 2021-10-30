@@ -1,21 +1,25 @@
 
 #pragma once
 
-struct Position {
-    float x;
-    float y;
-};
+namespace Components {
 
-struct Dimensions {
-    float w;
-    float h;
-};
+    struct Position {
+        float x;
+        float y;
+    };
 
-struct Velocity {
-    float dx;
-    float dy;
-};
+    struct Dimensions {
+        float w;
+        float h;
+    };
 
-struct Name {
-    std::string name;
+    struct Velocity {
+        float dx;
+        float dy;
+    };
+
+    struct Name {
+        std::string name;
+    };
+
 };

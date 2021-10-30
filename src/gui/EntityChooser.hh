@@ -5,6 +5,7 @@
 #include "raylib.h"
 #include <optional>
 #include "EntityWindow.hh"
+#include <vector>
 
 class EntityChooser {
 
@@ -29,8 +30,7 @@ private:
     28.f
   };
 
-  int a = 0;
-
+  int selectedIndex_ = 0;
   bool drawWindow_ = false;
   bool mousepressed_ = false;
   bool isDragging_ = false;
@@ -38,6 +38,12 @@ private:
 
   EntityWindow entityWindow_;
   std::optional<entt::entity> selected_;
+  std::vector<const char *> text_;
+
+  enum class EntityMode {
+    no_render,
+    edit_mode
+  } mode_ = EntityMode::no_render;
 
   Vector2 mousepos_;
 

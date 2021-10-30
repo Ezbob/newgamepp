@@ -15,23 +15,28 @@ bool EntityChooser::render() {
       drawWindow_ = false;
     }
 
-    if ( GuiDropdownBox({windowBoundary_.x + 10, windowBoundary_.y + 26, 100, 26}, "ONE;TWO;THREE", &a, editable_) ) {
+    text_.clear();
+    auto const view = registry_.view<Components::Name>();
+    for (auto const &e : view) {
+      Components::Name const &name = view.get<Components::Name>(e);
+      text_.push_back(name.name.c_str());
+    }
+
+    if (GuiDropdownBoxEx({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26},
+      text_.data(), text_.size(), &selectedIndex_, editable_) ) {
       editable_ = !editable_;
     }
-  }
 
-  if (mousepressed_) {
-    Vector2 mousepos = GetMousePosition();
-    auto entityFound = findEntity(registry_, mousepos);
-    if (entityFound) {
-      selected_ = entityFound;
+    if (GuiButton({windowBoundary_.x + 10, windowBoundary_.y + (windowBoundary_.height - 36.f), 100, 26}, "Edit entity")) {
+      mode_ = EntityMode::edit_mode;
+      selected_ = view[selectedIndex_];
     }
-  }
 
-  if (selected_) {
-    bool isNotClosed = entityWindow_.render(selected_.value());
-    if (!isNotClosed) {
-        selected_ = std::nullopt;
+    if (mode_ == EntityMode::edit_mode && selected_) {
+      if (!entityWindow_.render(selected_.value())) {
+        mode_ = EntityMode::no_render;
+        selected_.reset();
+      }
     }
   }
 
@@ -44,6 +49,11 @@ bool EntityChooser::render() {
     header_.y = windowBoundary_.y;
     if (CheckCollisionPointRec(mousepos_, header_)) {
       isDragging_ = true;
+    }
+    auto const &entity = findEntity(registry_, mousepos_);
+    if (entity) {
+      mode_ = EntityMode::edit_mode;
+      selected_ = entity;
     }
   }
 
@@ -60,15 +70,16 @@ bool EntityChooser::render() {
     }
   }
 
+
   return true;
 }
 
 std::optional<entt::entity> EntityChooser::findEntity(entt::registry &registry, Vector2 &mousePos) {
-    auto view = registry.view<Position, Dimensions>();
+    auto view = registry.view<Components::Position, Components::Dimensions>();
 
     for (auto ent : view) {
-        auto const &pos = view.get<Position>(ent);
-        auto const &dim = view.get<Dimensions>(ent);
+        auto const &pos = view.get<Components::Position>(ent);
+        auto const &dim = view.get<Components::Dimensions>(ent);
 
         if (CheckCollisionPointRec(mousePos, {pos.x, pos.y, dim.w, dim.h})) {
             return ent;
