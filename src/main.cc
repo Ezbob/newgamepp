@@ -2,75 +2,94 @@
 
 #define RAYGUI_IMPLEMENTATION
 
-#include "entt/entity/registry.hpp"
-#include "raygui.h"
 #include "Components.hh"
+#include "entt/entity/registry.hpp"
 #include "gui/DebugGUI.hh"
+#include "raygui.h"
 
-float g_dt = 0.f;
+
 
 void draw(entt::registry &reg) {
-    auto view = reg.view<const Components::Position, const Components::Dimensions>();
+  auto view = reg.view<const Components::Position, const Components::Dimensions>();
 
-    view.each([](const auto &pos, const auto &dim) {
-        DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);
-    });
+  view.each([](const auto &pos, const auto &dim) {
+    DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);
+  });
 }
 
-void update(entt::registry &reg) {
+void update(entt::registry &reg, float dt, const int screenWidth, const int screenHeight) {
+  {
     auto view = reg.view<Components::Position, const Components::Velocity>();
 
-    view.each([](auto &pos, const auto &vel) {
-        pos.x += (vel.dx * g_dt);
-        pos.y += (vel.dy * g_dt);
+    view.each([dt](auto &pos, const auto &vel) {
+      pos.x += (vel.dx * dt);
+      pos.y += (vel.dy * dt);
     });
+  }
+  {
+    // Clamping to screen boundaries with padding
+    auto view = reg.view<Components::Position, const Components::Dimensions, const Components::ScreenClamp>();
+
+    view.each([screenWidth, screenHeight](Components::Position &pos, const Components::Dimensions &dim, const Components::ScreenClamp &screenCollision) {
+      if (pos.x <= screenCollision.left) {
+        pos.x = screenCollision.left;
+      }
+
+      if (pos.x + dim.w >= static_cast<float>(screenWidth) - screenCollision.right) {
+        pos.x = (static_cast<float>(screenWidth) - dim.w - screenCollision.right);
+      }
+
+      if (pos.y <= screenCollision.top) {
+        pos.y = screenCollision.top;
+      }
+
+      if (pos.y + dim.h >= static_cast<float>(screenHeight) - screenCollision.bottom) {
+        pos.y = (static_cast<float>(screenHeight) - dim.h - screenCollision.bottom);
+      }
+    });
+  }
 }
 
 int main() {
+  const int screenWidth = 900;
+  const int screenHeight = 650;
+  const auto title = "Raylib example";
 
-    entt::registry registry;
-    DebugGUI dgui{registry};
+  entt::registry registry;
+  DebugGUI dgui{registry};
 
-    const int screenWidth = 900;
-    const int screenHeight = 650;
+  auto whiteBlockInitializer = [&registry](float xpos, float ypos, float width, float height, std::string name) {
+    const auto entity = registry.create();
+    registry.emplace<Components::Position>(entity, xpos, ypos);
+    registry.emplace<Components::Dimensions>(entity, width, height);
+    registry.emplace<Components::Velocity>(entity, 0.f, 0.f);
+    registry.emplace<Components::Name>(entity, std::move(name));
+    registry.emplace<Components::ScreenClamp>(entity);
+  };
 
-    {
-        const auto entity = registry.create();
-        registry.emplace<Components::Position>(entity, 10.f, 10.f);
-        registry.emplace<Components::Dimensions>(entity, 20.f, 20.f);
-        registry.emplace<Components::Velocity>(entity, 0.f, 0.f);
-        registry.emplace<Components::Name>(entity, "Hello");
+  whiteBlockInitializer(10.f, 10.f, 20.f, 20.f, "Hello");
+  whiteBlockInitializer((float) (screenWidth - 30.f), (float) (screenHeight - 30.f), 20.f, 20.f, "Yeet");
 
-        const auto entity2 = registry.create();
-        registry.emplace<Components::Position>(entity2, (float)(screenWidth - 30.f),  (float)(screenHeight - 30.f));
-        registry.emplace<Components::Dimensions>(entity2, 20.f, 20.f);
-        registry.emplace<Components::Velocity>(entity2, 0.f, 0.f);
-        registry.emplace<Components::Name>(entity2, "Yeet");
-    }
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+  InitWindow(screenWidth, screenHeight, title);
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
-    SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(screenWidth, screenHeight, "Raylib [raylib] example");
+  SetTargetFPS(60);
 
-    SetTargetFPS(60);
+  while (!WindowShouldClose()) {
+    float dt = GetFrameTime();
 
-    while (!WindowShouldClose())
-    {
-        g_dt = GetFrameTime();
+    update(registry, dt, screenWidth, screenHeight);
 
-        update(registry);
+    BeginDrawing();
 
+    ClearBackground(BLACK);
 
-        BeginDrawing();
+    draw(registry);
+    dgui.doGui();
 
-        ClearBackground(BLACK);
+    EndDrawing();
+  }
 
-        draw(registry);
-        dgui.doGui();
-
-        EndDrawing();
-    }
-
-    CloseWindow();
-    return 0;
+  CloseWindow();
+  return 0;
 }

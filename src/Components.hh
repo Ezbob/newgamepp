@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace Components {
 
     struct Position {
@@ -20,6 +22,13 @@ namespace Components {
 
     struct Name {
         std::string name;
+    };
+
+    struct ScreenClamp {
+      float left = 0.2f;
+      float right = 0.2f;
+      float bottom = 0.2f;
+      float top = 0.2f;
     };
 
 };
