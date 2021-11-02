@@ -7,11 +7,11 @@
 #include "EntityWindow.hh"
 #include <vector>
 
-class EntityChooser {
+class DebugMenu {
 
 public:
-  explicit EntityChooser(entt::registry &);
-  ~EntityChooser() = default;
+  explicit DebugMenu(entt::registry &);
+  ~DebugMenu() = default;
 
   bool render();
 
@@ -30,23 +30,16 @@ private:
     28.f
   };
 
-  int selectedIndex_ = 0;
   bool mousepressed_ = false;
   bool isDragging_ = false;
-  bool editable_ = false;
 
   EntityWindow entityWindow_;
-  std::optional<entt::entity> selected_;
-  std::vector<const char *> text_;
 
   enum class EntityMode {
     no_render,
-    edit_mode
+    entity_edit_mode
   } mode_ = EntityMode::no_render;
 
   Vector2 mousepos_ = {};
 
-  entt::registry &registry_;
-
-  static std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos);
 };

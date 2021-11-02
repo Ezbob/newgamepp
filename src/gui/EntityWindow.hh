@@ -29,10 +29,14 @@ private:
 
   Vector2 mousepos_ = {0.f, 0.f};
 
+  int selectedIndex_ = 0;
+  std::vector<const char *> text_;
+  bool editable_ = false;
   bool isDragging_ = false;
   bool mousepressed_ = false;
 
   entt::registry &registry_;
+  std::optional<entt::entity> selected_;
 
   TextField nameField_{windowBoundary_, {70, 35, 120, 25}};
 
@@ -44,13 +48,13 @@ private:
   SliderField sliderVelocityXField_{windowBoundary_, {230, 37, 120, 25}};
   SliderField sliderVelocityYField_{windowBoundary_, {230, 37, 120, 25}};
 
-
-  void drawEntity(entt::entity &entity);
+  std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos) const;
+  void drawEntity();
 
 public:
 
   explicit EntityWindow(entt::registry &);
 
-  bool render(entt::entity &entity);
+  bool render();
 
 };

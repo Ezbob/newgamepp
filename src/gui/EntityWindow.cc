@@ -5,9 +5,15 @@
 
 EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
 
-void EntityWindow::drawEntity(entt::entity &entity) {
+void EntityWindow::drawEntity() {
 
-  int i = 0;
+  if (!selected_) {
+    return;
+  }
+
+  auto entity = selected_.value();
+
+  int i = 1;
 
   if (registry_.any_of<Components::Name>(entity)) {
     auto &name = registry_.get<Components::Name>(entity);
@@ -58,7 +64,7 @@ void EntityWindow::drawEntity(entt::entity &entity) {
   }
 }
 
-bool EntityWindow::render(entt::entity &entity) {
+bool EntityWindow::render() {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
@@ -66,7 +72,29 @@ bool EntityWindow::render(entt::entity &entity) {
     return false;
   }
 
-  drawEntity(entity);
+  text_.clear();
+  auto const view = registry_.view<Components::Name>();
+
+  int found_index = 0;
+  for (auto const &e : view) {
+    Components::Name const &name = view.get<Components::Name>(e);
+    text_.push_back(name.name.c_str());
+    if (selected_ && registry_.any_of<Components::Name>(selected_.value())) {
+      auto const &otherName = registry_.get<Components::Name>(selected_.value());
+      if (name.name == otherName.name) {
+         selectedIndex_ = found_index;
+      }
+    }
+    found_index++;
+  }
+
+  GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26}, "Choose entity:");
+  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 110.f, windowBoundary_.y + 30, 100, 26},
+                       text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_) ) {
+    editable_ = !editable_;
+  }
+
+  selected_ = view[selectedIndex_];
 
   if (mousepressed_) {
     header_.x = windowBoundary_.x;
@@ -74,7 +102,13 @@ bool EntityWindow::render(entt::entity &entity) {
     if (CheckCollisionPointRec(mousepos_, header_)) {
       isDragging_ = true;
     }
+    auto const &entity = findEntity(registry_, mousepos_);
+    if (entity) {
+      selected_ = entity;
+    }
   }
+
+  drawEntity();
 
   if (IsMouseButtonUp(0)) {
     isDragging_ = false;
@@ -90,4 +124,18 @@ bool EntityWindow::render(entt::entity &entity) {
   }
 
   return true;
+}
+
+std::optional<entt::entity> EntityWindow::findEntity(entt::registry &registry, Vector2 &mousePos) const {
+  auto view = registry.view<Components::Position, Components::Dimensions>();
+
+  for (auto ent : view) {
+    auto const &pos = view.get<Components::Position>(ent);
+    auto const &dim = view.get<Components::Dimensions>(ent);
+
+    if (CheckCollisionPointRec(mousePos, {pos.x, pos.y, dim.w, dim.h})) {
+      return ent;
+    }
+  }
+  return std::nullopt;
 }

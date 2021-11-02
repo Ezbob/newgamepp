@@ -6,7 +6,7 @@
 #include "entt/entity/registry.hpp"
 #include "gui/DebugGUI.hh"
 #include "raygui.h"
-
+#include "Constants.hh"
 
 
 void draw(entt::registry &reg) {
@@ -17,7 +17,7 @@ void draw(entt::registry &reg) {
   });
 }
 
-void update(entt::registry &reg, float dt, const int screenWidth, const int screenHeight) {
+void update(entt::registry &reg, float dt) {
   {
     auto view = reg.view<Components::Position, const Components::Velocity>();
 
@@ -30,29 +30,27 @@ void update(entt::registry &reg, float dt, const int screenWidth, const int scre
     // Clamping to screen boundaries with padding
     auto view = reg.view<Components::Position, const Components::Dimensions, const Components::ScreenClamp>();
 
-    view.each([screenWidth, screenHeight](Components::Position &pos, const Components::Dimensions &dim, const Components::ScreenClamp &screenCollision) {
+    view.each([](Components::Position &pos, const Components::Dimensions &dim, const Components::ScreenClamp &screenCollision) {
       if (pos.x <= screenCollision.left) {
         pos.x = screenCollision.left;
       }
 
-      if (pos.x + dim.w >= static_cast<float>(screenWidth) - screenCollision.right) {
-        pos.x = (static_cast<float>(screenWidth) - dim.w - screenCollision.right);
+      if (pos.x + dim.w >= Constants::screenWidth - screenCollision.right) {
+        pos.x = Constants::screenWidth - dim.w - screenCollision.right;
       }
 
       if (pos.y <= screenCollision.top) {
         pos.y = screenCollision.top;
       }
 
-      if (pos.y + dim.h >= static_cast<float>(screenHeight) - screenCollision.bottom) {
-        pos.y = (static_cast<float>(screenHeight) - dim.h - screenCollision.bottom);
+      if (pos.y + dim.h >= Constants::screenHeight - screenCollision.bottom) {
+        pos.y = Constants::screenHeight - dim.h - screenCollision.bottom;
       }
     });
   }
 }
 
 int main() {
-  const int screenWidth = 900;
-  const int screenHeight = 650;
   const auto title = "Raylib example";
 
   entt::registry registry;
@@ -68,17 +66,17 @@ int main() {
   };
 
   whiteBlockInitializer(10.f, 10.f, 20.f, 20.f, "Hello");
-  whiteBlockInitializer((float) (screenWidth - 30.f), (float) (screenHeight - 30.f), 20.f, 20.f, "Yeet");
+  whiteBlockInitializer(Constants::screenWidth - 30.f, Constants::screenHeight - 30.f, 20.f, 20.f, "Yeet");
 
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
-  InitWindow(screenWidth, screenHeight, title);
+  InitWindow((int) Constants::screenWidth,(int) Constants::screenHeight, title);
 
   SetTargetFPS(60);
 
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();
 
-    update(registry, dt, screenWidth, screenHeight);
+    update(registry, dt);
 
     BeginDrawing();
 

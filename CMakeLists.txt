@@ -13,7 +13,7 @@ target_include_directories(raygui
     INTERFACE ${CMAKE_CURRENT_LIST_DIR}/libs/raygui/src/
 )
 
-add_executable(main "")
+add_executable(main "" src/Constants.hh)
 target_sources(main
     PRIVATE
         src/Main.cc
@@ -21,7 +21,7 @@ target_sources(main
         src/gui/fields/TextField.cc
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
-        src/gui/EntityChooser.cc
+        src/gui/DebugMenu.cc
 )
 target_link_libraries(main
     PRIVATE
