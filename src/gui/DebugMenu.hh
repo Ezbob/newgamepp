@@ -17,21 +17,13 @@ public:
 
 private:
   Rectangle windowBoundary_ {
-    50.f,
+    0.f,
+    Constants::screenHeight,
     200.f,
-    300.f,
     200.f
   };
 
-  Rectangle header_ {
-    0.f,
-    0.f,
-    90.f,
-    28.f
-  };
-
   bool mousepressed_ = false;
-  bool isDragging_ = false;
 
   EntityWindow entityWindow_;
 

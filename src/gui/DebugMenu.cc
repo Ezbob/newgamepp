@@ -9,7 +9,7 @@ bool DebugMenu::render() {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
-  if (bool isClicked = GuiWindowBox(windowBoundary_, "Menu Debugger"); isClicked) {
+  if (bool isClicked = GuiWindowBox(windowBoundary_, "Debug menu"); isClicked) {
     return false;
   }
 
@@ -20,27 +20,6 @@ bool DebugMenu::render() {
   if (mode_ == EntityMode::entity_edit_mode) {
     if (!entityWindow_.render()) {
       mode_ = EntityMode::no_render;
-    }
-  }
-
-  if (mousepressed_) {
-    header_.x = windowBoundary_.x;
-    header_.y = windowBoundary_.y;
-    if (CheckCollisionPointRec(mousepos_, header_)) {
-      isDragging_ = true;
-    }
-  }
-
-  if (IsMouseButtonUp(0)) {
-    isDragging_ = false;
-  }
-
-  if (IsMouseButtonDown(0)) {
-    header_.x = windowBoundary_.x;
-    header_.y = windowBoundary_.y;
-    if (isDragging_) {
-      windowBoundary_.x += (mousepos_.x - windowBoundary_.x) - (header_.width / 2);
-      windowBoundary_.y += (mousepos_.y - windowBoundary_.y) - (header_.height / 2);
     }
   }
 

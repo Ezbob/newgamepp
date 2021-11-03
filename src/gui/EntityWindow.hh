@@ -9,14 +9,14 @@
 #include "fields/TextField.hh"
 #include "entt/entity/registry.hpp"
 #include "Components.hh"
-
+#include "Constants.hh"
 
 class EntityWindow {
 private:
   Rectangle windowBoundary_ {
-    10.f,
-    200.f,
-    400.f,
+    Constants::screenWidth,
+    0.f,
+    600.f,
     400.f
   };
 
@@ -32,21 +32,18 @@ private:
   int selectedIndex_ = 0;
   std::vector<const char *> text_;
   bool editable_ = false;
-  bool isDragging_ = false;
   bool mousepressed_ = false;
 
   entt::registry &registry_;
   std::optional<entt::entity> selected_;
 
-  TextField nameField_{windowBoundary_, {70, 35, 120, 25}};
+  bool nameFieldEditable_ = false;
 
-  TextField positionXField_{windowBoundary_, {70, 35, 120, 25}};
-  TextField positionYField_{windowBoundary_, {70, 35, 120, 25}};
+  bool velocityXFieldEditable_ = false;
+  bool velocityYFieldEditable_ = false;
 
-  TextField velocityXField_{windowBoundary_, {70, 37, 120, 25}};
-  TextField velocityYField_{windowBoundary_, {70, 37, 120, 25}};
-  SliderField sliderVelocityXField_{windowBoundary_, {230, 37, 120, 25}};
-  SliderField sliderVelocityYField_{windowBoundary_, {230, 37, 120, 25}};
+  bool positionXFieldEditable_ = false;
+  bool positionYFieldEditable_ = false;
 
   std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos) const;
   void drawEntity();

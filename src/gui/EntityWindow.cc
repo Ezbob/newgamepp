@@ -1,7 +1,59 @@
 
 #include "EntityWindow.hh"
+#include <charconv>
 
 #include "raygui.h"
+#include <array>
+
+namespace {
+
+  template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, bool> = true>
+  void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, T &data, bool &editable) {
+    std::array<char, 64> buffer = {'\0'};
+
+    if (mousepressed) {
+      if (CheckCollisionPointRec(mousepos, bounds)) {
+        editable = true;
+      } else {
+        editable = false;
+      }
+    }
+    if (!editable) {
+      std::to_chars(buffer.data(), buffer.data() + buffer.size(), data);
+    }
+    GuiTextBox(bounds, buffer.data(), static_cast<int>(buffer.size()), editable);
+
+    if ( editable ) {
+      float value = 0.0f;
+      auto [ptr, ec] = std::from_chars(buffer.data(), buffer.data() + buffer.size(), value);
+      if (ec == std::errc()) {
+        data = value;
+      }
+    }
+  }
+
+  void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, std::string &data, bool &editable) {
+    std::array<char, 128> buffer = {'\0'};
+
+    if (mousepressed) {
+      if (CheckCollisionPointRec(mousepos, bounds)) {
+        editable = true;
+      } else {
+        editable = false;
+      }
+    }
+
+    if (!editable) {
+      GuiTextBox(bounds, data.data(), static_cast<int>(data.size()), editable);
+    } else {
+      data.copy(buffer.data(), buffer.size());
+
+      GuiTextBox(bounds, buffer.data(), static_cast<int>(buffer.size()), editable);
+
+      data = std::string(buffer.data());
+    }
+  }
+};
 
 EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
 
@@ -19,8 +71,8 @@ void EntityWindow::drawEntity() {
     auto &name = registry_.get<Components::Name>(entity);
 
     i++;
-    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "Name: ");
-    nameField_.render(mousepressed_, mousepos_, name.name, i);
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (33.f * static_cast<float>(i)), 120, 25}, "Name: ");
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, name.name, nameFieldEditable_);
   }
 
   if (registry_.any_of<Components::Position>(entity)) {
@@ -30,11 +82,19 @@ void EntityWindow::drawEntity() {
                 "Position");
     i++;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "X: ");
-    positionXField_.render(mousepressed_, mousepos_, pos.x, i);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, pos.x, positionXFieldEditable_);
+
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+      pos.x = 0.f;
+    }
 
     i++;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "Y: ");
-    positionYField_.render(mousepressed_, mousepos_, pos.y, i);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
+
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+      pos.y = 0.f;
+    }
   }
 
   if (registry_.any_of<Components::Velocity>(entity)) {
@@ -46,13 +106,23 @@ void EntityWindow::drawEntity() {
                 "Velocity");
     ++i;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * static_cast<float>(i), 120, 25}, "X: ");
-    velocityXField_.render(mousepressed_, mousepos_, vel.dx, i);
-    sliderVelocityXField_.render(mousepressed_, mousepos_, vel.dx, i);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
+
+    vel.dx = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, "Min", "Max", vel.dx, -300, 300);
+
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+      vel.dx = 0.f;
+    }
 
     ++i;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * static_cast<float>(i), 120, 25}, "Y: ");
-    velocityYField_.render(mousepressed_, mousepos_, vel.dy, i);
-    sliderVelocityYField_.render(mousepressed_, mousepos_, vel.dy, i);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
+
+    vel.dy = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, "Min", "Max", vel.dy, -300, 300);
+
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+      vel.dy = 0.f;
+    }
   }
 
   if (registry_.any_of<Components::Position, Components::Dimensions>(entity)) {
@@ -68,7 +138,7 @@ bool EntityWindow::render() {
   mousepos_ = GetMousePosition();
   mousepressed_ = IsMouseButtonPressed(0);
 
-  if (GuiWindowBox(windowBoundary_, "Entity Selected")) {
+  if (GuiWindowBox(windowBoundary_, "Entity Debugger")) {
     return false;
   }
 
@@ -97,11 +167,6 @@ bool EntityWindow::render() {
   selected_ = view[selectedIndex_];
 
   if (mousepressed_) {
-    header_.x = windowBoundary_.x;
-    header_.y = windowBoundary_.y;
-    if (CheckCollisionPointRec(mousepos_, header_)) {
-      isDragging_ = true;
-    }
     auto const &entity = findEntity(registry_, mousepos_);
     if (entity) {
       selected_ = entity;
@@ -109,19 +174,6 @@ bool EntityWindow::render() {
   }
 
   drawEntity();
-
-  if (IsMouseButtonUp(0)) {
-    isDragging_ = false;
-  }
-
-  if (IsMouseButtonDown(0)) {
-    header_.x = windowBoundary_.x;
-    header_.y = windowBoundary_.y;
-    if (isDragging_) {
-      windowBoundary_.x += (mousepos_.x - windowBoundary_.x) - (header_.width / 2);
-      windowBoundary_.y += (mousepos_.y - windowBoundary_.y) - (header_.height / 2);
-    }
-  }
 
   return true;
 }
