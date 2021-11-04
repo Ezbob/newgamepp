@@ -6,8 +6,6 @@
 DebugMenu::DebugMenu(entt::registry &reg) : entityWindow_(reg) {}
 
 bool DebugMenu::render() {
-  mousepos_ = GetMousePosition();
-  mousepressed_ = IsMouseButtonPressed(0);
 
   if (bool isClicked = GuiWindowBox(windowBoundary_, "Debug menu"); isClicked) {
     return false;

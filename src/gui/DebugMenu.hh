@@ -23,15 +23,11 @@ private:
     200.f
   };
 
-  bool mousepressed_ = false;
-
   EntityWindow entityWindow_;
 
   enum class EntityMode {
     no_render,
     entity_edit_mode
   } mode_ = EntityMode::no_render;
-
-  Vector2 mousepos_ = {};
 
 };

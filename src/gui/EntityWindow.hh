@@ -20,13 +20,6 @@ private:
     400.f
   };
 
-  Rectangle header_ {
-    0.f,
-    0.f,
-    90.f,
-    28.f
-  };
-
   Vector2 mousepos_ = {0.f, 0.f};
 
   int selectedIndex_ = 0;
@@ -45,7 +38,6 @@ private:
   bool positionXFieldEditable_ = false;
   bool positionYFieldEditable_ = false;
 
-  std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos) const;
   void drawEntity();
 
 public:

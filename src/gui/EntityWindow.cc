@@ -53,6 +53,20 @@ namespace {
       data = std::string(buffer.data());
     }
   }
+
+  std::optional<entt::entity> findEntity(entt::registry &registry, Vector2 &mousePos) {
+    auto view = registry.view<Components::Position, Components::Dimensions>();
+
+    for (auto ent : view) {
+      auto const &pos = view.get<Components::Position>(ent);
+      auto const &dim = view.get<Components::Dimensions>(ent);
+
+      if (CheckCollisionPointRec(mousePos, {pos.x, pos.y, dim.w, dim.h})) {
+        return ent;
+      }
+    }
+    return std::nullopt;
+  }
 };
 
 EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
@@ -129,8 +143,7 @@ void EntityWindow::drawEntity() {
     auto &pos = registry_.get<Components::Position>(entity);
     auto &dim = registry_.get<Components::Dimensions>(entity);
 
-    DrawRectangleLinesEx({(float) pos.x - 5.f, (float) pos.y - 5.f, (float) dim.w + 10.f, (float) dim.h + 10.f}, 1,
-                         GREEN);
+    DrawRectangleLinesEx({(float) pos.x - 5.f, (float) pos.y - 5.f, (float) dim.w + 10.f, (float) dim.h + 10.f}, 1, GREEN);
   }
 }
 
@@ -178,16 +191,3 @@ bool EntityWindow::render() {
   return true;
 }
 
-std::optional<entt::entity> EntityWindow::findEntity(entt::registry &registry, Vector2 &mousePos) const {
-  auto view = registry.view<Components::Position, Components::Dimensions>();
-
-  for (auto ent : view) {
-    auto const &pos = view.get<Components::Position>(ent);
-    auto const &dim = view.get<Components::Dimensions>(ent);
-
-    if (CheckCollisionPointRec(mousePos, {pos.x, pos.y, dim.w, dim.h})) {
-      return ent;
-    }
-  }
-  return std::nullopt;
-}
