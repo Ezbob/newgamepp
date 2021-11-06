@@ -17,7 +17,7 @@ private:
     Constants::screenWidth,
     0.f,
     600.f,
-    400.f
+    Constants::screenHeight + 200.f
   };
 
   Vector2 mousepos_ = {0.f, 0.f};

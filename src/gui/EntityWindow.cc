@@ -74,7 +74,7 @@ EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
 void EntityWindow::drawEntity() {
 
   if (!selected_) {
-    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (33.f * 2.f), 120, 25}, "No entity selected...");
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (35.f * 2.f), 120, 25}, "No entity selected...");
     return;
   }
 
@@ -82,60 +82,62 @@ void EntityWindow::drawEntity() {
 
   int i = 1;
 
+  float margin = 0.f;
+
   if (registry_.any_of<Components::Name>(entity)) {
     auto &name = registry_.get<Components::Name>(entity);
 
     i++;
-    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (33.f * static_cast<float>(i)), 120, 25}, "Name: ");
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "Name: ");
     renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, name.name, nameFieldEditable_);
+
+    margin += 12.f;
   }
 
   if (registry_.any_of<Components::Position>(entity)) {
     auto &pos = registry_.get<Components::Position>(entity);
-
-    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 33.f * (1.f + static_cast<float>(i)), 380, 70.f},
-                "Position");
     i++;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "X: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, pos.x, positionXFieldEditable_);
+    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 35.f * (static_cast<float>(i)) + margin, 380, 75.f},
+                "Position");
 
-    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "X: ");
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, pos.x, positionXFieldEditable_);
+
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 60, 25 }, "reset")) {
       pos.x = 0.f;
     }
 
     i++;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, "Y: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (35.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Y: ");
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
 
-    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 60, 25 }, "reset")) {
       pos.y = 0.f;
     }
+    margin += 12.f;
   }
 
   if (registry_.any_of<Components::Velocity>(entity)) {
     auto &vel = registry_.get<Components::Velocity>(entity);
-
-    float spacing = (i > 0) ? 12.f : 0.f;
-
-    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + spacing + 33.f * (1.f + static_cast<float>(i)), 380, 74.f},
-                "Velocity");
     ++i;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * static_cast<float>(i), 120, 25}, "X: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
+    GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 35.f * (static_cast<float>(i)) + margin, 380, 75.f},"Velocity");
 
-    vel.dx = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, "Min", "Max", vel.dx, -300, 300);
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 36.f * static_cast<float>(i) + margin, 120, 25}, "X: ");
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
 
-    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+    vel.dx = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Min", "Max", vel.dx, -300, 300);
+
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 60, 25 }, "reset")) {
       vel.dx = 0.f;
     }
 
     ++i;
-    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + spacing + 35.f * static_cast<float>(i), 120, 25}, "Y: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
+    GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 36.f * static_cast<float>(i) + margin, 120, 25}, "Y: ");
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
 
-    vel.dy = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (37.f * static_cast<float>(i)), 120, 25}, "Min", "Max", vel.dy, -300, 300);
+    vel.dy = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Min", "Max", vel.dy, -300, 300);
 
-    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (35.f * static_cast<float>(i)), 60, 25 }, "reset")) {
+    if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 60, 25 }, "reset")) {
       vel.dy = 0.f;
     }
   }
@@ -156,6 +158,8 @@ bool EntityWindow::render() {
     return false;
   }
 
+  drawEntity();
+
   text_.clear();
   auto const view = registry_.view<Components::Name>();
 
@@ -175,8 +179,8 @@ bool EntityWindow::render() {
     found_index++;
   }
 
-  GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + 30, 100, 26}, "Choose entity:");
-  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 110.f, windowBoundary_.y + 30, 100, 26},
+  GuiLabel({windowBoundary_.x + 10.f, windowBoundary_.y + 30.f, 150.f, 26.f}, "Choose entity:");
+  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 10.f - 150.f, windowBoundary_.y + 30.f, 150.f, 26.f},
                        text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_) ) {
     editable_ = !editable_;
   }
@@ -187,16 +191,12 @@ bool EntityWindow::render() {
     selected_.reset();
   }
 
-  /*
   if (mousepressed_) {
     auto const &entity = findEntity(registry_, mousepos_);
     if (entity) {
       selected_ = entity;
     }
   }
-  */
-
-  drawEntity();
 
   return true;
 }
