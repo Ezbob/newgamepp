@@ -74,6 +74,7 @@ EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
 void EntityWindow::drawEntity() {
 
   if (!selected_) {
+    GuiLabel({windowBoundary_.x + 10, windowBoundary_.y + (33.f * 2.f), 120, 25}, "No entity selected...");
     return;
   }
 
@@ -158,10 +159,13 @@ bool EntityWindow::render() {
   text_.clear();
   auto const view = registry_.view<Components::Name>();
 
-  int found_index = 0;
+  text_.push_back("<no entity>");
+
+  int found_index = 1;
   for (auto const &e : view) {
     Components::Name const &name = view.get<Components::Name>(e);
     text_.push_back(name.name.c_str());
+
     if (selected_ && registry_.any_of<Components::Name>(selected_.value())) {
       auto const &otherName = registry_.get<Components::Name>(selected_.value());
       if (name.name == otherName.name) {
@@ -177,14 +181,20 @@ bool EntityWindow::render() {
     editable_ = !editable_;
   }
 
-  selected_ = view[selectedIndex_];
+  if (selectedIndex_ > 0) {
+    selected_ = view[selectedIndex_ - 1];
+  } else if (selectedIndex_ == 0) {
+    selected_.reset();
+  }
 
+  /*
   if (mousepressed_) {
     auto const &entity = findEntity(registry_, mousepos_);
     if (entity) {
       selected_ = entity;
     }
   }
+  */
 
   drawEntity();
 

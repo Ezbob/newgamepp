@@ -25,9 +25,5 @@ private:
 
   EntityWindow entityWindow_;
 
-  enum class EntityMode {
-    no_render,
-    entity_edit_mode
-  } mode_ = EntityMode::no_render;
-
+  bool entityWindowEnabled_ = true;
 };

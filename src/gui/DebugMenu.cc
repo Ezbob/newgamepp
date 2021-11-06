@@ -11,14 +11,12 @@ bool DebugMenu::render() {
     return false;
   }
 
-  if (GuiButton({windowBoundary_.x + 10.f, windowBoundary_.y + 35.f, windowBoundary_.width - 20.f, 26}, "Edit entities") && mode_ == EntityMode::no_render) {
-    mode_ = EntityMode::entity_edit_mode;
+  if (GuiButton({windowBoundary_.x + 10.f, windowBoundary_.y + 35.f, windowBoundary_.width - 20.f, 26}, "Edit entities")) {
+    entityWindowEnabled_ = !entityWindowEnabled_;
   }
 
-  if (mode_ == EntityMode::entity_edit_mode) {
-    if (!entityWindow_.render()) {
-      mode_ = EntityMode::no_render;
-    }
+  if (entityWindowEnabled_ && !entityWindow_.render()) {
+    entityWindowEnabled_ = false;
   }
 
   return true;
