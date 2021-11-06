@@ -5,8 +5,6 @@
 #include <optional>
 
 #include "raylib.h"
-#include "fields/SliderField.hh"
-#include "fields/TextField.hh"
 #include "entt/entity/registry.hpp"
 #include "Components.hh"
 #include "Constants.hh"

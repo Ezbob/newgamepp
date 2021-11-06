@@ -7,9 +7,8 @@
 
 namespace {
 
-  template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, bool> = true>
-  void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, T &data, bool &editable) {
-    std::array<char, 64> buffer = {'\0'};
+
+  void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, int &data, bool &editable) {
 
     if (mousepressed) {
       if (CheckCollisionPointRec(mousepos, bounds)) {
@@ -18,18 +17,37 @@ namespace {
         editable = false;
       }
     }
-    if (!editable) {
-      std::to_chars(buffer.data(), buffer.data() + buffer.size(), data);
-    }
-    GuiTextBox(bounds, buffer.data(), static_cast<int>(buffer.size()), editable);
+    std::array<char, 128> buffer = {};
+    buffer.fill('\0');
 
-    if ( editable ) {
-      float value = 0.0f;
-      auto [ptr, ec] = std::from_chars(buffer.data(), buffer.data() + buffer.size(), value);
-      if (ec == std::errc()) {
-        data = value;
+    std::to_chars(buffer.data(), buffer.data() + buffer.size(), data);
+
+    if (GuiTextBox(bounds, buffer.data(), buffer.size(), editable)) {
+      editable = !editable;
+    }
+
+    std::from_chars(buffer.data(), buffer.data() + buffer.size(), data, 10);
+  }
+
+
+  void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, float &data, bool &editable) {
+
+    if (mousepressed) {
+      if (CheckCollisionPointRec(mousepos, bounds)) {
+        editable = true;
+      } else {
+        editable = false;
       }
     }
+    std::array<char, 128> buffer = {};
+
+    if (!editable) std::to_chars(buffer.data(), buffer.data() + buffer.size(), data);
+
+    if (GuiTextBox(bounds, buffer.data(), buffer.size(), editable)) {
+      editable = !editable;
+    }
+
+    std::from_chars(buffer.data(), buffer.data() + buffer.size(), data, std::chars_format::general);
   }
 
   void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, std::string &data, bool &editable) {
@@ -109,7 +127,7 @@ void EntityWindow::drawEntity() {
 
     i++;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Y: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
+    //renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
 
     if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 60, 25 }, "reset")) {
       pos.y = 0.f;
@@ -123,7 +141,7 @@ void EntityWindow::drawEntity() {
     GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 35.f * (static_cast<float>(i)) + margin, 380, 75.f},"Velocity");
 
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 36.f * static_cast<float>(i) + margin, 120, 25}, "X: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
+    //renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
 
     vel.dx = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Min", "Max", vel.dx, -300, 300);
 
@@ -133,7 +151,7 @@ void EntityWindow::drawEntity() {
 
     ++i;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 36.f * static_cast<float>(i) + margin, 120, 25}, "Y: ");
-    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
+    //renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
 
     vel.dy = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Min", "Max", vel.dy, -300, 300);
 

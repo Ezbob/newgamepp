@@ -17,8 +17,6 @@ add_executable(main "" src/Constants.hh)
 target_sources(main
     PRIVATE
         src/Main.cc
-        src/gui/fields/SliderField.cc
-        src/gui/fields/TextField.cc
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
         src/gui/DebugMenu.cc
