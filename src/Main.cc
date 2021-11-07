@@ -69,7 +69,7 @@ int main() {
   whiteBlockInitializer(Constants::screenWidth - 30.f, Constants::screenHeight - 30.f, 20.f, 20.f, "Yeet");
 
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
-  InitWindow((int) (Constants::screenWidth + 600.f),(int) (Constants::screenHeight + 400.f), title);
+  InitWindow((int) (Constants::screenWidth),(int) (Constants::screenHeight), title);
 
   SetTargetFPS(60);
 

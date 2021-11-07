@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Threads REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 add_library(raygui INTERFACE)
 target_include_directories(raygui
@@ -28,6 +29,7 @@ target_link_libraries(main
         ${CMAKE_DL_LIBS}
         ${CMAKE_THREAD_LIBS_INIT}
         raygui
+        fmt::fmt
 )
 target_include_directories(main
     PRIVATE

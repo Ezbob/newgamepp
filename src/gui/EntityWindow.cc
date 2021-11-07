@@ -4,9 +4,10 @@
 
 #include "raygui.h"
 #include <array>
+#include <cstdlib>
+#include "fmt/core.h"
 
 namespace {
-
 
   void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, int &data, bool &editable) {
 
@@ -39,15 +40,12 @@ namespace {
         editable = false;
       }
     }
-    std::array<char, 128> buffer = {};
 
-    if (!editable) std::to_chars(buffer.data(), buffer.data() + buffer.size(), data);
+    std::string buffer = fmt::format("{}", data);
 
-    if (GuiTextBox(bounds, buffer.data(), buffer.size(), editable)) {
-      editable = !editable;
-    }
+    GuiTextBox(bounds, buffer.data(), buffer.size(), false);
 
-    std::from_chars(buffer.data(), buffer.data() + buffer.size(), data, std::chars_format::general);
+    data = std::stof(buffer);
   }
 
   void renderTextField(Rectangle bounds, bool mousepressed, Vector2 &mousepos, std::string &data, bool &editable) {
@@ -127,7 +125,7 @@ void EntityWindow::drawEntity() {
 
     i++;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Y: ");
-    //renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, pos.y, positionYFieldEditable_);
 
     if (GuiButton({ windowBoundary_.x + 380 + 15, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 60, 25 }, "reset")) {
       pos.y = 0.f;
@@ -141,7 +139,7 @@ void EntityWindow::drawEntity() {
     GuiGroupBox({windowBoundary_.x + 5, windowBoundary_.y + 35.f * (static_cast<float>(i)) + margin, 380, 75.f},"Velocity");
 
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 36.f * static_cast<float>(i) + margin, 120, 25}, "X: ");
-    //renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
 
     vel.dx = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Min", "Max", vel.dx, -300, 300);
 
@@ -151,7 +149,7 @@ void EntityWindow::drawEntity() {
 
     ++i;
     GuiLabel({windowBoundary_.x + 15, windowBoundary_.y + 36.f * static_cast<float>(i) + margin, 120, 25}, "Y: ");
-    //renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
+    renderTextField({windowBoundary_.x + 70, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, mousepressed_, mousepos_, vel.dy, velocityYFieldEditable_);
 
     vel.dy = GuiSlider({windowBoundary_.x + 230, windowBoundary_.y + (36.f * static_cast<float>(i)) + margin, 120, 25}, "Min", "Max", vel.dy, -300, 300);
 
@@ -218,4 +216,3 @@ bool EntityWindow::render() {
 
   return true;
 }
-
