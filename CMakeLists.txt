@@ -9,10 +9,8 @@ find_package(raylib CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
-add_library(raygui INTERFACE)
-target_include_directories(raygui
-    INTERFACE ${CMAKE_CURRENT_LIST_DIR}/libs/raygui/src/
-)
+set(BUILD_RAYGUI_EXAMPLES OFF CACHE BOOL "Building raylib GUI examples")
+add_subdirectory(libs/raygui/projects/CMake/ EXCLUDE_FROM_ALL)
 
 add_executable(main "" src/Constants.hh)
 target_sources(main
