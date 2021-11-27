@@ -208,7 +208,7 @@ void EntityWindow::drawEntity() {
       clamp.top = 0.f;
     }
 
-    DrawRectangleLinesEx({clamp.left, clamp.right, Constants::screenWidth - clamp.top, Constants::screenHeight - clamp.bottom }, 1, RED);
+    DrawRectangleLinesEx({clamp.left, clamp.top,Constants::screenWidth - (clamp.right + clamp.left),Constants::screenHeight - (clamp.top + clamp.bottom)},1, RED);
   }
 
   /* drawing selection box */
