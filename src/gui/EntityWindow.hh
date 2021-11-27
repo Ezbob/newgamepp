@@ -36,6 +36,12 @@ private:
   bool positionXFieldEditable_ = false;
   bool positionYFieldEditable_ = false;
 
+  bool leftScreenClampEditable_ = false;
+  bool rightScreenClampEditable_ = false;
+  bool bottomScreenClampEditable_ = false;
+  bool topScreenClampEditable_ = false;
+
+
   void drawEntity();
 
 public:
