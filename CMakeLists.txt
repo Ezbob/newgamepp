@@ -34,7 +34,7 @@ target_include_directories(main
         src/
 )
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND NOT WIN32)
 set_target_properties(main
 	PROPERTIES
 		COMPILE_FLAGS "-fsanitize=address,undefined"
