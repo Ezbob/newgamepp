@@ -4,19 +4,18 @@
 #include <array>
 #include <optional>
 
-#include "raylib.h"
-#include "entt/entity/registry.hpp"
 #include "Components.hh"
 #include "Constants.hh"
+#include "entt/entity/registry.hpp"
+#include "raylib.h"
 
 class EntityWindow {
 private:
-  Rectangle windowBoundary_ {
-    Constants::screenWidth,
-    0.f,
-    600.f,
-    Constants::screenHeight + 200.f
-  };
+  Rectangle windowBoundary_{
+          Constants::screenWidth,
+          0.f,
+          600.f,
+          Constants::screenHeight + 200.f};
 
   Vector2 mousepos_ = {0.f, 0.f};
 
@@ -45,9 +44,7 @@ private:
   void drawEntity();
 
 public:
-
   explicit EntityWindow(entt::registry &);
 
   bool render();
-
 };

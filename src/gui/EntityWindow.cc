@@ -2,10 +2,10 @@
 #include "EntityWindow.hh"
 #include <charconv>
 
+#include "fmt/core.h"
 #include "raygui.h"
 #include <array>
 #include <cstdlib>
-#include "fmt/core.h"
 
 namespace {
 
@@ -60,10 +60,10 @@ namespace {
     return std::nullopt;
   }
 
-  Rectangle rowLocation(Rectangle const& parent, float xPadding, float yPadding, float width, float height, int row = 1, float margin = 0.f) {
-    return { parent.x + xPadding, parent.y + (yPadding * static_cast<float>(row)) + margin, width, height };
+  Rectangle rowLocation(Rectangle const &parent, float xPadding, float yPadding, float width, float height, int row = 1, float margin = 0.f) {
+    return {parent.x + xPadding, parent.y + (yPadding * static_cast<float>(row)) + margin, width, height};
   }
-}
+}// namespace
 
 EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
 
@@ -139,7 +139,7 @@ void EntityWindow::drawEntity() {
   if (registry_.any_of<Components::Velocity>(entity)) {
     auto &vel = registry_.get<Components::Velocity>(entity);
     ++i;
-    GuiGroupBox(groupBounds(i, 2, marginBox),"Velocity");
+    GuiGroupBox(groupBounds(i, 2, marginBox), "Velocity");
     GuiLabel(labelBounds(i, marginFields), "X: ");
 
     renderTextField(fieldBounds(i, marginFields), mousepressed_, mousepos_, vel.dx, velocityXFieldEditable_);
@@ -167,7 +167,7 @@ void EntityWindow::drawEntity() {
   if (registry_.any_of<Components::ScreenClamp>(entity)) {
     auto &clamp = registry_.get<Components::ScreenClamp>(entity);
     ++i;
-    GuiGroupBox(groupBounds(i, 4, marginBox),"Screen Clamp");
+    GuiGroupBox(groupBounds(i, 4, marginBox), "Screen Clamp");
 
     GuiLabel(labelBounds(i, marginFields), "left: ");
     renderTextField(fieldBounds(i, marginFields), mousepressed_, mousepos_, clamp.left, leftScreenClampEditable_);
@@ -208,7 +208,7 @@ void EntityWindow::drawEntity() {
       clamp.top = 0.f;
     }
 
-    DrawRectangleLinesEx({clamp.left, clamp.top,Constants::screenWidth - (clamp.right + clamp.left),Constants::screenHeight - (clamp.top + clamp.bottom)},1, RED);
+    DrawRectangleLinesEx({clamp.left, clamp.top, Constants::screenWidth - (clamp.right + clamp.left), Constants::screenHeight - (clamp.top + clamp.bottom)}, 1, RED);
   }
 
   /* drawing selection box */
@@ -243,7 +243,7 @@ bool EntityWindow::render() {
     if (selected_ && registry_.any_of<Components::Name>(selected_.value())) {
       auto const &otherName = registry_.get<Components::Name>(selected_.value());
       if (name.name == otherName.name) {
-         selectedIndex_ = found_index;
+        selectedIndex_ = found_index;
       }
     }
     found_index++;
@@ -251,7 +251,7 @@ bool EntityWindow::render() {
 
   GuiLabel({windowBoundary_.x + 10.f, windowBoundary_.y + 30.f, 150.f, 26.f}, "Choose entity:");
   if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 10.f - 150.f, windowBoundary_.y + 30.f, 150.f, 26.f},
-                       text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_) ) {
+                       text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_)) {
     editable_ = !editable_;
   }
 

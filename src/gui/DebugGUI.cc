@@ -1,7 +1,7 @@
 
 #include "DebugGUI.hh"
-#include "raylib.h"
 #include "Constants.hh"
+#include "raylib.h"
 
 DebugGUI::DebugGUI(entt::registry &r) : entityChooser_(r) {}
 
@@ -15,7 +15,7 @@ void DebugGUI::doGui() {
       SetWindowSize(Constants::screenWidth, Constants::screenHeight);
   }
   if (drawWindow_) {
-    if ( !entityChooser_.render() ) {
+    if (!entityChooser_.render()) {
       drawWindow_ = false;
     }
   }

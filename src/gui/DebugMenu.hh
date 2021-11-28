@@ -1,10 +1,10 @@
 
 #pragma once
 
+#include "EntityWindow.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include <optional>
-#include "EntityWindow.hh"
 #include <vector>
 
 class DebugMenu {
@@ -16,12 +16,11 @@ public:
   bool render();
 
 private:
-  Rectangle windowBoundary_ {
-    0.f,
-    Constants::screenHeight,
-    200.f,
-    200.f
-  };
+  Rectangle windowBoundary_{
+          0.f,
+          Constants::screenHeight,
+          200.f,
+          200.f};
 
   EntityWindow entityWindow_;
 
