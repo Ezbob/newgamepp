@@ -18,6 +18,21 @@
                 "${workspaceFolder}/libs/raygui/src",
                 "${env:VCPKG_ROOT}/installed/x64-windows/include"
             ]
+        },
+        {
+            "name": "Linux",
+            "defines": [
+                "_DEBUG",
+                "RAYGUI_IMPLEMENTATION"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/src/",
+                "${workspaceFolder}/src/gui",
+                "${workspaceFolder}/libs/raygui/src",
+                "${env:VCPKG_ROOT}/installed/x64-linux/include"
+            ]
         }
     ],
     "version": 4
