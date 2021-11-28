@@ -16,6 +16,40 @@
         }
       },
       "toolchainFile": "$env{VCPKG_CMAKE_TOOLCHAIN}"
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug configuration",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "binaryDir": "${sourceDir}/build-debug"
+    },
+    {
+      "name": "release",
+      "displayName": "Release configuration",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "binaryDir": "${sourceDir}/build-release"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "jobs": 4,
+      "cleanFirst": true,
+      "configurePreset": "release",
+      "configuration": "release"
+    },
+    {
+      "name": "debug",
+      "jobs": 4,
+      "cleanFirst": true,
+      "configurePreset": "debug",
+      "configuration": "debug"
     }
   ]
 }

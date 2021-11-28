@@ -9,7 +9,6 @@ find_package(raylib CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
-set(BUILD_RAYGUI_EXAMPLES OFF CACHE BOOL "Building raylib GUI examples")
 add_subdirectory(libs/raygui/projects/CMake/ EXCLUDE_FROM_ALL)
 
 add_executable(main "" src/Constants.hh)
