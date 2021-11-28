@@ -12,7 +12,7 @@
       "windows": {
         // tested with powershell
         "type": "shell",
-        "command": ".\\build\\Debug\\main.exe"
+        "command": ".\\build-debug\\Debug\\main.exe"
       },
       "linux": {
         "type": "shell",
@@ -25,38 +25,25 @@
     {
       "label": "build",
       "group": "build",
-      "windows": {
-        // tested with powershell
-        "type": "shell",
-        "command": "cmake --build build"
-      },
-      "linux": {
-        "type": "shell",
-        "command": "cmake --build build"
-      }
+      "type": "shell",
+      "command": "cmake --build --preset=debug"
     },
     {
       "label": "setup",
       "group": "build",
-      "windows": {
-        "type": "shell",
-        "command": "cmake -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_CMAKE_TOOLCHAIN} -S . -B build"
-      },
-      "linux": {
-        "type": "shell",
-        "command": "cmake -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_CMAKE_TOOLCHAIN} -S . -B build"
-      }
+      "type": "shell",
+      "command": "cmake --preset=debug"
     },
     {
       "label": "clean",
       "group": "build",
       "windows": {
         "type": "shell",
-        "command": "rmdir -Force build"
+        "command": "rmdir -Force build-*"
       },
       "linux": {
         "type": "shell",
-        "command": "rm -rf build"
+        "command": "rm -rf build-*"
       }
     }
   ]
