@@ -21,6 +21,7 @@ target_sources(main
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
         src/gui/DebugMenu.cc
+        src/gui/DebugTileEditor.cc
 )
 target_link_libraries(main
     PRIVATE

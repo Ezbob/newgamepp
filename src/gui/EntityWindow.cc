@@ -195,8 +195,8 @@ bool EntityWindow::render() {
     found_index++;
   }
 
-  GuiLabel({windowBoundary_.x + 10.f, windowBoundary_.y + 30.f, 150.f, 26.f}, "Choose entity:");
-  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 10.f - 150.f, windowBoundary_.y + 30.f, 150.f, 26.f},
+  GuiLabel({windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 150.f, 26.f}, "Choose entity:");
+  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 10.f - 150.f, windowBoundary_.y + 32.f, 150.f, 26.f},
                        text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_) ) {
     editable_ = !editable_;
   }

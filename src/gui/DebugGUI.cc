@@ -9,10 +9,11 @@ void DebugGUI::doGui() {
 
   if (IsKeyPressed(KEY_F11)) {
     drawWindow_ = !drawWindow_;
-    if (drawWindow_)
+    if (drawWindow_) {
       SetWindowSize(Constants::debugScreenWidth, Constants::debugScreenHeight);
-    else
+    } else {
       SetWindowSize(Constants::screenWidth, Constants::screenHeight);
+    }
   }
   if (drawWindow_) {
     if ( !entityChooser_.render() ) {
