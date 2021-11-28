@@ -1,0 +1,21 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Config",
+      "cacheVariables": {
+        "BUILD_RAYGUI_EXAMPLES": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      },
+      "toolchainFile": "$env{VCPKG_CMAKE_TOOLCHAIN}"
+    }
+  ]
+}
