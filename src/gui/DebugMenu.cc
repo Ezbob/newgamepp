@@ -12,11 +12,15 @@ bool DebugMenu::render() {
   }
 
   if (GuiButton({windowBoundary_.x + 10.f, windowBoundary_.y + 35.f, windowBoundary_.width - 20.f, 26}, "Edit entities")) {
-    entityWindowEnabled_ = !entityWindowEnabled_;
+    currentWindow_ = &entityWindow_;
   }
 
-  if (entityWindowEnabled_ && !entityWindow_.render()) {
-    entityWindowEnabled_ = false;
+  if (GuiButton({windowBoundary_.x + 10.f, windowBoundary_.y + (2.f * 35.f), windowBoundary_.width - 20.f, 26}, "Edit tiles")) {
+    currentWindow_ = &tileWindow_;
+  }
+
+  if (currentWindow_ && !currentWindow_->render()) {
+    currentWindow_ = nullptr;
   }
 
   return true;

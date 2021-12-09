@@ -8,8 +8,9 @@
 #include "Constants.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
+#include "IRenderable.hh"
 
-class EntityWindow {
+class EntityWindow : public IRenderable {
 private:
   Rectangle windowBoundary_{
           Constants::screenWidth,

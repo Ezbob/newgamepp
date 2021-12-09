@@ -17,6 +17,7 @@ target_sources(main
         src/Main.cc
         src/gui/DebugGUI.cc
         src/gui/EntityWindow.cc
+        src/gui/TileWindow.cc
         src/gui/DebugMenu.cc
 )
 target_link_libraries(main

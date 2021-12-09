@@ -2,7 +2,6 @@
 #include "EntityWindow.hh"
 #include <charconv>
 
-#include "fmt/core.h"
 #include "raygui.h"
 #include <array>
 #include <cstdlib>
