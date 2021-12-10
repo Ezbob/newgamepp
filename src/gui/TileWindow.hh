@@ -1,12 +1,11 @@
 
 #pragma once
 
-#include "IRenderable.hh"
 #include "Constants.hh"
+#include "IRenderable.hh"
 #include "raylib.h"
 
-class TileWindow : public IRenderable
-{
+class TileWindow : public IRenderable {
 public:
   TileWindow() = default;
 

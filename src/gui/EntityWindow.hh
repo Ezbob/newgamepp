@@ -6,9 +6,9 @@
 
 #include "Components.hh"
 #include "Constants.hh"
+#include "IRenderable.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
-#include "IRenderable.hh"
 
 class EntityWindow : public IRenderable {
 private:

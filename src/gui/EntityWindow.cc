@@ -178,16 +178,6 @@ void EntityWindow::drawEntity() {
     }
 
     ++i;
-    GuiLabel(labelBounds(i, marginFields), "bottom: ");
-    renderTextField(fieldBounds(i, marginFields), mousepressed_, mousepos_, clamp.bottom, bottomScreenClampEditable_);
-
-    clamp.bottom = GuiSlider(sliderBounds(i, marginFields), "Min", "Max", clamp.bottom, -300.f, 300.f);
-
-    if (GuiButton(buttonBounds(i, marginFields), "reset")) {
-      clamp.bottom = 0.f;
-    }
-
-    ++i;
     GuiLabel(labelBounds(i, marginFields), "right: ");
     renderTextField(fieldBounds(i, marginFields), mousepressed_, mousepos_, clamp.right, rightScreenClampEditable_);
 
@@ -205,6 +195,16 @@ void EntityWindow::drawEntity() {
 
     if (GuiButton(buttonBounds(i, marginFields), "reset")) {
       clamp.top = 0.f;
+    }
+
+    ++i;
+    GuiLabel(labelBounds(i, marginFields), "bottom: ");
+    renderTextField(fieldBounds(i, marginFields), mousepressed_, mousepos_, clamp.bottom, bottomScreenClampEditable_);
+
+    clamp.bottom = GuiSlider(sliderBounds(i, marginFields), "Min", "Max", clamp.bottom, -300.f, 300.f);
+
+    if (GuiButton(buttonBounds(i, marginFields), "reset")) {
+      clamp.bottom = 0.f;
     }
 
     DrawRectangleLinesEx({clamp.left, clamp.top, Constants::screenWidth - (clamp.right + clamp.left), Constants::screenHeight - (clamp.top + clamp.bottom)}, 1, RED);
