@@ -16,7 +16,7 @@
       },
       "linux": {
         "type": "shell",
-        "command": "./build/main"
+        "command": "./build-debug/main"
       },
       "dependsOn": [
         "build"
