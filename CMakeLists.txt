@@ -37,8 +37,8 @@ target_include_directories(main
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND NOT WIN32)
 set_target_properties(main
-	PROPERTIES
-		COMPILE_FLAGS "-fsanitize=address,undefined"
-		LINK_FLAGS "-fsanitize=address,undefined"
+    PROPERTIES
+        COMPILE_FLAGS "-fsanitize=address,undefined"
+        LINK_FLAGS "-fsanitize=address,undefined"
 )
 endif()
