@@ -17,4 +17,6 @@ private:
           0.f,
           600.f,
           Constants::screenHeight + 200.f};
+
+  Color gridColor_ = GRAY;
 };

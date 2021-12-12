@@ -43,8 +43,9 @@ int main() {
 
     ClearBackground(BLACK);
 
-    draw(registry);
     dgui.doGui();
+
+    draw(registry);
 
     EndDrawing();
   }
