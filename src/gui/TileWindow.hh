@@ -19,4 +19,6 @@ private:
           Constants::screenHeight + 200.f};
 
   Color gridColor_ = GRAY;
+  bool mousepressed_ = false;
+  bool showGridColor_ = false;
 };
