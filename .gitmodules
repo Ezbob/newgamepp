@@ -1,3 +1,6 @@
 [submodule "libs/raygui"]
 	path = libs/raygui
 	url = git@github.com:Ezbob/raygui.git
+[submodule ".\\libs\\nativefiledialog"]
+	path = .\\libs\\nativefiledialog
+	url = https://github.com/mlabbe/nativefiledialog.git
