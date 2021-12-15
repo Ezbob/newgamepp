@@ -29,9 +29,9 @@ bool TileWindow::render() {
   auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - 205.f, windowBoundary_.width - 10.f, 200.f};
   GuiGroupBox(tileBox, "Tilesets");
 
-  if (GuiButton({tileBox.x + 10.f, tileBox.y + 10.f, 100.f, 30.f}, "Browse")) {
+  if (GuiButton({tileBox.x + 10.f, tileBox.y + 10.f, 100.f, 30.f}, "Browse for tilesets")) {
     nfdchar_t *path = NULL;
-    nfdresult_t result = NFD_OpenDialog(NULL, NULL, &path);
+    nfdresult_t result = NFD_OpenDialog("*.json", NULL, &path);
     if (result == NFD_OKAY) {
       TraceLog(LOG_INFO, "Found path %s\n", path);
     }
