@@ -10,6 +10,7 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
 add_subdirectory(libs/raygui/projects/CMake/ EXCLUDE_FROM_ALL)
+add_subdirectory(libs/nativefiledialog/ EXCLUDE_FROM_ALL)
 
 add_executable(main "" src/Constants.hh)
 target_sources(main
@@ -28,6 +29,7 @@ target_link_libraries(main
         ${CMAKE_THREAD_LIBS_INIT}
         raygui
         fmt::fmt
+        nativefiledialog_static
 )
 target_include_directories(main
     PRIVATE
