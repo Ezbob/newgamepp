@@ -16,7 +16,8 @@
                 "${workspaceFolder}/src/",
                 "${workspaceFolder}/src/gui",
                 "${workspaceFolder}/libs/raygui/src",
-                "${env:VCPKG_ROOT}/installed/x64-windows/include"
+                "${env:VCPKG_ROOT}/installed/x64-windows/include",
+                "${workspaceFolder}/libs/nativefiledialog/src/include"
             ]
         },
         {
