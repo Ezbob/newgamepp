@@ -4,6 +4,7 @@
   "dependencies": [
     "raylib",
     "entt",
-    "fmt"
+    "fmt",
+    "nlohmann-json"
   ]
 }

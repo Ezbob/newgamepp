@@ -8,6 +8,7 @@ find_package(Threads REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_subdirectory(libs/raygui/projects/CMake/ EXCLUDE_FROM_ALL)
 add_subdirectory(libs/nativefiledialog/ EXCLUDE_FROM_ALL)
@@ -30,6 +31,8 @@ target_link_libraries(main
         raygui
         fmt::fmt
         nativefiledialog_static
+        nlohmann_json
+        nlohmann_json::nlohmann_json
 )
 target_include_directories(main
     PRIVATE
