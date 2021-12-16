@@ -18,6 +18,7 @@ private:
           600.f,
           Constants::screenHeight + 200.f};
 
+  bool chooseParseMethod_ = false;
   Color gridColor_ = GRAY;
   bool mousepressed_ = false;
   bool showGridColor_ = false;

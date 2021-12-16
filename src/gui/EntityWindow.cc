@@ -220,12 +220,12 @@ void EntityWindow::drawEntity() {
 }
 
 bool EntityWindow::render() {
-  mousepos_ = GetMousePosition();
-  mousepressed_ = IsMouseButtonPressed(0);
-
   if (GuiWindowBox(windowBoundary_, "Entity Debugger")) {
     return false;
   }
+
+  mousepos_ = GetMousePosition();
+  mousepressed_ = IsMouseButtonPressed(0);
 
   drawEntity();
 

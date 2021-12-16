@@ -9,6 +9,7 @@ bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
   }
+  int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
   mousepressed_ = IsMouseButtonPressed(0);
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
@@ -26,12 +27,24 @@ bool TileWindow::render() {
   auto mouseGridPosition = GuiGrid({0, 0, Constants::screenWidth, Constants::screenHeight}, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
 
-  auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - 205.f, windowBoundary_.width - 10.f, 200.f};
+  float tileBoxWidth = 325.f;
+  auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - tileBoxWidth, windowBoundary_.width - 10.f, tileBoxWidth - 5.f};
   GuiGroupBox(tileBox, "Tilesets");
 
-  if (GuiButton({tileBox.x + 10.f, tileBox.y + 10.f, 100.f, 30.f}, "Browse for tilesets")) {
+  auto font = GetFontDefault();
+  const char *text = "Browse";
+  int size = MeasureText(text, fontSize);
+
+  GuiLabel({(tileBox.x + tileBox.width) - (size + 45.f) - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
+  int active = 0;
+  if (GuiDropdownBox({(tileBox.x + tileBox.width) - (size + 45.f) - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &active, chooseParseMethod_)) {
+    chooseParseMethod_ = !chooseParseMethod_;
+  }
+  
+  if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
+    const nfdchar_t *current_directory = GetWorkingDirectory();
     nfdchar_t *path = NULL;
-    nfdresult_t result = NFD_OpenDialog("*.json", NULL, &path);
+    nfdresult_t result = NFD_OpenDialog("*.json", current_directory, &path);
     if (result == NFD_OKAY) {
       TraceLog(LOG_INFO, "Found path %s\n", path);
     }
