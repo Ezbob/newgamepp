@@ -40,7 +40,7 @@ bool TileWindow::render() {
   if (GuiDropdownBox({(tileBox.x + tileBox.width) - (size + 45.f) - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &active, chooseParseMethod_)) {
     chooseParseMethod_ = !chooseParseMethod_;
   }
-  
+
   if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
     const nfdchar_t *current_directory = GetWorkingDirectory();
     nfdchar_t *path = NULL;

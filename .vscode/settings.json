@@ -63,6 +63,12 @@
     "xstddef": "cpp",
     "xstring": "cpp",
     "xtree": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "filesystem": "cpp",
+    "forward_list": "cpp",
+    "iomanip": "cpp",
+    "numeric": "cpp",
+    "valarray": "cpp",
+    "variant": "cpp"
   }
 }

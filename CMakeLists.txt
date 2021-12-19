@@ -21,6 +21,7 @@ target_sources(main
         src/gui/EntityWindow.cc
         src/gui/TileWindow.cc
         src/gui/DebugMenu.cc
+        src/gui/AsepriteParser.cc
 )
 target_link_libraries(main
     PRIVATE
