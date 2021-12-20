@@ -61,7 +61,20 @@ bool TileWindow::render() {
     const char *extensions = tileParser_->getFileExtentions();
     nfdresult_t result = NFD_OpenDialog(extensions, current_directory, &path);
     if (result == NFD_OKAY) {
+      auto parsedResults = tileParser_->parse(path);
       TraceLog(LOG_INFO, "Found path %s\n", path);
+      if (std::holds_alternative<TileSet>(parsedResults)) {
+        auto tilesetDefintions = std::get<TileSet>(parsedResults);
+        TraceLog(LOG_INFO, "Found frames %lu\n", tilesetDefintions.frames.size());
+        TraceLog(LOG_INFO, "Found width %lu, height %lu\n", tilesetDefintions.width, tilesetDefintions.height);
+
+        for (auto const& frame : tilesetDefintions.frames) {
+          TraceLog(LOG_INFO, "Found index %lu\n", frame.index);
+          TraceLog(LOG_INFO, "Found x %lu, y %lu\n", frame.frameDimensions.x, frame.frameDimensions.y);
+          TraceLog(LOG_INFO, "Found frame width %lu, frame height %lu\n", frame.frameDimensions.width, frame.frameDimensions.height);
+        }
+        
+      }
     }
   }
 

@@ -19,12 +19,12 @@ AsepriteParser::LabelSplit AsepriteParser::defaultSplitter(std::string const& ra
     lines.emplace_back(std::move(line));
   }
 
-  if (line.size() < 2)
+  if (lines.size() < 2)
   {
     throw std::out_of_range("Not enough elements in label");
   }
 
-  if (line.size() >= 3)
+  if (lines.size() >= 3)
   {
     return {
       lines[1],
@@ -160,21 +160,24 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
 
   for (auto const &record : frames.items()) {
     auto const& frame = record.value();
-    auto const& label = record.key();
+    std::string const& label = record.key();
 
     if (!isValidRecord(frame)) {
       continue;
     }
 
     auto labelSplit = label_parser_(label);
-
+  
     TileSet::TileFrame tileFrame;
 
     tileFrame.index = labelSplit.index;
-    tileFrame.frameDimensions.x = frame["x"];
-    tileFrame.frameDimensions.y = frame["y"];
-    tileFrame.frameDimensions.width = frame["w"];
-    tileFrame.frameDimensions.height = frame["h"];
+
+    auto &frameDimensions = frame["frame"];
+
+    tileFrame.frameDimensions.x = frameDimensions["x"];
+    tileFrame.frameDimensions.y = frameDimensions["y"];
+    tileFrame.frameDimensions.width = frameDimensions["w"];
+    tileFrame.frameDimensions.height = frameDimensions["h"];
     tileFrame.rotated = frame["rotated"];
     tileFrame.trimmed = frame["trimmed"];
 
