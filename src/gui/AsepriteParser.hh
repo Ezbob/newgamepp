@@ -18,7 +18,9 @@ public:
 
   AsepriteParser(LabelSplitter_t splitter = defaultSplitter);
 
-  std::variant<TileSet, TileParseFault> parse(std::string const &filename);
+  std::variant<TileSet, TileParseFault> parse(std::string const &filename) override;
+
+  const char *getFileExtentions() const override;
 
 private:
   static LabelSplit defaultSplitter(std::string const&raw);

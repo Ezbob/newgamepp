@@ -16,4 +16,6 @@ class ITileParser {
   };
 
   virtual std::variant<TileSet, TileParseFault> parse(std::string const &filename) = 0;
+
+  virtual const char *getFileExtentions() const = 0;
 };

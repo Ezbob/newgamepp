@@ -160,12 +160,17 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
 
   for (auto const &record : frames.items()) {
     auto const& frame = record.value();
+    auto const& label = record.key();
 
     if (!isValidRecord(frame)) {
       continue;
     }
 
+    auto labelSplit = label_parser_(label);
+
     TileSet::TileFrame tileFrame;
+
+    tileFrame.index = labelSplit.index;
     tileFrame.frameDimensions.x = frame["x"];
     tileFrame.frameDimensions.y = frame["y"];
     tileFrame.frameDimensions.width = frame["w"];
@@ -176,4 +181,14 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
     result.frames.emplace_back(tileFrame);
   }
 
+  std::sort(result.frames.begin(), result.frames.end(),
+    [](TileSet::TileFrame const&a, TileSet::TileFrame const&b) {
+      return a.index < b.index;
+    });
+
+  return result;
+}
+
+const char *AsepriteParser::getFileExtentions() const {
+  return "json";
 }

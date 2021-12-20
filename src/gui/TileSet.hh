@@ -12,6 +12,7 @@ struct TileSet {
   size_t height;
 
   struct TileFrame {
+    size_t index;
     Rectangle frameDimensions;
     bool rotated;
     bool trimmed;
