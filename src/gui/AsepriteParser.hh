@@ -20,7 +20,7 @@ public:
 
   std::variant<TileSet, TileParseFault> parse(std::string const &filename) override;
 
-  const char *getFileExtentions() const override;
+  const char *getFileExtensions() const override;
 
 private:
   static LabelSplit defaultSplitter(std::string const&raw);

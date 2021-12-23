@@ -15,6 +15,33 @@ ITileParser *TileWindow::getParser(int index) {
   return nullptr;
 }
 
+void TileWindow::openTilesetFile() {
+  nfdchar_t *path = NULL;
+
+  const nfdchar_t *current_directory = GetWorkingDirectory();  
+  const char *extensions = tileParser_->getFileExtensions(); // a semi-colon seperated list of extensions
+
+  nfdresult_t result = NFD_OpenDialog(extensions, current_directory, &path);
+  if (result == NFD_OKAY) {
+    auto parsedResults = tileParser_->parse(path);
+    TraceLog(LOG_INFO, "Found path %s\n", path);
+
+    if (std::holds_alternative<TileSet>(parsedResults)) {
+      auto tilesetDefintions = std::get<TileSet>(parsedResults);
+      TraceLog(LOG_INFO, "Found frames %lu\n", tilesetDefintions.frames.size());
+      TraceLog(LOG_INFO, "Found width %lu, height %lu\n", tilesetDefintions.width, tilesetDefintions.height);
+
+      for (auto const& frame : tilesetDefintions.frames) {
+        TraceLog(LOG_INFO, "Found index %lu\n", frame.index);
+        TraceLog(LOG_INFO, "Found x %f, y %f\n", frame.frameDimensions.x, frame.frameDimensions.y);
+        TraceLog(LOG_INFO, "Found frame width %f, frame height %f\n", frame.frameDimensions.width, frame.frameDimensions.height);
+      }
+      
+    }
+    NFD_Path_Free(path);
+  }
+}
+
 bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
@@ -56,26 +83,7 @@ bool TileWindow::render() {
   if (!tileParser_) GuiDisable();
 
   if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
-    const nfdchar_t *current_directory = GetWorkingDirectory();
-    nfdchar_t *path = NULL;
-    const char *extensions = tileParser_->getFileExtentions();
-    nfdresult_t result = NFD_OpenDialog(extensions, current_directory, &path);
-    if (result == NFD_OKAY) {
-      auto parsedResults = tileParser_->parse(path);
-      TraceLog(LOG_INFO, "Found path %s\n", path);
-      if (std::holds_alternative<TileSet>(parsedResults)) {
-        auto tilesetDefintions = std::get<TileSet>(parsedResults);
-        TraceLog(LOG_INFO, "Found frames %lu\n", tilesetDefintions.frames.size());
-        TraceLog(LOG_INFO, "Found width %lu, height %lu\n", tilesetDefintions.width, tilesetDefintions.height);
-
-        for (auto const& frame : tilesetDefintions.frames) {
-          TraceLog(LOG_INFO, "Found index %lu\n", frame.index);
-          TraceLog(LOG_INFO, "Found x %lu, y %lu\n", frame.frameDimensions.x, frame.frameDimensions.y);
-          TraceLog(LOG_INFO, "Found frame width %lu, frame height %lu\n", frame.frameDimensions.width, frame.frameDimensions.height);
-        }
-        
-      }
-    }
+    openTilesetFile();
   }
 
   if (!tileParser_) GuiEnable();

@@ -22,6 +22,8 @@ private:
 
   ITileParser *getParser(int);
 
+  void openTilesetFile(void);
+
   bool chooseParseMethod_ = false;
   
   int parseMethodChosen_ = 0;

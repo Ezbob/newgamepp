@@ -24,18 +24,16 @@ AsepriteParser::LabelSplit AsepriteParser::defaultSplitter(std::string const& ra
     throw std::out_of_range("Not enough elements in label");
   }
 
+  LabelSplit split;
   if (lines.size() >= 3)
   {
-    return {
-      lines[1],
-      std::stoul(lines[2])
-    };
+    split.frame_label = lines[1];
+    split.index = std::stoul(lines[2]);
   } else {
-    return {
-      lines[0],
-      std::stoul(lines[1])
-    };
+    split.frame_label = lines[0];
+    split.index = std::stoul(lines[1]);
   }
+  return split;
 }
 
 bool AsepriteParser::isValidRecord(nlohmann::json const &r) const {
@@ -77,7 +75,7 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
     };
   }
 
-  if (!json_parsed.contains("meta")) 
+  if (!json_parsed.contains("meta"))
   {
     return TileParseFault {
       "Does not contain 'meta' field",
@@ -86,7 +84,7 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
     };
   }
 
-  if (!json_parsed.contains("frames")) 
+  if (!json_parsed.contains("frames"))
   {
     return TileParseFault {
       "Does not contain 'frames' field",
@@ -98,7 +96,7 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
   nlohmann::json &frames = json_parsed["frames"];
   nlohmann::json &meta = json_parsed["meta"];
 
-  if (!meta.contains("image")) 
+  if (!meta.contains("image"))
   {
     return TileParseFault {
       "Does not contain 'meta'.'image' field",
@@ -167,7 +165,7 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
     }
 
     auto labelSplit = label_parser_(label);
-  
+
     TileSet::TileFrame tileFrame;
 
     tileFrame.index = labelSplit.index;
@@ -192,6 +190,6 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
   return result;
 }
 
-const char *AsepriteParser::getFileExtentions() const {
+const char *AsepriteParser::getFileExtensions() const {
   return "json";
 }
