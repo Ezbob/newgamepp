@@ -6,6 +6,8 @@
 #include "ITileParser.hh"
 #include "raylib.h"
 #include "AsepriteParser.hh"
+#include <vector>
+#include <unordered_map>
 
 class TileWindow : public IRenderable {
 public:
@@ -22,7 +24,7 @@ private:
 
   ITileParser *getParser(int);
 
-  void openTilesetFile(void);
+  void openTilesetFile(Rectangle &);
 
   bool chooseParseMethod_ = false;
   
@@ -33,5 +35,11 @@ private:
   bool mousepressed_ = false;
   bool showGridColor_ = false;
 
+  bool showErrorNotFound_ = false;
+
   AsepriteParser aseprite_;
+
+  size_t ids_ = 0;
+
+  std::unordered_map<std::string, TileSet> tilesets_;
 };

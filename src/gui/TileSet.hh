@@ -4,10 +4,14 @@
 
 #include <string>
 #include <vector>
+#include <filesystem>
 #include "raylib.h"
 
 struct TileSet {
   std::string image_name;
+  std::filesystem::path image_path;
+
+  Texture texture;
   size_t width;
   size_t height;
 

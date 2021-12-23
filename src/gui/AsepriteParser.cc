@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <filesystem>
 
 AsepriteParser::AsepriteParser(LabelSplitter_t splitter)
   : label_parser_(splitter)
@@ -153,6 +154,8 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
 
   TileSet result;
   result.image_name = meta["image"];
+  result.image_path = std::filesystem::path(filename);
+  result.image_path.replace_filename(result.image_name);
   result.width = size["w"];
   result.height = size["h"];
 

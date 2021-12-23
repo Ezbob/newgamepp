@@ -3,6 +3,7 @@
 #include "raygui.h"
 #include "Constants.hh"
 #include <stdint.h>
+#include <fmt/core.h>
 #include "nfd.h"
 
 
@@ -15,7 +16,7 @@ ITileParser *TileWindow::getParser(int index) {
   return nullptr;
 }
 
-void TileWindow::openTilesetFile() {
+void TileWindow::openTilesetFile(Rectangle &tileBox) {
   nfdchar_t *path = NULL;
 
   const nfdchar_t *current_directory = GetWorkingDirectory();  
@@ -24,19 +25,20 @@ void TileWindow::openTilesetFile() {
   nfdresult_t result = NFD_OpenDialog(extensions, current_directory, &path);
   if (result == NFD_OKAY) {
     auto parsedResults = tileParser_->parse(path);
-    TraceLog(LOG_INFO, "Found path %s\n", path);
 
     if (std::holds_alternative<TileSet>(parsedResults)) {
-      auto tilesetDefintions = std::get<TileSet>(parsedResults);
-      TraceLog(LOG_INFO, "Found frames %lu\n", tilesetDefintions.frames.size());
-      TraceLog(LOG_INFO, "Found width %lu, height %lu\n", tilesetDefintions.width, tilesetDefintions.height);
-
-      for (auto const& frame : tilesetDefintions.frames) {
-        TraceLog(LOG_INFO, "Found index %lu\n", frame.index);
-        TraceLog(LOG_INFO, "Found x %f, y %f\n", frame.frameDimensions.x, frame.frameDimensions.y);
-        TraceLog(LOG_INFO, "Found frame width %f, frame height %f\n", frame.frameDimensions.width, frame.frameDimensions.height);
-      }
+      auto tilesetDefinition = std::get<TileSet>(parsedResults);
       
+      if (!std::filesystem::exists(tilesetDefinition.image_path)) {
+        showErrorNotFound_ = true;
+        return;
+      }
+
+      tilesetDefinition.texture = LoadTexture(tilesetDefinition.image_path.c_str());
+
+      std::string id = fmt::format("{}", ids_++);
+      tilesets_[id] = tilesetDefinition;
+
     }
     NFD_Path_Free(path);
   }
@@ -46,6 +48,8 @@ bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
   }
+  
+
   int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
   mousepressed_ = IsMouseButtonPressed(0);
 
@@ -63,6 +67,8 @@ bool TileWindow::render() {
   GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
   auto mouseGridPosition = GuiGrid({0, 0, Constants::screenWidth, Constants::screenHeight}, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
+
+  if (showErrorNotFound_) GuiDisable();
 
   float tileBoxWidth = 325.f;
   auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - tileBoxWidth, windowBoundary_.width - 10.f, tileBoxWidth - 5.f};
@@ -83,10 +89,17 @@ bool TileWindow::render() {
   if (!tileParser_) GuiDisable();
 
   if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
-    openTilesetFile();
+    openTilesetFile(tileBox);
   }
 
   if (!tileParser_) GuiEnable();
+
+  if (showErrorNotFound_) GuiEnable();
+
+  if (showErrorNotFound_) {
+    showErrorNotFound_ = (-1 == GuiMessageBox({tileBox.x + 10 + 160.f, tileBox.y + 10 + 50.f, 250.f, 100.f}, 
+          "Could not find image", "The associated image could not be found", "OK"));
+  }
 
   return true;
 }
