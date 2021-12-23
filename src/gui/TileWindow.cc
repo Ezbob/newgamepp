@@ -16,7 +16,7 @@ ITileParser *TileWindow::getParser(int index) {
   return nullptr;
 }
 
-void TileWindow::openTilesetFile(Rectangle &tileBox) {
+void TileWindow::openTilesetFile(Rectangle const& tileBox) {
   nfdchar_t *path = NULL;
 
   const nfdchar_t *current_directory = GetWorkingDirectory();  
@@ -41,6 +41,21 @@ void TileWindow::openTilesetFile(Rectangle &tileBox) {
 
     }
     NFD_Path_Free(path);
+  }
+}
+
+void TileWindow::drawTilepanel(Rectangle const& tilebox) {
+  const int padding = 5;
+
+  if (!selectedTileSet_) {
+    selectedTileSet_ = &tilesets_["0"];
+  }
+
+  for (auto &tileFrame : selectedTileSet_->frames) {
+    Vector2 position;
+    position.x = tilebox.x + 10.f + (tileFrame.index * (padding + tileFrame.frameDimensions.width));
+    position.y = tilebox.y + 48.f;
+    DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
   }
 }
 
@@ -90,6 +105,10 @@ bool TileWindow::render() {
 
   if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
     openTilesetFile(tileBox);
+  }
+
+  if (tilesets_.size() > 0) {
+    drawTilepanel(tileBox);
   }
 
   if (!tileParser_) GuiEnable();

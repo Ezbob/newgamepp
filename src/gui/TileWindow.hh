@@ -24,7 +24,9 @@ private:
 
   ITileParser *getParser(int);
 
-  void openTilesetFile(Rectangle &);
+  void drawTilepanel(Rectangle const&);
+
+  void openTilesetFile(Rectangle const&);
 
   bool chooseParseMethod_ = false;
   
@@ -42,4 +44,6 @@ private:
   size_t ids_ = 0;
 
   std::unordered_map<std::string, TileSet> tilesets_;
+
+  TileSet *selectedTileSet_ = nullptr;
 };
