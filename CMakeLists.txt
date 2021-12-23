@@ -17,11 +17,7 @@ add_executable(main "" src/Constants.hh)
 target_sources(main
     PRIVATE
         src/Main.cc
-        src/gui/DebugGUI.cc
-        src/gui/EntityWindow.cc
-        src/gui/TileWindow.cc
-        src/gui/DebugMenu.cc
-        src/gui/AsepriteParser.cc
+        src/gui/GuiUnity.cc
 )
 target_link_libraries(main
     PRIVATE
