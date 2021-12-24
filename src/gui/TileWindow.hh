@@ -28,6 +28,8 @@ private:
 
   void openTilesetFile(Rectangle const&);
 
+  void showTilesetError(Rectangle const&);
+
   bool chooseParseMethod_ = false;
   
   int parseMethodChosen_ = 0;
@@ -37,7 +39,12 @@ private:
   bool mousepressed_ = false;
   bool showGridColor_ = false;
 
-  bool showErrorNotFound_ = false;
+  enum class TilesetErrors {
+    no_error,
+    file_not_found,
+    tileset_already_loaded,
+    tileset_parse_error
+  } tilesetError_ = TilesetErrors::no_error;
 
   AsepriteParser aseprite_;
 

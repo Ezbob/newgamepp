@@ -3,7 +3,6 @@
 #include "raygui.h"
 #include "Constants.hh"
 #include <stdint.h>
-#include <fmt/core.h>
 #include "nfd.h"
 
 
@@ -28,35 +27,70 @@ void TileWindow::openTilesetFile(Rectangle const& tileBox) {
 
     if (std::holds_alternative<TileSet>(parsedResults)) {
       auto tilesetDefinition = std::get<TileSet>(parsedResults);
-      
+      std::string id = tilesetDefinition.image_name;
+
+      if (tilesets_.find(id) != tilesets_.end()) {
+        tilesetError_ = TilesetErrors::tileset_already_loaded;
+        return;
+      }
+
       if (!std::filesystem::exists(tilesetDefinition.image_path)) {
-        showErrorNotFound_ = true;
+        tilesetError_ = TilesetErrors::file_not_found;
         return;
       }
 
       tilesetDefinition.texture = LoadTexture(tilesetDefinition.image_path.c_str());
 
-      std::string id = fmt::format("{}", ids_++);
       tilesets_[id] = tilesetDefinition;
 
+      if (!selectedTileSet_) {
+        selectedTileSet_ = &tilesets_[id];
+      }
     }
+    NFD_Path_Free(path);
+  } else if (result == NFD_CANCEL) {
     NFD_Path_Free(path);
   }
 }
 
 void TileWindow::drawTilepanel(Rectangle const& tilebox) {
-  const int padding = 5;
-
-  if (!selectedTileSet_) {
-    selectedTileSet_ = &tilesets_["0"];
-  }
+  const int padding = 10;
 
   for (auto &tileFrame : selectedTileSet_->frames) {
     Vector2 position;
     position.x = tilebox.x + 10.f + (tileFrame.index * (padding + tileFrame.frameDimensions.width));
-    position.y = tilebox.y + 48.f;
+    position.y = tilebox.y + 50.f;
     DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
   }
+}
+
+void TileWindow::showTilesetError(Rectangle const& tileBox) {
+  static const char *ok_button = "OK";
+  Rectangle window_bounds = {tileBox.x + 10 + 160.f, tileBox.y + 10 + 50.f, 250.f, 100.f};
+
+  switch(tilesetError_) {
+    case TilesetErrors::file_not_found: {
+      if (GuiMessageBox(window_bounds, "Could not find image", "The associated image could not be found", ok_button) != -1) {
+        tilesetError_ = TilesetErrors::no_error;
+      }
+      break;
+    }
+    case TilesetErrors::tileset_already_loaded: {
+      if (GuiMessageBox(window_bounds, "Tileset already loaded", "The selected tileset is already loaded", ok_button) != -1) {
+        tilesetError_ = TilesetErrors::no_error;
+      }
+      break;
+    }
+    case TilesetErrors::tileset_parse_error: {
+      if (GuiMessageBox(window_bounds, "Tileset parse error", "The selected tileset file could not be parsed", ok_button) != -1) {
+        tilesetError_ = TilesetErrors::no_error;
+      }
+      break;
+    }
+    default:
+      break;
+  };
+
 }
 
 bool TileWindow::render() {
@@ -64,7 +98,6 @@ bool TileWindow::render() {
     return false;
   }
   
-
   int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
   mousepressed_ = IsMouseButtonPressed(0);
 
@@ -83,7 +116,7 @@ bool TileWindow::render() {
   auto mouseGridPosition = GuiGrid({0, 0, Constants::screenWidth, Constants::screenHeight}, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
 
-  if (showErrorNotFound_) GuiDisable();
+  if (tilesetError_ != TilesetErrors::no_error) GuiDisable();
 
   float tileBoxWidth = 325.f;
   auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - tileBoxWidth, windowBoundary_.width - 10.f, tileBoxWidth - 5.f};
@@ -109,16 +142,21 @@ bool TileWindow::render() {
 
   if (tilesets_.size() > 0) {
     drawTilepanel(tileBox);
+    {
+      std::vector<const char *> labels;
+      for (auto &tilesetEntry : tilesets_) {
+        labels.push_back(tilesetEntry.first.c_str());
+      }
+
+      GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, 100.f, 30.f}, labels.size(), labels.data(), 0);
+    }
   }
 
   if (!tileParser_) GuiEnable();
 
-  if (showErrorNotFound_) GuiEnable();
+  if (tilesetError_ != TilesetErrors::no_error) GuiEnable();
 
-  if (showErrorNotFound_) {
-    showErrorNotFound_ = (-1 == GuiMessageBox({tileBox.x + 10 + 160.f, tileBox.y + 10 + 50.f, 250.f, 100.f}, 
-          "Could not find image", "The associated image could not be found", "OK"));
-  }
+  showTilesetError(tileBox);
 
   return true;
 }
