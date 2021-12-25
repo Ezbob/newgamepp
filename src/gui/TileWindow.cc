@@ -114,9 +114,15 @@ bool TileWindow::render() {
     windowBoundary_.width - 10.f,
     tileBoxHeight - 5.f};
   
-  if (tilesetError_ != TilesetErrors::no_error) GuiDisable();
+  if (tilesetError_ != TilesetErrors::no_error) {
+    GuiDisable();
+  }
+
   drawTileSetSection(tileBox);
-  if (tilesetError_ != TilesetErrors::no_error) GuiEnable();
+
+  if (tilesetError_ != TilesetErrors::no_error) {
+    GuiEnable();
+  }
 
   showTilesetError(tileBox);
 
@@ -125,6 +131,10 @@ bool TileWindow::render() {
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
+    
+      if (mousepressed_) {
+        // TODO: add tile to some data structure, and add it to the background
+      }
     }
   }
 
