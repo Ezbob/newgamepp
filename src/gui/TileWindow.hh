@@ -24,8 +24,6 @@ private:
 
   ITileParser *selectParser(int);
 
-  void drawTilepanel(Rectangle const&);
-
   void openTilesetFile(Rectangle const&);
 
   void showTilesetError(Rectangle const&);
@@ -33,8 +31,7 @@ private:
   void drawTileSetSection(Rectangle const&);
 
   bool chooseParseMethod_ = false;
-  
-  int fontSize_ = 0;
+
   int parseMethodChosen_ = 0;
   ITileParser *tileParser_;
 
@@ -56,4 +53,7 @@ private:
   std::unordered_map<std::string, TileSet> tilesets_;
 
   TileSet *selectedTileSet_ = nullptr;
+
+  bool hasSelectedTile_ = false;
+  Rectangle selectedTile_;
 };

@@ -4,6 +4,7 @@
 #include "Constants.hh"
 #include <stdint.h>
 #include "nfd.h"
+#include <algorithm>
 
 
 ITileParser *TileWindow::selectParser(int index) {
@@ -53,16 +54,6 @@ void TileWindow::openTilesetFile(Rectangle const& tileBox) {
   }
 }
 
-void TileWindow::drawTilepanel(Rectangle const& tilebox) {
-  const int padding = 10;
-
-  for (auto &tileFrame : selectedTileSet_->frames) {
-    Vector2 position;
-    position.x = tilebox.x + 10.f + (tileFrame.index * (padding + tileFrame.frameDimensions.width));
-    position.y = tilebox.y + 50.f;
-    DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
-  }
-}
 
 void TileWindow::showTilesetError(Rectangle const& tileBox) {
   static const char *ok_button = "OK";
@@ -98,7 +89,6 @@ bool TileWindow::render() {
     return false;
   }
   
-  fontSize_ = GuiGetStyle(DEFAULT, TEXT_SIZE);
   mousepressed_ = IsMouseButtonPressed(0);
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
@@ -116,8 +106,12 @@ bool TileWindow::render() {
   auto mouseGridPosition = GuiGrid({0, 0, Constants::screenWidth, Constants::screenHeight}, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
 
-  float tileBoxWidth = 325.f;
-  auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - tileBoxWidth, windowBoundary_.width - 10.f, tileBoxWidth - 5.f};
+  float tileBoxHeight = 325.f;
+  Rectangle tileBox = {
+    windowBoundary_.x + 5.f,
+    windowBoundary_.height - tileBoxHeight,
+    windowBoundary_.width - 10.f,
+    tileBoxHeight - 5.f};
   
   if (tilesetError_ != TilesetErrors::no_error) GuiDisable();
   drawTileSetSection(tileBox);
@@ -131,8 +125,9 @@ bool TileWindow::render() {
 void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
 
+  size_t fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
   const char *text = "Browse";
-  int size = MeasureText(text, fontSize_);
+  int size = MeasureText(text, fontSize);
 
   GuiLabel({(tileBox.x + tileBox.width) - (size + 45.f) - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
 
@@ -147,14 +142,61 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
   }
 
   if (tilesets_.size() > 0) {
-    drawTilepanel(tileBox);
+    const size_t tileSpacing = 10;
+    const size_t outerYPadding = 50;
+    const size_t outerXPadding = 10;
+
+    size_t tileWidth = 0;
+    if (selectedTileSet_->frames.size() > 0) {
+      auto &frames = selectedTileSet_->frames;
+      
+      for (auto const &frame : frames) {
+        if (frame.frameDimensions.width > tileWidth){
+          tileWidth = frame.frameDimensions.width;
+        }
+      }
+    }
+
+    size_t rowSize = tileBox.width / (tileSpacing + tileWidth);
+
+    for (auto &tileFrame : selectedTileSet_->frames) {
+      Vector2 position;
+      size_t xIndex = tileFrame.index % rowSize;
+      size_t yIndex = tileFrame.index / rowSize;
+
+      position.x = tileBox.x + outerXPadding + (xIndex * (tileSpacing + tileFrame.frameDimensions.width));
+      position.y = tileBox.y + outerYPadding + (yIndex * (tileSpacing + tileFrame.frameDimensions.height));
+      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
+      
+      Rectangle tileRect = {
+        position.x,
+        position.y,
+        tileFrame.frameDimensions.width,
+        tileFrame.frameDimensions.height
+      };
+      if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
+        hasSelectedTile_ = true;
+        selectedTile_ = tileRect;
+      }
+    }
+
     {
+      size_t maxWidth = 100.f;
       std::vector<const char *> labels;
       for (auto &tilesetEntry : tilesets_) {
         labels.push_back(tilesetEntry.first.c_str());
       }
 
-      GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, 100.f, 30.f}, labels.size(), labels.data(), 0);
+      GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, labels.size(), labels.data(), 0);
+    }
+
+    if (hasSelectedTile_) {
+      DrawRectangleLinesEx({
+        selectedTile_.x - 5.f, 
+        selectedTile_.y - 5.f, 
+        selectedTile_.width + 10.f, 
+        selectedTile_.height + 10.f
+      }, 1, GREEN);
     }
   }
 
