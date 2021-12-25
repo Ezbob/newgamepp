@@ -6,7 +6,7 @@
 #include "nfd.h"
 
 
-ITileParser *TileWindow::getParser(int index) {
+ITileParser *TileWindow::selectParser(int index) {
   switch (index)
   {
     case 0:
@@ -98,7 +98,7 @@ bool TileWindow::render() {
     return false;
   }
   
-  int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
+  fontSize_ = GuiGetStyle(DEFAULT, TEXT_SIZE);
   mousepressed_ = IsMouseButtonPressed(0);
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
@@ -116,15 +116,23 @@ bool TileWindow::render() {
   auto mouseGridPosition = GuiGrid({0, 0, Constants::screenWidth, Constants::screenHeight}, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
 
-  if (tilesetError_ != TilesetErrors::no_error) GuiDisable();
-
   float tileBoxWidth = 325.f;
   auto tileBox = Rectangle{windowBoundary_.x + 5.f, windowBoundary_.height - tileBoxWidth, windowBoundary_.width - 10.f, tileBoxWidth - 5.f};
+  
+  if (tilesetError_ != TilesetErrors::no_error) GuiDisable();
+  drawTileSetSection(tileBox);
+  if (tilesetError_ != TilesetErrors::no_error) GuiEnable();
+
+  showTilesetError(tileBox);
+
+  return true;
+}
+
+void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
 
-  auto font = GetFontDefault();
   const char *text = "Browse";
-  int size = MeasureText(text, fontSize);
+  int size = MeasureText(text, fontSize_);
 
   GuiLabel({(tileBox.x + tileBox.width) - (size + 45.f) - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
 
@@ -132,9 +140,7 @@ bool TileWindow::render() {
     chooseParseMethod_ = !chooseParseMethod_;
   }
 
-  tileParser_ = getParser(parseMethodChosen_);
-
-  if (!tileParser_) GuiDisable();
+  tileParser_ = selectParser(parseMethodChosen_);
 
   if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
     openTilesetFile(tileBox);
@@ -152,11 +158,4 @@ bool TileWindow::render() {
     }
   }
 
-  if (!tileParser_) GuiEnable();
-
-  if (tilesetError_ != TilesetErrors::no_error) GuiEnable();
-
-  showTilesetError(tileBox);
-
-  return true;
 }

@@ -22,7 +22,7 @@ private:
           600.f,
           Constants::screenHeight + 200.f};
 
-  ITileParser *getParser(int);
+  ITileParser *selectParser(int);
 
   void drawTilepanel(Rectangle const&);
 
@@ -30,8 +30,11 @@ private:
 
   void showTilesetError(Rectangle const&);
 
+  void drawTileSetSection(Rectangle const&);
+
   bool chooseParseMethod_ = false;
   
+  int fontSize_ = 0;
   int parseMethodChosen_ = 0;
   ITileParser *tileParser_;
 
