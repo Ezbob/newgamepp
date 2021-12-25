@@ -175,7 +175,7 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
         tileFrame.frameDimensions.height
       };
       if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
-        hasSelectedTile_ = true;
+        hasSelectedTile_ = !hasSelectedTile_;
         selectedTile_ = tileRect;
       }
     }
