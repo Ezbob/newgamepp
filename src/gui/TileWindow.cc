@@ -101,9 +101,10 @@ bool TileWindow::render() {
     gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
   }
 
+  Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
   int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
   GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
-  auto mouseGridPosition = GuiGrid({0, 0, Constants::screenWidth, Constants::screenHeight}, 10.f, 2);
+  auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
 
   float tileBoxHeight = 325.f;
@@ -118,6 +119,14 @@ bool TileWindow::render() {
   if (tilesetError_ != TilesetErrors::no_error) GuiEnable();
 
   showTilesetError(tileBox);
+
+  if (selectedFrameIndex_ != -1 && selectedTileSet_) {
+    auto mousePosition = GetMousePosition();
+    if (CheckCollisionPointRec(mousePosition, windowRect)) {
+      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
+      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
+    }
+  }
 
   return true;
 }
@@ -176,8 +185,8 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
         tileFrame.frameDimensions.height
       };
       if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
-        selectedTileIndex_ = i;
-        selectedTileSample_ = tileRect;
+        selectedFrameIndex_ = (i == selectedFrameIndex_) ? -1 : i;
+        selectedFrameSample_ = tileRect;
       }
       i++;
     }
@@ -192,12 +201,12 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
       GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, labels.size(), labels.data(), 0);
     }
 
-    if (selectedTileIndex_ != -1) {
+    if (selectedFrameIndex_ != -1) {
       DrawRectangleLinesEx({
-        selectedTileSample_.x - 5.f, 
-        selectedTileSample_.y - 5.f, 
-        selectedTileSample_.width + 10.f, 
-        selectedTileSample_.height + 10.f
+        selectedFrameSample_.x - 5.f, 
+        selectedFrameSample_.y - 5.f, 
+        selectedFrameSample_.width + 10.f, 
+        selectedFrameSample_.height + 10.f
       }, 1, GREEN);
     }
   }
