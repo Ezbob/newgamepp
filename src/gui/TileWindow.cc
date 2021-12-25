@@ -159,6 +159,7 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
 
     size_t rowSize = tileBox.width / (tileSpacing + tileWidth);
 
+    size_t i = 0;
     for (auto &tileFrame : selectedTileSet_->frames) {
       Vector2 position;
       size_t xIndex = tileFrame.index % rowSize;
@@ -175,9 +176,10 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
         tileFrame.frameDimensions.height
       };
       if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
-        hasSelectedTile_ = !hasSelectedTile_;
-        selectedTile_ = tileRect;
+        selectedTileIndex_ = i;
+        selectedTileSample_ = tileRect;
       }
+      i++;
     }
 
     {
@@ -190,12 +192,12 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
       GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, labels.size(), labels.data(), 0);
     }
 
-    if (hasSelectedTile_) {
+    if (selectedTileIndex_ != -1) {
       DrawRectangleLinesEx({
-        selectedTile_.x - 5.f, 
-        selectedTile_.y - 5.f, 
-        selectedTile_.width + 10.f, 
-        selectedTile_.height + 10.f
+        selectedTileSample_.x - 5.f, 
+        selectedTileSample_.y - 5.f, 
+        selectedTileSample_.width + 10.f, 
+        selectedTileSample_.height + 10.f
       }, 1, GREEN);
     }
   }

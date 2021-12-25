@@ -54,6 +54,6 @@ private:
 
   TileSet *selectedTileSet_ = nullptr;
 
-  bool hasSelectedTile_ = false;
-  Rectangle selectedTile_;
+  int selectedTileIndex_ = -1;
+  Rectangle selectedTileSample_;
 };
