@@ -56,4 +56,6 @@ private:
 
   int selectedFrameIndex_ = -1;
   Rectangle selectedFrameSample_;
+
+  Vector2 panelScroller_ = {5.f, 5.f};
 };

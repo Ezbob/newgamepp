@@ -148,6 +148,9 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
   const char *text = "Browse";
   int size = MeasureText(text, fontSize);
 
+  Rectangle panelRect = {tileBox.x + 10.f, tileBox.y + 50.f, tileBox.width - 20.f, tileBox.height - 95.f};
+  Rectangle panelContentRect = {0, 0, tileBox.width - 35.f, 0};
+
   GuiLabel({(tileBox.x + tileBox.width) - (size + 45.f) - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
 
   if (GuiDropdownBox({(tileBox.x + tileBox.width) - (size + 45.f) - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &parseMethodChosen_, chooseParseMethod_)) {
@@ -162,10 +165,10 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
 
   if (tilesets_.size() > 0) {
     const size_t tileSpacing = 10;
-    const size_t outerYPadding = 50;
-    const size_t outerXPadding = 10;
+    const size_t outerYPadding = 5;
+    const size_t outerXPadding = 5;
 
-    size_t tileWidth = 0;
+    size_t tileWidth = 0, tileHeight = 0;
     if (selectedTileSet_->frames.size() > 0) {
       auto &frames = selectedTileSet_->frames;
       
@@ -173,19 +176,28 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
         if (frame.frameDimensions.width > tileWidth){
           tileWidth = frame.frameDimensions.width;
         }
+        if (frame.frameDimensions.height > tileHeight){
+          tileHeight = frame.frameDimensions.height;
+        }
       }
     }
 
     size_t rowSize = tileBox.width / (tileSpacing + tileWidth);
+    size_t numberOfRows = selectedTileSet_->frames.size() / rowSize;
 
+    panelContentRect.height += numberOfRows * (tileHeight + tileSpacing); 
+
+    Rectangle view = GuiScrollPanel(panelRect, panelContentRect, &panelScroller_);
+
+    BeginScissorMode(view.x, view.y, view.width, view.height);
     size_t i = 0;
     for (auto &tileFrame : selectedTileSet_->frames) {
       Vector2 position;
       size_t xIndex = tileFrame.index % rowSize;
       size_t yIndex = tileFrame.index / rowSize;
 
-      position.x = tileBox.x + outerXPadding + (xIndex * (tileSpacing + tileFrame.frameDimensions.width));
-      position.y = tileBox.y + outerYPadding + (yIndex * (tileSpacing + tileFrame.frameDimensions.height));
+      position.x = panelRect.x + panelScroller_.x + outerXPadding + (xIndex * (tileSpacing + tileFrame.frameDimensions.width));
+      position.y = panelRect.y + panelScroller_.y + outerYPadding + (yIndex * (tileSpacing + tileFrame.frameDimensions.height));
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
       
       Rectangle tileRect = {
@@ -200,6 +212,15 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
       }
       i++;
     }
+    if (selectedFrameIndex_ != -1) {
+      DrawRectangleLinesEx({
+        selectedFrameSample_.x - 5.f, 
+        selectedFrameSample_.y - 5.f, 
+        selectedFrameSample_.width + 10.f, 
+        selectedFrameSample_.height + 10.f
+      }, 1, GREEN);
+    }
+    EndScissorMode();
 
     {
       size_t maxWidth = 100.f;
@@ -211,14 +232,6 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
       GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, labels.size(), labels.data(), 0);
     }
 
-    if (selectedFrameIndex_ != -1) {
-      DrawRectangleLinesEx({
-        selectedFrameSample_.x - 5.f, 
-        selectedFrameSample_.y - 5.f, 
-        selectedFrameSample_.width + 10.f, 
-        selectedFrameSample_.height + 10.f
-      }, 1, GREEN);
-    }
   }
 
 }
