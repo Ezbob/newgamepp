@@ -5,6 +5,20 @@
 #include <stdint.h>
 #include "nfd.h"
 #include <algorithm>
+#include <cmath>
+
+namespace {
+  int roundDownTo10(int n) {
+      // Smaller multiple
+      int a = (n / 10) * 10;
+      
+      // Larger multiple
+      int b = a + 10;
+  
+      // Return of closest of two
+      return (n - a > b - n)? b : a;
+  }
+};
 
 
 ITileParser *TileWindow::selectParser(int index) {
@@ -129,6 +143,11 @@ bool TileWindow::render() {
   if (selectedFrameIndex_ != -1 && selectedTileSet_) {
     auto mousePosition = GetMousePosition();
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
+
+      // snapping to the grid
+      mousePosition.x = roundDownTo10( mousePosition.x );
+      mousePosition.y = roundDownTo10( mousePosition.y );
+
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
     
