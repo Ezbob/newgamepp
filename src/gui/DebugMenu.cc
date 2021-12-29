@@ -3,7 +3,9 @@
 
 #include "raygui.h"
 
-DebugMenu::DebugMenu(entt::registry &reg) : entityWindow_(reg) {}
+DebugMenu::DebugMenu(entt::registry &reg) 
+  : entityWindow_(reg), tileWindow_(reg) 
+{}
 
 bool DebugMenu::render() {
 

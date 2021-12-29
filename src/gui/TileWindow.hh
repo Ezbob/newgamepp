@@ -8,10 +8,11 @@
 #include "AsepriteParser.hh"
 #include <vector>
 #include <unordered_map>
+#include "entt/entity/registry.hpp"
 
 class TileWindow : public IRenderable {
 public:
-  TileWindow() = default;
+  TileWindow(entt::registry &);
 
   bool render() override;
 
@@ -29,6 +30,8 @@ private:
   void showTilesetError(Rectangle const&);
 
   void drawTileSetSection(Rectangle const&);
+
+  entt::registry &registry_;
 
   bool chooseParseMethod_ = false;
 

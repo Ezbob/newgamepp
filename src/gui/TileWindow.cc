@@ -20,6 +20,11 @@ namespace {
   }
 };
 
+TileWindow::TileWindow(entt::registry &registry) 
+  : registry_(registry) 
+{
+}
+
 
 ITileParser *TileWindow::selectParser(int index) {
   switch (index)
@@ -150,9 +155,19 @@ bool TileWindow::render() {
 
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
-    
+
       if (mousepressed_) {
         // TODO: add tile to some data structure, and add it to the background
+        auto view = registry_.view<Components::TileTexture, Components::Tiles>();
+
+        Components::Tiles::Tile tile;
+        tile.dimensions = tileFrame.frameDimensions;
+        tile.position = mousePosition;
+
+        view.each([this, tile](auto &texture, auto &tiles) {
+          texture.texture = selectedTileSet_->texture;
+          tiles.tiles.emplace_back(tile);
+        });
       }
     }
   }
