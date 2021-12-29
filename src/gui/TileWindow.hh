@@ -31,6 +31,8 @@ private:
 
   void drawTileSetSection(Rectangle const&);
 
+  void setTile(Vector2 const&, Rectangle const&);
+
   entt::registry &registry_;
 
   bool chooseParseMethod_ = false;

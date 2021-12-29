@@ -3,6 +3,7 @@
 
 #include <string>
 #include "raylib.h"
+#include <vector>
 
 namespace Components {
 

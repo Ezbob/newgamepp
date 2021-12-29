@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "nfd.h"
 #include <algorithm>
+#include "Components.hh"
 #include <cmath>
 
 namespace {
@@ -59,7 +60,8 @@ void TileWindow::openTilesetFile(Rectangle const& tileBox) {
         return;
       }
 
-      tilesetDefinition.texture = LoadTexture(tilesetDefinition.image_path.c_str());
+      std::string path = tilesetDefinition.image_path.string();
+      tilesetDefinition.texture = LoadTexture(path.c_str());
 
       tilesets_[id] = tilesetDefinition;
 
@@ -102,6 +104,21 @@ void TileWindow::showTilesetError(Rectangle const& tileBox) {
   };
 
 }
+
+
+void TileWindow::setTile(Vector2 const& mousePosition, Rectangle const& dimensions) {
+  auto view = registry_.view<Components::TileTexture, Components::Tiles>();
+
+  Components::Tiles::Tile tile;
+  tile.dimensions = dimensions;
+  tile.position = mousePosition;
+
+  view.each([this, tile](auto &texture, auto &tiles) {
+    texture.texture = selectedTileSet_->texture;
+    tiles.tiles.emplace_back(tile);
+  });
+}
+
 
 bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
@@ -157,17 +174,7 @@ bool TileWindow::render() {
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
 
       if (mousepressed_) {
-        // TODO: add tile to some data structure, and add it to the background
-        auto view = registry_.view<Components::TileTexture, Components::Tiles>();
-
-        Components::Tiles::Tile tile;
-        tile.dimensions = tileFrame.frameDimensions;
-        tile.position = mousePosition;
-
-        view.each([this, tile](auto &texture, auto &tiles) {
-          texture.texture = selectedTileSet_->texture;
-          tiles.tiles.emplace_back(tile);
-        });
+        setTile(mousePosition, tileFrame.frameDimensions);
       }
     }
   }
@@ -257,7 +264,7 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
     EndScissorMode();
 
     {
-      size_t maxWidth = 100.f;
+      float maxWidth = 100.f;
       std::vector<const char *> labels;
       for (auto &tilesetEntry : tilesets_) {
         labels.push_back(tilesetEntry.first.c_str());
