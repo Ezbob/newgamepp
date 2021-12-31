@@ -1,18 +1,19 @@
 
 #pragma once
 
+#include "AsepriteParser.hh"
 #include "Constants.hh"
 #include "IRenderable.hh"
 #include "ITileParser.hh"
-#include "raylib.h"
-#include "AsepriteParser.hh"
-#include <vector>
-#include <unordered_map>
 #include "entt/entity/registry.hpp"
+#include "raylib.h"
+#include <unordered_map>
+#include <vector>
+#include "NFDFileOpener.hh"
 
 class TileWindow : public IRenderable {
 public:
-  TileWindow(entt::registry &);
+  TileWindow(entt::registry &, IFileOpener &);
 
   bool render() override;
 
@@ -25,13 +26,15 @@ private:
 
   ITileParser *selectParser(int);
 
-  void openTilesetFile(Rectangle const&);
+  void openTilesetFile(Rectangle const &);
 
-  void showTilesetError(Rectangle const&);
+  void showTilesetError(Rectangle const &);
 
-  void drawTileSetSection(Rectangle const&);
+  void drawTileSetSection(Rectangle const &);
 
-  void setTile(Vector2 const&, Rectangle const&);
+  void addNewTile(Vector2 const &, Rectangle const &);
+
+  void renderTileSet(Rectangle const &);
 
   entt::registry &registry_;
 
@@ -63,4 +66,5 @@ private:
   Rectangle selectedFrameSample_;
 
   Vector2 panelScroller_ = {5.f, 5.f};
+  IFileOpener &fileOpener_;
 };

@@ -69,6 +69,8 @@
     "iomanip": "cpp",
     "numeric": "cpp",
     "valarray": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "fstream": "cpp",
+    "iostream": "cpp"
   }
 }

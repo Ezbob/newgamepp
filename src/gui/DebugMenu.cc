@@ -4,7 +4,7 @@
 #include "raygui.h"
 
 DebugMenu::DebugMenu(entt::registry &reg) 
-  : entityWindow_(reg), tileWindow_(reg) 
+  : entityWindow_(reg), tileWindow_(reg, nfdFileOpener_)
 {}
 
 bool DebugMenu::render() {

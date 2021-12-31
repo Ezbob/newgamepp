@@ -8,6 +8,7 @@
 #include "raylib.h"
 #include <optional>
 #include <vector>
+#include "NFDFileOpener.hh"
 
 class DebugMenu : public IRenderable {
 
@@ -28,4 +29,5 @@ private:
   TileWindow tileWindow_;
 
   IRenderable *currentWindow_ = nullptr;
+  NFDFileOpener nfdFileOpener_;
 };

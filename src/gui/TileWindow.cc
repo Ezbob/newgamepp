@@ -1,49 +1,43 @@
 
 #include "TileWindow.hh"
-#include "raygui.h"
-#include "Constants.hh"
-#include <stdint.h>
-#include "nfd.h"
-#include <algorithm>
 #include "Components.hh"
+#include "Constants.hh"
+#include "raygui.h"
+#include <algorithm>
 #include <cmath>
+#include <stdint.h>
 
 namespace {
   int roundDownTo10(int n) {
-      // Smaller multiple
-      int a = (n / 10) * 10;
-      
-      // Larger multiple
-      int b = a + 10;
-  
-      // Return of closest of two
-      return (n - a > b - n)? b : a;
-  }
-};
+    // Smaller multiple
+    int a = (n / 10) * 10;
 
-TileWindow::TileWindow(entt::registry &registry) 
-  : registry_(registry) 
-{
+    // Larger multiple
+    int b = a + 10;
+
+    // Return of closest of two
+    return (n - a > b - n) ? b : a;
+  }
+};// namespace
+
+TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener)
+    : registry_(registry), fileOpener_(fileOpener) {
 }
 
 
 ITileParser *TileWindow::selectParser(int index) {
-  switch (index)
-  {
+  switch (index) {
     case 0:
       return static_cast<ITileParser *>(&aseprite_);
   }
   return nullptr;
 }
 
-void TileWindow::openTilesetFile(Rectangle const& tileBox) {
-  nfdchar_t *path = NULL;
+void TileWindow::openTilesetFile(Rectangle const &tileBox) {
+  const char *extensions = tileParser_->getFileExtensions();// a semi-colon seperated list of extensions
+  std::filesystem::path path;
 
-  const nfdchar_t *current_directory = GetWorkingDirectory();  
-  const char *extensions = tileParser_->getFileExtensions(); // a semi-colon seperated list of extensions
-
-  nfdresult_t result = NFD_OpenDialog(extensions, current_directory, &path);
-  if (result == NFD_OKAY) {
+  if (fileOpener_.openFile(extensions, path)) {
     auto parsedResults = tileParser_->parse(path);
 
     if (std::holds_alternative<TileSet>(parsedResults)) {
@@ -69,18 +63,15 @@ void TileWindow::openTilesetFile(Rectangle const& tileBox) {
         selectedTileSet_ = &tilesets_[id];
       }
     }
-    NFD_Path_Free(path);
-  } else if (result == NFD_CANCEL) {
-    NFD_Path_Free(path);
   }
 }
 
 
-void TileWindow::showTilesetError(Rectangle const& tileBox) {
+void TileWindow::showTilesetError(Rectangle const &tileBox) {
   static const char *ok_button = "OK";
   Rectangle window_bounds = {tileBox.x + 10 + 160.f, tileBox.y + 10 + 50.f, 250.f, 100.f};
 
-  switch(tilesetError_) {
+  switch (tilesetError_) {
     case TilesetErrors::file_not_found: {
       if (GuiMessageBox(window_bounds, "Could not find image", "The associated image could not be found", ok_button) != -1) {
         tilesetError_ = TilesetErrors::no_error;
@@ -102,11 +93,10 @@ void TileWindow::showTilesetError(Rectangle const& tileBox) {
     default:
       break;
   };
-
 }
 
 
-void TileWindow::setTile(Vector2 const& mousePosition, Rectangle const& dimensions) {
+void TileWindow::addNewTile(Vector2 const &mousePosition, Rectangle const &dimensions) {
   auto view = registry_.view<Components::TileTexture, Components::Tiles>();
 
   Components::Tiles::Tile tile;
@@ -124,7 +114,7 @@ bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
   }
-  
+
   mousepressed_ = IsMouseButtonPressed(0);
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
@@ -145,11 +135,11 @@ bool TileWindow::render() {
 
   float tileBoxHeight = 325.f;
   Rectangle tileBox = {
-    windowBoundary_.x + 5.f,
-    windowBoundary_.height - tileBoxHeight,
-    windowBoundary_.width - 10.f,
-    tileBoxHeight - 5.f};
-  
+          windowBoundary_.x + 5.f,
+          windowBoundary_.height - tileBoxHeight,
+          windowBoundary_.width - 10.f,
+          tileBoxHeight - 5.f};
+
   if (tilesetError_ != TilesetErrors::no_error) {
     GuiDisable();
   }
@@ -167,14 +157,14 @@ bool TileWindow::render() {
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
 
       // snapping to the grid
-      mousePosition.x = roundDownTo10( mousePosition.x );
-      mousePosition.y = roundDownTo10( mousePosition.y );
+      mousePosition.x = roundDownTo10(mousePosition.x);
+      mousePosition.y = roundDownTo10(mousePosition.y);
 
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
 
       if (mousepressed_) {
-        setTile(mousePosition, tileFrame.frameDimensions);
+        addNewTile(mousePosition, tileFrame.frameDimensions);
       }
     }
   }
@@ -182,7 +172,7 @@ bool TileWindow::render() {
   return true;
 }
 
-void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
+void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
 
   size_t fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
@@ -212,12 +202,12 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
     size_t tileWidth = 0, tileHeight = 0;
     if (selectedTileSet_->frames.size() > 0) {
       auto &frames = selectedTileSet_->frames;
-      
+
       for (auto const &frame : frames) {
-        if (frame.frameDimensions.width > tileWidth){
+        if (frame.frameDimensions.width > tileWidth) {
           tileWidth = frame.frameDimensions.width;
         }
-        if (frame.frameDimensions.height > tileHeight){
+        if (frame.frameDimensions.height > tileHeight) {
           tileHeight = frame.frameDimensions.height;
         }
       }
@@ -226,7 +216,7 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
     size_t rowSize = tileBox.width / (tileSpacing + tileWidth);
     size_t numberOfRows = selectedTileSet_->frames.size() / rowSize;
 
-    panelContentRect.height += numberOfRows * (tileHeight + tileSpacing); 
+    panelContentRect.height += numberOfRows * (tileHeight + tileSpacing);
 
     Rectangle view = GuiScrollPanel(panelRect, panelContentRect, &panelScroller_);
 
@@ -240,13 +230,12 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
       position.x = panelRect.x + panelScroller_.x + outerXPadding + (xIndex * (tileSpacing + tileFrame.frameDimensions.width));
       position.y = panelRect.y + panelScroller_.y + outerYPadding + (yIndex * (tileSpacing + tileFrame.frameDimensions.height));
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
-      
+
       Rectangle tileRect = {
-        position.x,
-        position.y,
-        tileFrame.frameDimensions.width,
-        tileFrame.frameDimensions.height
-      };
+              position.x,
+              position.y,
+              tileFrame.frameDimensions.width,
+              tileFrame.frameDimensions.height};
       if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
         selectedFrameIndex_ = (i == selectedFrameIndex_) ? -1 : i;
         selectedFrameSample_ = tileRect;
@@ -254,12 +243,11 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
       i++;
     }
     if (selectedFrameIndex_ != -1) {
-      DrawRectangleLinesEx({
-        selectedFrameSample_.x - 5.f, 
-        selectedFrameSample_.y - 5.f, 
-        selectedFrameSample_.width + 10.f, 
-        selectedFrameSample_.height + 10.f
-      }, 1, GREEN);
+      DrawRectangleLinesEx({selectedFrameSample_.x - 5.f,
+                            selectedFrameSample_.y - 5.f,
+                            selectedFrameSample_.width + 10.f,
+                            selectedFrameSample_.height + 10.f},
+                           1, GREEN);
     }
     EndScissorMode();
 
@@ -272,7 +260,5 @@ void TileWindow::drawTileSetSection(Rectangle const& tileBox) {
 
       GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, labels.size(), labels.data(), 0);
     }
-
   }
-
 }
