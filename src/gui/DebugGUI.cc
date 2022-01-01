@@ -10,9 +10,15 @@ void DebugGUI::doGui() {
   if (IsKeyPressed(KEY_F11)) {
     drawWindow_ = !drawWindow_;
     if (drawWindow_) {
-      SetWindowSize(Constants::debugScreenWidth, Constants::debugScreenHeight);
+      SetWindowSize(
+        static_cast<int>(Constants::debugScreenWidth),
+        static_cast<int>(Constants::debugScreenHeight)
+      );
     } else {
-      SetWindowSize(Constants::screenWidth, Constants::screenHeight);
+      SetWindowSize(
+        static_cast<int>(Constants::screenWidth),
+        static_cast<int>(Constants::screenHeight)
+      );
     }
   }
   if (drawWindow_) {

@@ -157,11 +157,11 @@ bool TileWindow::render() {
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
 
       // snapping to the grid
-      mousePosition.x = roundDownTo10(mousePosition.x);
-      mousePosition.y = roundDownTo10(mousePosition.y);
+      mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
+      mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
 
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
-      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6));
+      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
 
       if (mousepressed_) {
         addNewTile(mousePosition, tileFrame.frameDimensions);
@@ -175,7 +175,7 @@ bool TileWindow::render() {
 void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
 
-  size_t fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
+  int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
   const char *text = "Browse";
   int size = MeasureText(text, fontSize);
 
@@ -205,22 +205,27 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
 
       for (auto const &frame : frames) {
         if (frame.frameDimensions.width > tileWidth) {
-          tileWidth = frame.frameDimensions.width;
+          tileWidth = (size_t) frame.frameDimensions.width;
         }
         if (frame.frameDimensions.height > tileHeight) {
-          tileHeight = frame.frameDimensions.height;
+          tileHeight = (size_t) frame.frameDimensions.height;
         }
       }
     }
 
-    size_t rowSize = tileBox.width / (tileSpacing + tileWidth);
+    size_t rowSize = static_cast<size_t>(tileBox.width / (tileSpacing + tileWidth));
     size_t numberOfRows = selectedTileSet_->frames.size() / rowSize;
 
     panelContentRect.height += numberOfRows * (tileHeight + tileSpacing);
 
     Rectangle view = GuiScrollPanel(panelRect, panelContentRect, &panelScroller_);
 
-    BeginScissorMode(view.x, view.y, view.width, view.height);
+    BeginScissorMode(
+      static_cast<int>(view.x),
+      static_cast<int>(view.y),
+      static_cast<int>(view.width), 
+      static_cast<int>(view.height)
+    );
     size_t i = 0;
     for (auto &tileFrame : selectedTileSet_->frames) {
       Vector2 position;
@@ -237,7 +242,7 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
               tileFrame.frameDimensions.width,
               tileFrame.frameDimensions.height};
       if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
-        selectedFrameIndex_ = (i == selectedFrameIndex_) ? -1 : i;
+        selectedFrameIndex_ = (i == selectedFrameIndex_) ? -1 : static_cast<int>(i);
         selectedFrameSample_ = tileRect;
       }
       i++;
@@ -258,7 +263,7 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
         labels.push_back(tilesetEntry.first.c_str());
       }
 
-      GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, labels.size(), labels.data(), 0);
+      GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, static_cast<unsigned>(labels.size()), labels.data(), 0);
     }
   }
 }
