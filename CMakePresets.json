@@ -34,6 +34,28 @@
         "CMAKE_BUILD_TYPE": "Release"
       },
       "binaryDir": "${sourceDir}/build-release"
+    },
+    {
+      "name": "zenity-debug",
+      "displayName": "using zenity and building",
+      "inherits": "debug",
+      "cacheVariables": {
+        "USE_ZENITY": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    },
+    {
+      "name": "zenity-release",
+      "displayName": "using zenity and building",
+      "inherits": "release",
+      "cacheVariables": {
+        "USE_ZENITY": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
     }
   ],
   "buildPresets": [

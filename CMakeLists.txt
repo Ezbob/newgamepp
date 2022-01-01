@@ -43,4 +43,8 @@ set_target_properties(main
         COMPILE_FLAGS "-fsanitize=address,undefined"
         LINK_FLAGS "-fsanitize=address,undefined"
 )
+elseif(WIN32)
+target_compile_definitions(main
+    PRIVATE _CRT_SECURE_NO_WARNINGS=1
+)
 endif()
