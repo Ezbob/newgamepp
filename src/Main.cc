@@ -29,13 +29,6 @@ int main() {
   whiteBlockInitializer(10.f, 10.f, 20.f, 20.f, "Hello");
   whiteBlockInitializer(Constants::screenWidth - 30.f, Constants::screenHeight - 30.f, 20.f, 20.f, "Yeet");
 
-  auto tilelayerInitializer = [&registry]() {
-    const auto entity = registry.create();
-    registry.emplace<Components::TileTexture>(entity);
-    registry.emplace<Components::Tiles>(entity);
-  };
-
-  tilelayerInitializer();
 
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
   InitWindow((int) (Constants::screenWidth), (int) (Constants::screenHeight), title);
@@ -51,9 +44,9 @@ int main() {
 
     ClearBackground(BLACK);
 
-    dgui.doGui();
-
     draw(registry);
+
+    dgui.doGui();
 
     EndDrawing();
   }

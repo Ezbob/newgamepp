@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdint.h>
+#include "Architypes.hh"
 
 namespace {
   int roundDownTo10(int n) {
@@ -97,100 +98,34 @@ void TileWindow::showTilesetError(Rectangle const &tileBox) {
 
 
 void TileWindow::addNewTile(Vector2 const &mousePosition, Rectangle const &dimensions) {
-  auto view = registry_.view<Components::TileTexture, Components::Tiles>();
-
   Components::Tiles::Tile tile;
   tile.dimensions = dimensions;
   tile.position = mousePosition;
 
-  view.each([this, tile](auto &texture, auto &tiles) {
-    texture.texture = selectedTileSet_->texture;
-    tiles.tiles.emplace_back(tile);
-  });
+  auto [textureComp, tileComp] = registry_.get<Components::TileTexture, Components::Tiles>(currentLayer_);
+
+  textureComp.texture = selectedTileSet_->texture;
+  tileComp.tiles.emplace_back(tile);
 }
 
-
-bool TileWindow::render() {
-  if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
-    return false;
-  }
-
-  mousepressed_ = IsMouseButtonPressed(0);
-
-  auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
-
-  showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
-
-  if (showGridColor_) {
-    Rectangle colorWindow = {gridColorbutton.x + 16.f, gridColorbutton.y + 32.f, 200.f, 200.f};
-    GuiWindowBoxNoClose(colorWindow, "Grid Color");
-    gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
-  }
-
-  Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
-  int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
-  GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
-  auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
-  GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
-
-  float tileBoxHeight = 325.f;
-  Rectangle tileBox = {
-          windowBoundary_.x + 5.f,
-          windowBoundary_.height - tileBoxHeight,
-          windowBoundary_.width - 10.f,
-          tileBoxHeight - 5.f};
-
-  if (tilesetError_ != TilesetErrors::no_error) {
-    GuiDisable();
-  }
-
-  drawTileSetSection(tileBox);
-
-  if (tilesetError_ != TilesetErrors::no_error) {
-    GuiEnable();
-  }
-
-  showTilesetError(tileBox);
-
-  if (selectedFrameIndex_ != -1 && selectedTileSet_) {
-    auto mousePosition = GetMousePosition();
-    if (CheckCollisionPointRec(mousePosition, windowRect)) {
-
-      // snapping to the grid
-      mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
-      mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
-
-      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
-      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
-
-      if (mousepressed_) {
-        addNewTile(mousePosition, tileFrame.frameDimensions);
-      }
-    }
-  }
-
-  return true;
-}
 
 void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
 
   int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
-  const char *text = "Browse";
-  int size = MeasureText(text, fontSize);
 
   Rectangle panelRect = {tileBox.x + 10.f, tileBox.y + 50.f, tileBox.width - 20.f, tileBox.height - 95.f};
   Rectangle panelContentRect = {0, 0, tileBox.width - 35.f, 0};
 
-  GuiLabel({(tileBox.x + tileBox.width) - (size + 45.f) - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
+  GuiLabel({(tileBox.x + tileBox.width) - 65.f - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
 
-  if (GuiDropdownBox({(tileBox.x + tileBox.width) - (size + 45.f) - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &parseMethodChosen_, chooseParseMethod_)) {
+  if (GuiDropdownBox({(tileBox.x + tileBox.width) - 65.f - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &parseMethodChosen_, chooseParseMethod_)) {
     chooseParseMethod_ = !chooseParseMethod_;
   }
 
   tileParser_ = selectParser(parseMethodChosen_);
 
-  if (GuiButton({(tileBox.x + tileBox.width) - (size + 50.f), tileBox.y + 10.f, size + 45.f, 30.f}, text)) {
+  if (GuiButton({(tileBox.x + tileBox.width) - (20.f + 50.f), tileBox.y + 10.f, 20.f + 45.f, 30.f}, "Browse")) {
     openTilesetFile(tileBox);
   }
 
@@ -219,11 +154,14 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
     panelContentRect.height += numberOfRows * (tileHeight + tileSpacing);
 
     Rectangle view = GuiScrollPanel(panelRect, panelContentRect, &panelScroller_);
+    int guiState = GuiGetState();
+    bool isGuiNormal = guiState == GuiControlState::GUI_STATE_NORMAL;
+    Color tileColor = (!isGuiNormal) ? ColorAlpha(WHITE, 0.6f) : WHITE;
 
     BeginScissorMode(
       static_cast<int>(view.x),
       static_cast<int>(view.y),
-      static_cast<int>(view.width), 
+      static_cast<int>(view.width),
       static_cast<int>(view.height)
     );
     size_t i = 0;
@@ -234,20 +172,21 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
 
       position.x = panelRect.x + panelScroller_.x + outerXPadding + (xIndex * (tileSpacing + tileFrame.frameDimensions.width));
       position.y = panelRect.y + panelScroller_.y + outerYPadding + (yIndex * (tileSpacing + tileFrame.frameDimensions.height));
-      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, WHITE);
+
+      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, position, tileColor);
 
       Rectangle tileRect = {
               position.x,
               position.y,
               tileFrame.frameDimensions.width,
               tileFrame.frameDimensions.height};
-      if (mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
+      if (isGuiNormal && mousepressed_ && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
         selectedFrameIndex_ = (i == selectedFrameIndex_) ? -1 : static_cast<int>(i);
         selectedFrameSample_ = tileRect;
       }
       i++;
     }
-    if (selectedFrameIndex_ != -1) {
+    if (isGuiNormal && selectedFrameIndex_ != -1) {
       DrawRectangleLinesEx({selectedFrameSample_.x - 5.f,
                             selectedFrameSample_.y - 5.f,
                             selectedFrameSample_.width + 10.f,
@@ -266,4 +205,94 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
       GuiToggleGroupEx({tileBox.x + 10.f, windowBoundary_.height - 15.f - 30.f, maxWidth, 30.f}, static_cast<unsigned>(labels.size()), labels.data(), 0);
     }
   }
+}
+
+void TileWindow::addNewLayer() {
+  currentLayer_ = Architypes::createLayer(registry_);
+}
+
+void TileWindow::removeLayer() {
+  registry_.destroy(currentLayer_);
+}
+
+void TileWindow::selectLayer() {
+
+}
+
+bool TileWindow::render() {
+  if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
+    return false;
+  }
+
+  mousepressed_ = IsMouseButtonPressed(0);
+
+  auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
+
+  showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
+
+  if (showGridColor_) {
+    Rectangle colorWindow = {gridColorbutton.x + 16.f, gridColorbutton.y + 32.f, 200.f, 200.f};
+    GuiWindowBoxNoClose(colorWindow, "Grid Color");
+    gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
+  }
+
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f - (25.f * 2.f), gridColorbutton.y + 30.f, 20.f, 20.f}, "+")) {
+    addNewLayer();
+  }
+
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f - 25.f, gridColorbutton.y + 30.f, 20.f, 20.f}, "v")) {
+    selectLayer();
+  }
+
+  if (!hasLayer()) GuiDisable();
+
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y + 30.f, 20.f, 20.f}, "-")) {
+    removeLayer();
+  }
+
+  Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
+  int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
+  GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
+  auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
+  GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
+
+  float tileBoxHeight = 325.f;
+  Rectangle tileBox = {
+          windowBoundary_.x + 5.f,
+          windowBoundary_.height - tileBoxHeight,
+          windowBoundary_.width - 10.f,
+          tileBoxHeight - 5.f};
+
+  if (tilesetError_ != TilesetErrors::no_error) {
+    GuiDisable();
+  }
+
+  drawTileSetSection(tileBox);
+
+  if (tilesetError_ != TilesetErrors::no_error) {
+    GuiEnable();
+  }
+
+  showTilesetError(tileBox);
+
+  if (selectedFrameIndex_ != -1 && selectedTileSet_ && hasLayer()) {
+    auto mousePosition = GetMousePosition();
+    if (CheckCollisionPointRec(mousePosition, windowRect)) {
+
+      // snapping to the grid
+      mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
+      mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
+
+      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
+      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
+
+      if (mousepressed_) {
+        addNewTile(mousePosition, tileFrame.frameDimensions);
+      }
+    }
+  }
+
+  if (!hasLayer()) GuiEnable();
+
+  return true;
 }

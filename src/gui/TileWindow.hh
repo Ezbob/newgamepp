@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 #include "NFDFileOpener.hh"
+#include <functional>
 
 class TileWindow : public IRenderable {
 public:
@@ -35,6 +36,16 @@ private:
   void addNewTile(Vector2 const &, Rectangle const &);
 
   void renderTileSet(Rectangle const &);
+
+  inline bool hasLayer() const {
+    return registry_.valid(currentLayer_);
+  }
+
+  void addNewLayer();
+
+  void removeLayer();
+
+  void selectLayer();
 
   entt::registry &registry_;
 
@@ -67,4 +78,6 @@ private:
 
   Vector2 panelScroller_ = {5.f, 5.f};
   IFileOpener &fileOpener_;
+
+  entt::entity currentLayer_;
 };
