@@ -247,7 +247,9 @@ bool TileWindow::render() {
     gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
   }
 
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f), gridColorbutton.y, 20.f, 20.f}, "+")) {
+  GuiLabel({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f) + 62.f, gridColorbutton.y, 20.f, 20.f}, "Current layer:");
+
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f), gridColorbutton.y + 25.f, 20.f, 20.f}, "+")) {
     addNewLayer();
   }
 
@@ -274,8 +276,8 @@ bool TileWindow::render() {
 
   int oldLayerIndex = currentLayerIndex_;
 
-  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, gridColorbutton.y, 150.f, 20.f},
-    layers_.data(), layers_.size(), &currentLayerIndex_, layerSelectEditable_)) {
+  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, gridColorbutton.y + 25.f, 150.f, 20.f},
+    layers_.data(), static_cast<unsigned>(layers_.size()), &currentLayerIndex_, layerSelectEditable_)) {
     layerSelectEditable_ = !layerSelectEditable_;
   }
 
@@ -290,7 +292,7 @@ bool TileWindow::render() {
     }
   }
 
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y, 20.f, 20.f}, "-")) {
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y + 25.f, 20.f, 20.f}, "-")) {
     removeLayer();
   }
 
