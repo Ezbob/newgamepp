@@ -5,6 +5,6 @@
 
 namespace Architypes {
 
-  entt::entity createLayer(entt::registry &registry);
+  entt::entity createLayer(entt::registry &registry, std::string const &name);
 
 }

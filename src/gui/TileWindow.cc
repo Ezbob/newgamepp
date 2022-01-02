@@ -7,6 +7,7 @@
 #include <cmath>
 #include <stdint.h>
 #include "Architypes.hh"
+#include "fmt/core.h"
 
 namespace {
   int roundDownTo10(int n) {
@@ -102,9 +103,11 @@ void TileWindow::addNewTile(Vector2 const &mousePosition, Rectangle const &dimen
   tile.dimensions = dimensions;
   tile.position = mousePosition;
 
-  auto [textureComp, tileComp] = registry_.get<Components::TileTexture, Components::Tiles>(currentLayer_);
+  auto [textureComp, tileComp] = registry_.get<Components::TileTextures, Components::Tiles>(currentLayer_);
 
-  textureComp.texture = selectedTileSet_->texture;
+  auto p = textureComp.textures.emplace(selectedTileSet_->image_name, selectedTileSet_->texture);
+
+  tile.textureName = &(p.first->first);
   tileComp.tiles.emplace_back(tile);
 }
 
@@ -208,15 +211,23 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
 }
 
 void TileWindow::addNewLayer() {
-  currentLayer_ = Architypes::createLayer(registry_);
+  currentLayer_ = Architypes::createLayer(registry_, fmt::format("layer {}", ids_++));
 }
 
 void TileWindow::removeLayer() {
   registry_.destroy(currentLayer_);
-}
-
-void TileWindow::selectLayer() {
-
+  if (!layers_.empty()) {
+    auto view = registry_.view<Components::Name, Components::Tiles, Components::TileTextures>();
+    int indexFound = 0;
+    for (auto entity : view) {
+      if (registry_.valid(entity)) {
+        currentLayerIndex_ = indexFound;
+        currentLayer_ = entity;
+        return;
+      }
+      indexFound++;
+    }
+  }
 }
 
 bool TileWindow::render() {
@@ -236,17 +247,36 @@ bool TileWindow::render() {
     gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
   }
 
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f - (25.f * 2.f), gridColorbutton.y + 30.f, 20.f, 20.f}, "+")) {
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f), gridColorbutton.y, 20.f, 20.f}, "+")) {
     addNewLayer();
   }
 
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f - 25.f, gridColorbutton.y + 30.f, 20.f, 20.f}, "v")) {
-    selectLayer();
+  auto view = registry_.view<Components::Name, Components::Tiles, Components::TileTextures>();
+  layers_.clear();
+
+  int indexFound = 0;
+  for (auto entity : view) {
+    auto const& nameComp = view.get<Components::Name>(entity);
+    layers_.push_back(nameComp.name.c_str());
+    if (entity == currentLayer_ && currentLayerIndex_ == -1) {
+      currentLayerIndex_ = indexFound;
+    }
+    indexFound++;
+  }
+
+  if (layers_.empty()) {
+    currentLayerIndex_ = 0;
+    layers_.push_back("<no layers>");
   }
 
   if (!hasLayer()) GuiDisable();
 
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y + 30.f, 20.f, 20.f}, "-")) {
+  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, gridColorbutton.y, 150.f, 20.f},
+    layers_.data(), layers_.size(), &currentLayerIndex_, layerSelectEditable_)) {
+    layerSelectEditable_ = !layerSelectEditable_;
+  }
+
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y, 20.f, 20.f}, "-")) {
     removeLayer();
   }
 

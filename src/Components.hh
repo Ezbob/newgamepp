@@ -2,8 +2,9 @@
 #pragma once
 
 #include <string>
-#include "raylib.h"
 #include <vector>
+#include <unordered_map>
+#include "raylib.h"
 
 namespace Components {
 
@@ -33,12 +34,13 @@ namespace Components {
     float top = 0.2f;
   };
 
-  struct TileTexture {
-    Texture texture;
+  struct TileTextures {
+    std::unordered_map<std::string, Texture> textures;
   };
 
   struct Tiles {
     struct Tile {
+      std::string const *textureName;
       int zIndex = 0;
       float alpha = 1.0;
       Vector2 position;

@@ -3,9 +3,10 @@
 #include "Components.hh"
 
 
-entt::entity Architypes::createLayer(entt::registry &registry) {
+entt::entity Architypes::createLayer(entt::registry &registry, std::string const &name) {
   auto entity = registry.create();
-  registry.emplace<Components::TileTexture>(entity);
+  registry.emplace<Components::Name>(entity, name);
+  registry.emplace<Components::TileTextures>(entity);
   registry.emplace<Components::Tiles>(entity);
   return entity;
 }

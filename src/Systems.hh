@@ -8,11 +8,11 @@
 
 void draw(entt::registry &reg) {
 
-  auto view2 = reg.view<Components::TileTexture, Components::Tiles>();
+  auto view2 = reg.view<Components::TileTextures, Components::Tiles>();
 
-  view2.each([](const auto &tiletexture, const auto &tiles) {
-    auto &texture = tiletexture.texture;
+  view2.each([](const Components::TileTextures &tiletextures, const Components::Tiles &tiles) {
     for (auto &t : tiles.tiles) {
+      auto &texture = tiletextures.textures.at(*t.textureName);
       DrawTextureRec(texture, t.dimensions, t.position, WHITE);
     }
   });

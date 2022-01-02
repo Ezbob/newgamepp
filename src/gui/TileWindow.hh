@@ -45,8 +45,6 @@ private:
 
   void removeLayer();
 
-  void selectLayer();
-
   entt::registry &registry_;
 
   bool chooseParseMethod_ = false;
@@ -79,5 +77,8 @@ private:
   Vector2 panelScroller_ = {5.f, 5.f};
   IFileOpener &fileOpener_;
 
+  bool layerSelectEditable_ = false;
+  int currentLayerIndex_ = -1;
   entt::entity currentLayer_;
+  std::vector<const char *> layers_;
 };
