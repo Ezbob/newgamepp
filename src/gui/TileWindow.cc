@@ -254,11 +254,12 @@ bool TileWindow::render() {
   auto view = registry_.view<Components::Name, Components::Tiles, Components::TileTextures>();
   layers_.clear();
 
+  // build the layers representation
   int indexFound = 0;
   for (auto entity : view) {
     auto const& nameComp = view.get<Components::Name>(entity);
     layers_.push_back(nameComp.name.c_str());
-    if (entity == currentLayer_ && currentLayerIndex_ == -1) {
+    if (entity == currentLayer_) {
       currentLayerIndex_ = indexFound;
     }
     indexFound++;
@@ -271,9 +272,22 @@ bool TileWindow::render() {
 
   if (!hasLayer()) GuiDisable();
 
+  int oldLayerIndex = currentLayerIndex_;
+
   if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, gridColorbutton.y, 150.f, 20.f},
     layers_.data(), layers_.size(), &currentLayerIndex_, layerSelectEditable_)) {
     layerSelectEditable_ = !layerSelectEditable_;
+  }
+
+  if (oldLayerIndex != currentLayerIndex_) {
+    // index has changed, find the entity that matches the index
+    auto &ll = layers_[currentLayerIndex_];
+    for (auto entity : view) {
+      auto const& nameComp = view.get<Components::Name>(entity);
+      if (nameComp.name == ll) {
+        currentLayer_ = entity;
+      }
+    }
   }
 
   if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y, 20.f, 20.f}, "-")) {
