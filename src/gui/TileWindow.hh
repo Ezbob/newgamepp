@@ -41,9 +41,15 @@ private:
     return registry_.valid(currentLayer_);
   }
 
+  inline bool isTileSelected() const {
+    return selectedFrameIndex_ != -1 && selectedTileSet_;
+  }
+
   void addNewLayer();
 
   void removeLayer();
+
+  void layerControls();
 
   entt::registry &registry_;
 
@@ -81,4 +87,6 @@ private:
   int currentLayerIndex_ = -1;
   entt::entity currentLayer_;
   std::vector<const char *> layers_;
+
+  Components::Tiles::Tile surrogateTile_;
 };

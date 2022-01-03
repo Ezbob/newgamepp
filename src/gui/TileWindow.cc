@@ -99,7 +99,7 @@ void TileWindow::showTilesetError(Rectangle const &tileBox) {
 
 
 void TileWindow::addNewTile(Vector2 const &mousePosition, Rectangle const &dimensions) {
-  Components::Tiles::Tile tile;
+  Components::Tiles::Tile tile = surrogateTile_;
   tile.dimensions = dimensions;
   tile.position = mousePosition;
 
@@ -189,7 +189,7 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
       }
       i++;
     }
-    if (isGuiNormal && selectedFrameIndex_ != -1) {
+    if (isGuiNormal && isTileSelected()) {
       DrawRectangleLinesEx({selectedFrameSample_.x - 5.f,
                             selectedFrameSample_.y - 5.f,
                             selectedFrameSample_.width + 10.f,
@@ -230,26 +230,13 @@ void TileWindow::removeLayer() {
   }
 }
 
-bool TileWindow::render() {
-  if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
-    return false;
-  }
+void TileWindow::layerControls() {
 
-  mousepressed_ = IsMouseButtonPressed(0);
+  float height = 24.f;
 
-  auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
+  GuiLabel({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f) + 62.f, height + 5.f, 20.f, 20.f}, "Current layer:");
 
-  showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
-
-  if (showGridColor_) {
-    Rectangle colorWindow = {gridColorbutton.x + 16.f, gridColorbutton.y + 32.f, 200.f, 200.f};
-    GuiWindowBoxNoClose(colorWindow, "Grid Color");
-    gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
-  }
-
-  GuiLabel({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f) + 62.f, gridColorbutton.y, 20.f, 20.f}, "Current layer:");
-
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f), gridColorbutton.y + 25.f, 20.f, 20.f}, "+")) {
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 160.f - (25.f * 2.f), height + 27.f, 20.f, 20.f}, "+")) {
     addNewLayer();
   }
 
@@ -276,7 +263,7 @@ bool TileWindow::render() {
 
   int oldLayerIndex = currentLayerIndex_;
 
-  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, gridColorbutton.y + 25.f, 150.f, 20.f},
+  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, height + 27.f, 150.f, 20.f},
     layers_.data(), static_cast<unsigned>(layers_.size()), &currentLayerIndex_, layerSelectEditable_)) {
     layerSelectEditable_ = !layerSelectEditable_;
   }
@@ -292,15 +279,66 @@ bool TileWindow::render() {
     }
   }
 
-  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, gridColorbutton.y + 25.f, 20.f, 20.f}, "-")) {
+  if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, height + 27.f, 20.f, 20.f}, "-")) {
     removeLayer();
   }
+
+  if (!hasLayer()) GuiEnable();
+}
+
+
+bool TileWindow::render() {
+  if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
+    return false;
+  }
+
+  mousepressed_ = IsMouseButtonPressed(0);
+
+  auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
+
+  showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
+
+  layerControls();
 
   Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
   int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
   GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
   auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
+
+
+  if (hasLayer() && isTileSelected()) {
+    float y = gridColorbutton.y + 60.f;
+    if ( GuiButton({gridColorbutton.x + 40.f + 100.f, y, 20.f, 20.f}, "-") ) {
+      surrogateTile_.alpha -= 0.001f;
+    }
+
+    if ( GuiButton({gridColorbutton.x + 40.f + 125.f, y, 20.f, 20.f}, "+") ) {
+      surrogateTile_.alpha += 0.001f;
+    }
+
+    GuiValueBoxEx({gridColorbutton.x + 40.f, y, 95.f, 20.f}, "Alpha:", &surrogateTile_.alpha, 0.f, 1.f, false);
+
+    y += 30.f;
+    if ( GuiButton({gridColorbutton.x + 40.f + 100.f, y, 20.f, 20.f}, "-") ) {
+      surrogateTile_.zIndex -= 1;
+    }
+
+    if ( GuiButton({gridColorbutton.x + 40.f + 125.f, y, 20.f, 20.f}, "+") ) {
+      surrogateTile_.zIndex += 1;
+    }
+
+    GuiValueBox({gridColorbutton.x + 40.f, y, 95.f, 20.f}, "z index:", &surrogateTile_.zIndex, -600, 600, false);
+  }
+
+
+  if (showGridColor_) {
+    Rectangle colorWindow = {gridColorbutton.x + 16.f, gridColorbutton.y + 32.f, 200.f, 200.f};
+    GuiWindowBoxNoClose(colorWindow, "Grid Color");
+    gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
+  }
+
+  if (!hasLayer()) GuiDisable();
 
   float tileBoxHeight = 325.f;
   Rectangle tileBox = {
@@ -321,13 +359,15 @@ bool TileWindow::render() {
 
   showTilesetError(tileBox);
 
-  if (selectedFrameIndex_ != -1 && selectedTileSet_ && hasLayer()) {
+  if (isTileSelected() && hasLayer()) {
     auto mousePosition = GetMousePosition();
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
 
-      // snapping to the grid
-      mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
-      mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
+      if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        // snapping to the grid
+        mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
+        mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
+      }
 
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
