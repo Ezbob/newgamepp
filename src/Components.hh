@@ -41,7 +41,6 @@ namespace Components {
   struct Tiles {
     struct Tile {
       std::string const *textureName;
-      int zIndex = 0;
       float alpha = 1.0;
       Vector2 position;
       Rectangle dimensions;

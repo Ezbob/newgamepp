@@ -13,7 +13,7 @@ void draw(entt::registry &reg) {
   view2.each([](const Components::TileTextures &tiletextures, const Components::Tiles &tiles) {
     for (auto &t : tiles.tiles) {
       auto &texture = tiletextures.textures.at(*t.textureName);
-      DrawTextureRec(texture, t.dimensions, t.position, WHITE);
+      DrawTextureRec(texture, t.dimensions, t.position, ColorAlpha(WHITE, t.alpha));
     }
   });
 

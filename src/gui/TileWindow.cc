@@ -307,29 +307,14 @@ bool TileWindow::render() {
   GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
 
 
-  if (hasLayer() && isTileSelected()) {
-    float y = gridColorbutton.y + 60.f;
-    if ( GuiButton({gridColorbutton.x + 40.f + 100.f, y, 20.f, 20.f}, "-") ) {
-      surrogateTile_.alpha -= 0.001f;
-    }
+  GuiGroupBox({ gridColorbutton.x, gridColorbutton.y + 60.f, (windowBoundary_.width / 2) - 20.f, 80.f }, "Tile attributes");
 
-    if ( GuiButton({gridColorbutton.x + 40.f + 125.f, y, 20.f, 20.f}, "+") ) {
-      surrogateTile_.alpha += 0.001f;
-    }
+  if (!(hasLayer() && isTileSelected())) GuiDisable();
+  float y = gridColorbutton.y + 70.f;
 
-    GuiValueBoxEx({gridColorbutton.x + 40.f, y, 95.f, 20.f}, "Alpha:", &surrogateTile_.alpha, 0.f, 1.f, false);
+  GuiSpinnerEx({gridColorbutton.x + 40.f, y, 125.f, 20.f}, "Alpha:", &surrogateTile_.alpha, 0.f, 1.f, 0.01f, false);
 
-    y += 30.f;
-    if ( GuiButton({gridColorbutton.x + 40.f + 100.f, y, 20.f, 20.f}, "-") ) {
-      surrogateTile_.zIndex -= 1;
-    }
-
-    if ( GuiButton({gridColorbutton.x + 40.f + 125.f, y, 20.f, 20.f}, "+") ) {
-      surrogateTile_.zIndex += 1;
-    }
-
-    GuiValueBox({gridColorbutton.x + 40.f, y, 95.f, 20.f}, "z index:", &surrogateTile_.zIndex, -600, 600, false);
-  }
+  if (!(hasLayer() && isTileSelected())) GuiEnable();
 
 
   if (showGridColor_) {
