@@ -73,6 +73,8 @@ private:
 
   size_t ids_ = 0;
 
+  bool showGrid_ = true;
+
   std::unordered_map<std::string, TileSet> tilesets_;
 
   TileSet *selectedTileSet_ = nullptr;

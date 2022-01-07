@@ -322,16 +322,19 @@ bool TileWindow::render() {
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
 
+  showGrid_ = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", showGrid_);
+
   showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
 
   layerControls();
 
   Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
-  int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
-  GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
-  auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
-  GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
-
+  if (showGrid_) {
+    int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
+    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
+    auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
+    GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
+  }
 
   GuiGroupBox({ gridColorbutton.x, gridColorbutton.y + 60.f, (windowBoundary_.width / 2) - 20.f, 80.f }, "Tile attributes");
 
