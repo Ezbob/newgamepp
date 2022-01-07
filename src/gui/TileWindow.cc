@@ -284,6 +284,32 @@ void TileWindow::layerControls() {
   }
 
   if (!hasLayer()) GuiEnable();
+
+  Rectangle guibox = {
+    windowBoundary_.x + (windowBoundary_.width / 2),
+    windowBoundary_.y + 32.f + 60.f,
+    (windowBoundary_.width / 2) - 10.f,
+    80.f
+  };
+  GuiGroupBox(guibox, "Layer attributes");
+
+  if (!hasLayer()) GuiDisable();
+  float y = guibox.y + 10.f;
+
+  int zDefaultIndex = 1;
+  if (registry_.valid(currentLayer_)) {
+    auto &zIndex = registry_.get<Components::ZIndex>(currentLayer_);
+    zDefaultIndex = zIndex.index;
+  }
+
+  GuiSpinner({guibox.x + 55.f, y, 125.f, 20.f}, "Z Index:", &zDefaultIndex, -100, 100, false);
+
+  if (registry_.valid(currentLayer_)) {
+    auto &zIndex = registry_.get<Components::ZIndex>(currentLayer_);
+    zIndex.index = zDefaultIndex;
+  }
+
+  if (!hasLayer()) GuiEnable();
 }
 
 

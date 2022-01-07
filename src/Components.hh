@@ -34,6 +34,10 @@ namespace Components {
     float top = 0.2f;
   };
 
+  struct ZIndex {
+    int index;
+  };
+
   struct TileTextures {
     std::unordered_map<std::string, Texture> textures;
   };
