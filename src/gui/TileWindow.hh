@@ -5,12 +5,12 @@
 #include "Constants.hh"
 #include "IRenderable.hh"
 #include "ITileParser.hh"
+#include "NFDFileOpener.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
+#include <functional>
 #include <unordered_map>
 #include <vector>
-#include "NFDFileOpener.hh"
-#include <functional>
 
 class TileWindow : public IRenderable {
 public:
@@ -51,6 +51,8 @@ private:
 
   void layerControls();
 
+  void removeTile();
+
   entt::registry &registry_;
 
   bool chooseParseMethod_ = false;
@@ -68,6 +70,12 @@ private:
     tileset_already_loaded,
     tileset_parse_error
   } tilesetError_ = TilesetErrors::no_error;
+
+  enum class TileTool {
+    no_tool,
+    paint_tool,
+    remove_tool
+  } tileToolSelected_ = TileTool::paint_tool;
 
   AsepriteParser aseprite_;
 

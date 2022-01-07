@@ -236,7 +236,7 @@ bool EntityWindow::render() {
 
   int found_index = 1;
   for (auto const &e : view) {
-    Components::Name const &name = view.get<Components::Name>(e);
+    auto const& name = view.get<Components::Name>(e);
     text_.push_back(name.name.c_str());
 
     if (selected_ && registry_.any_of<Components::Name>(selected_.value())) {

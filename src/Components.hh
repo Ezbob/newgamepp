@@ -52,4 +52,8 @@ namespace Components {
     std::vector<Tile> tiles;
   };
 
+  struct Active {
+    bool isActive;
+  };
+
 };// namespace Components
