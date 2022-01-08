@@ -45,6 +45,10 @@ private:
     return selectedFrameIndex_ != -1 && selectedTileSet_;
   }
 
+  inline bool hasTileSetError() const {
+    return tilesetError_ == TilesetErrors::no_error;
+  }
+
   void addNewLayer();
 
   void removeLayer();
