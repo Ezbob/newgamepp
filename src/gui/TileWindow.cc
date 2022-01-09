@@ -438,14 +438,14 @@ bool TileWindow::render() {
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
 
-      if (IsMouseButtonDown(0)) {
+      if (IsMouseButtonPressed(0)) {
         addNewTile(mousePosition, tileFrame.frameDimensions);
       }
     }
   }
 
   if (isTileSelected() && hasLayer() && tileToolSelected_ == TileTool::remove_tool) {
-    if (IsMouseButtonDown(0)) {
+    if (IsMouseButtonPressed(0)) {
       removeTile();
     }
   }

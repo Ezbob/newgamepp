@@ -7,7 +7,6 @@
 #include "raylib.h"
 
 void draw(entt::registry &reg) {
-
   auto view2 = reg.view<Components::TileTextures, Components::Tiles>();
 
   view2.each([](const Components::TileTextures &tiletextures, const Components::Tiles &tiles) {
