@@ -42,10 +42,6 @@ private:
 
   void renderTileSet(Rectangle const &);
 
-  inline bool hasLayer() const {
-    return true;
-  }
-
   inline bool isTileSelected() const {
     return selectedFrameIndex_ != -1 && selectedTileSet_;
   }

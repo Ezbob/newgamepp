@@ -26,6 +26,32 @@ namespace {
     return (n - a > b - n) ? b : a;
   }
 
+  entt::entity findClickedTile(entt::registry &reg, int layerIndex) {
+    auto mouse = GetMousePosition();
+    auto view = reg.view<Components::SpriteTexture,
+                         Components::Renderable,
+                         Components::Position,
+                         Components::Quad,
+                         Components::LayerIndex>();
+
+    auto it = std::find_if(view.rbegin(), view.rend(), [&mouse, &view, layerIndex](entt::entity entity) {
+      auto sprite = view.get<Components::SpriteTexture>(entity);
+      auto render = view.get<Components::Renderable>(entity);
+      auto position = view.get<Components::Position>(entity);
+      auto quad = view.get<Components::Quad>(entity);
+      auto layer = view.get<Components::LayerIndex>(entity);
+      return layer.index == layerIndex &&
+        CheckCollisionPointRec(mouse, {
+          position.x,
+          position.y,
+          quad.quad.width,
+          quad.quad.height,
+        });
+    });
+
+    return *it;
+  }
+
 };// namespace
 
 
@@ -209,13 +235,11 @@ void TileWindow::addNewLayer() {
 }
 
 void TileWindow::removeLayer() {
-  TraceLog(LOG_INFO, "%i %i %lu", ids_, currentLayerId_, layers_.size());
   layers_.pop_back();
-  --ids_;
+  ids_ -= 1;
   if (currentLayerId_ == layers_.size()) {
-    currentLayerId_--;
+    currentLayerId_ -= 1;
   }
-  TraceLog(LOG_INFO, "%i %i %lu", ids_, currentLayerId_, layers_.size());
 }
 
 void TileWindow::layerControls() {
@@ -248,25 +272,9 @@ void TileWindow::layerControls() {
 
 
 void TileWindow::removeTile() {
-  if (hasLayer()) {
-    auto mouse = GetMousePosition();
-
-    /*
-    auto &tileSet = registry_.get<Components::Tiles>(currentLayer_);
-
-    auto it = std::find_if(tileSet.tiles.rbegin(), tileSet.tiles.rend(), [&mouse](auto &tile) {
-      Rectangle tilePos = {
-              tile.position.x,
-              tile.position.y,
-              tile.dimensions.width,
-              tile.dimensions.height};
-      return CheckCollisionPointRec(mouse, tilePos);
-    });
-
-    if (it != tileSet.tiles.rend()) {
-      tileSet.tiles.erase(std::next(it).base());
-    }
-    */
+  auto entity = findClickedTile(registry_, currentLayerId_);
+  if (registry_.valid(entity)) {
+    registry_.destroy(entity);
   }
 }
 
@@ -305,7 +313,7 @@ bool TileWindow::render() {
           (windowBoundary_.width / 2) - 20.f,
           80.f};
 
-  if (!(hasLayer() && isTileSelected())) GuiDisable();
+  if (!isTileSelected()) GuiDisable();
 
   GuiGroupBox(toolBox, "Tile tools");
   Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
@@ -335,11 +343,7 @@ bool TileWindow::render() {
 
   GuiSpinner({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f + 25.f, 125.f, 20.f}, "Z Index:", &surrogateTile_.zIndex, -100, 100, false);
 
-  if (!(hasLayer() && isTileSelected())) GuiEnable();
-
-
-  if (!hasLayer()) GuiDisable();
-
+  if (!isTileSelected()) GuiEnable();
 
   showGrid_ = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", showGrid_);
 
@@ -370,11 +374,9 @@ bool TileWindow::render() {
 
   showTilesetError(tileBox);
 
-  if (!hasLayer()) GuiEnable();
-
   layerControls();
 
-  if (isTileSelected() && hasLayer() && tileToolSelected_ == TileTool::paint_tool) {
+  if (isTileSelected() && tileToolSelected_ == TileTool::paint_tool) {
     auto mousePosition = GetMousePosition();
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
 
@@ -393,7 +395,7 @@ bool TileWindow::render() {
     }
   }
 
-  if (isTileSelected() && hasLayer() && tileToolSelected_ == TileTool::remove_tool) {
+  if (isTileSelected() && tileToolSelected_ == TileTool::remove_tool) {
     if (IsMouseButtonPressed(0)) {
       removeTile();
     }
