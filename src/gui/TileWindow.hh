@@ -25,6 +25,11 @@ private:
           600.f,
           Constants::screenHeight + 200.f};
 
+  struct TileProperies {
+    float alpha = 1.0;
+    int zIndex = 1;
+  } surrogateTile_;
+
   ITileParser *selectParser(int);
 
   void openTilesetFile(Rectangle const &);
@@ -33,12 +38,12 @@ private:
 
   void drawTileSetSection(Rectangle const &);
 
-  void addNewTile(Vector2 const &, Rectangle const &);
+  void addNewTile(Vector2 const &, Rectangle const&, TileProperies const&);
 
   void renderTileSet(Rectangle const &);
 
   inline bool hasLayer() const {
-    return registry_.valid(currentLayer_);
+    return true;
   }
 
   inline bool isTileSelected() const {
@@ -83,7 +88,11 @@ private:
 
   AsepriteParser aseprite_;
 
-  size_t ids_ = 0;
+  int ids_ = 0;
+  int currentLayerId_ = 0;
+  std::vector<std::string> layers_;
+  bool layerSelectEditable_ = false;
+
 
   bool showGrid_ = true;
 
@@ -97,10 +106,6 @@ private:
   Vector2 panelScroller_ = {5.f, 5.f};
   IFileOpener &fileOpener_;
 
-  bool layerSelectEditable_ = false;
-  int currentLayerIndex_ = -1;
   entt::entity currentLayer_;
-  std::vector<const char *> layers_;
 
-  Components::Tiles::Tile surrogateTile_;
 };

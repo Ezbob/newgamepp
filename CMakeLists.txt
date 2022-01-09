@@ -18,7 +18,7 @@ target_sources(main
     PRIVATE
         src/Main.cc
         src/gui/GuiUnity.cc
-        src/Architypes.cc
+        src/Archetypes.cc
 )
 target_link_libraries(main
     PRIVATE

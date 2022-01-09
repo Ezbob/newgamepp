@@ -7,18 +7,26 @@
 #include "raylib.h"
 
 void draw(entt::registry &reg) {
-  auto view2 = reg.view<Components::TileTextures, Components::Tiles>();
 
-  view2.each([](const Components::TileTextures &tiletextures, const Components::Tiles &tiles) {
-    for (auto &t : tiles.tiles) {
-      auto &texture = tiletextures.textures.at(*t.textureName);
-      DrawTextureRec(texture, t.dimensions, t.position, ColorAlpha(WHITE, t.alpha));
-    }
+  auto spriteGroup = reg.group<Components::Renderable>(
+    entt::get<Components::SpriteTexture, Components::Position, Components::Quad>);
+
+  spriteGroup.sort([&spriteGroup](entt::entity const& a, entt::entity const& b) {
+    auto ar = spriteGroup.get<Components::Renderable>(a);
+    auto br = spriteGroup.get<Components::Renderable>(b);
+    return ar.zIndex < br.zIndex;
+  });
+
+  spriteGroup.each([&spriteGroup](Components::Renderable const &renderable,
+    Components::SpriteTexture const &texture,
+    Components::Position const &pos,
+    Components::Quad const &dim) {
+    DrawTextureRec(texture.texture, dim.quad, {pos.x, pos.y}, ColorAlpha(WHITE, renderable.alpha));
   });
 
   auto view = reg.view<const Components::Position, const Components::Dimensions>();
 
-  view.each([](const auto &pos, const auto &dim) {
+  view.each([](const Components::Position &pos, const Components::Dimensions &dim) {
     DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);
   });
 

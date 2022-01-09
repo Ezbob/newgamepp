@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include "raylib.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace Components {
 
@@ -34,7 +34,7 @@ namespace Components {
     float top = 0.2f;
   };
 
-  struct ZIndex {
+  struct LayerIndex {
     int index;
   };
 
@@ -54,6 +54,19 @@ namespace Components {
 
   struct Active {
     bool isActive;
+  };
+
+  struct Renderable {
+    float alpha = 1.0;
+    int zIndex = 1;
+  };
+
+  struct SpriteTexture {
+    Texture texture;
+  };
+
+  struct Quad {
+    Rectangle quad;
   };
 
 };// namespace Components

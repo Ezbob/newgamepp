@@ -3,7 +3,7 @@
 #include "Components.hh"
 #include "Constants.hh"
 
-#include "Architypes.hh"
+#include "Archetypes.hh"
 #include "fmt/core.h"
 #include "raygui.h"
 #include <algorithm>
@@ -31,6 +31,7 @@ namespace {
 
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener)
     : registry_(registry), fileOpener_(fileOpener) {
+    addNewLayer();
 }
 
 
@@ -202,28 +203,20 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
   }
 }
 
-
 void TileWindow::addNewLayer() {
-  currentLayer_ = Architypes::createLayer(registry_, fmt::format("layer {}", ids_++));
+  currentLayerId_ = ids_++;
+  layers_.emplace_back(fmt::format("Layer {}", currentLayerId_));
 }
-
 
 void TileWindow::removeLayer() {
-  registry_.destroy(currentLayer_);
-  if (!layers_.empty()) {
-    auto view = registry_.view<Components::Name, Components::Tiles, Components::TileTextures>();
-    int indexFound = 0;
-    for (auto entity : view) {
-      if (registry_.valid(entity)) {
-        currentLayerIndex_ = indexFound;
-        currentLayer_ = entity;
-        return;
-      }
-      indexFound++;
-    }
+  TraceLog(LOG_INFO, "%i %i %lu", ids_, currentLayerId_, layers_.size());
+  layers_.pop_back();
+  --ids_;
+  if (currentLayerId_ == layers_.size()) {
+    currentLayerId_--;
   }
+  TraceLog(LOG_INFO, "%i %i %lu", ids_, currentLayerId_, layers_.size());
 }
-
 
 void TileWindow::layerControls() {
 
@@ -235,54 +228,30 @@ void TileWindow::layerControls() {
     addNewLayer();
   }
 
-  auto view = registry_.view<Components::Name, Components::Tiles, Components::TileTextures>();
-  layers_.clear();
-
-  // build the layers representation
-  int indexFound = 0;
-  for (auto entity : view) {
-    auto const &nameComp = view.get<Components::Name>(entity);
-    layers_.push_back(nameComp.name.c_str());
-    if (entity == currentLayer_) {
-      currentLayerIndex_ = indexFound;
-    }
-    indexFound++;
+  std::vector<const char*> present;
+  present.reserve(layers_.size());
+  for (auto const&v : layers_) {
+    present.emplace_back(v.data());
   }
-
-  if (layers_.empty()) {
-    currentLayerIndex_ = 0;
-    layers_.push_back("<no layers>");
-  }
-
-  if (!hasLayer()) GuiDisable();
-
-  int oldLayerIndex = currentLayerIndex_;
 
   if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, height + 27.f, 150.f, 20.f},
-                       layers_.data(), static_cast<unsigned>(layers_.size()), &currentLayerIndex_, layerSelectEditable_)) {
+                       present.data(), static_cast<unsigned>(present.size()), &currentLayerId_, layerSelectEditable_)) {
     layerSelectEditable_ = !layerSelectEditable_;
   }
 
-  if (oldLayerIndex != currentLayerIndex_) {
-    // index has changed, find the entity that matches the index
-    auto &ll = layers_[currentLayerIndex_];
-    for (auto entity : view) {
-      auto const &nameComp = view.get<Components::Name>(entity);
-      if (nameComp.name == ll) {
-        currentLayer_ = entity;
-      }
-    }
-  }
-
+  if (currentLayerId_ == 0) GuiDisable();
   if (GuiButton({windowBoundary_.x + windowBoundary_.width - 30.f, height + 27.f, 20.f, 20.f}, "-")) {
     removeLayer();
   }
+  if (currentLayerId_ == 0) GuiEnable();
 }
 
 
 void TileWindow::removeTile() {
   if (hasLayer()) {
     auto mouse = GetMousePosition();
+
+    /*
     auto &tileSet = registry_.get<Components::Tiles>(currentLayer_);
 
     auto it = std::find_if(tileSet.tiles.rbegin(), tileSet.tiles.rend(), [&mouse](auto &tile) {
@@ -297,21 +266,18 @@ void TileWindow::removeTile() {
     if (it != tileSet.tiles.rend()) {
       tileSet.tiles.erase(std::next(it).base());
     }
+    */
   }
 }
 
 
-void TileWindow::addNewTile(Vector2 const &mousePosition, Rectangle const &dimensions) {
-  Components::Tiles::Tile tile = surrogateTile_;
-  tile.dimensions = dimensions;
-  tile.position = mousePosition;
-
-  auto [textureComp, tileComp] = registry_.get<Components::TileTextures, Components::Tiles>(currentLayer_);
-
-  auto p = textureComp.textures.emplace(selectedTileSet_->image_name, selectedTileSet_->texture);
-
-  tile.textureName = &(p.first->first);
-  tileComp.tiles.emplace_back(tile);
+void TileWindow::addNewTile(Vector2 const& mousePosition, Rectangle const& dimensions, TileProperies const& tile) {
+  Archetypes::createTile(registry_,
+    selectedTileSet_->texture,
+    mousePosition, dimensions,
+    surrogateTile_.alpha,
+    tile.zIndex,
+    currentLayerId_);
 }
 
 
@@ -344,53 +310,36 @@ bool TileWindow::render() {
   GuiGroupBox(toolBox, "Tile tools");
   Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
   if (
-          GuiToggle(
-                  initialButton,
-                  GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
-                  tileToolSelected_ == TileTool::paint_tool)) {
+      GuiToggle(
+        initialButton,
+        GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
+        tileToolSelected_ == TileTool::paint_tool)) {
     tileToolSelected_ = TileTool::paint_tool;
   }
   if (
-          GuiToggle(
-                  {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
-                  GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
-                  tileToolSelected_ == TileTool::remove_tool)) {
+      GuiToggle(
+        {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
+        GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
+        tileToolSelected_ == TileTool::remove_tool)) {
     tileToolSelected_ = TileTool::remove_tool;
   }
 
   Rectangle tileAttributesBox = {
           gridColorbutton.x + (windowBoundary_.width / 2),
-          gridColorbutton.y + 60.f + 90.f,
+          gridColorbutton.y + 60.f,
           (windowBoundary_.width / 2) - 20.f,
           80.f};
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
   GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &surrogateTile_.alpha, 0.f, 1.f, 0.01f, false);
 
+  GuiSpinner({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f + 25.f, 125.f, 20.f}, "Z Index:", &surrogateTile_.zIndex, -100, 100, false);
+
   if (!(hasLayer() && isTileSelected())) GuiEnable();
 
 
   if (!hasLayer()) GuiDisable();
 
-  Rectangle layerAttributesBox = {
-          gridColorbutton.x + (windowBoundary_.width / 2),
-          gridColorbutton.y + 60.f,
-          (windowBoundary_.width / 2) - 20.f,
-          80.f};
-  GuiGroupBox(layerAttributesBox, "Layer attributes");
-
-  int zDefaultIndex = 1;
-  if (registry_.valid(currentLayer_)) {
-    auto &zIndex = registry_.get<Components::ZIndex>(currentLayer_);
-    zDefaultIndex = zIndex.index;
-  }
-
-  GuiSpinner({layerAttributesBox.x + 55.f, layerAttributesBox.y + 10.f, 125.f, 20.f}, "Z Index:", &zDefaultIndex, -100, 100, false);
-
-  if (registry_.valid(currentLayer_)) {
-    auto &zIndex = registry_.get<Components::ZIndex>(currentLayer_);
-    zIndex.index = zDefaultIndex;
-  }
 
   showGrid_ = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", showGrid_);
 
@@ -439,7 +388,7 @@ bool TileWindow::render() {
       DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
 
       if (IsMouseButtonPressed(0)) {
-        addNewTile(mousePosition, tileFrame.frameDimensions);
+        addNewTile(mousePosition, tileFrame.frameDimensions, surrogateTile_);
       }
     }
   }
