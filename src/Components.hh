@@ -34,10 +34,6 @@ namespace Components {
     float top = 0.2f;
   };
 
-  struct LayerIndex {
-    int index;
-  };
-
   struct TileTextures {
     std::unordered_map<std::string, Texture> textures;
   };
@@ -59,6 +55,7 @@ namespace Components {
   struct Renderable {
     float alpha = 1.0;
     int zIndex = 1;
+    int layer = 1;
   };
 
   struct SpriteTexture {

@@ -12,9 +12,14 @@ void draw(entt::registry &reg) {
     entt::get<Components::SpriteTexture, Components::Position, Components::Quad>);
 
   spriteGroup.sort([&spriteGroup](entt::entity const& a, entt::entity const& b) {
-    auto ar = spriteGroup.get<Components::Renderable>(a);
-    auto br = spriteGroup.get<Components::Renderable>(b);
-    return ar.zIndex < br.zIndex;
+    auto az = spriteGroup.get<Components::Renderable>(a);
+    auto bz = spriteGroup.get<Components::Renderable>(b);
+
+    if (az.zIndex == bz.zIndex) {
+      return az.layer < bz.layer;
+    } else {
+      return az.zIndex < bz.zIndex;
+    }
   });
 
   spriteGroup.each([&spriteGroup](Components::Renderable const &renderable,

@@ -31,16 +31,14 @@ namespace {
     auto view = reg.view<Components::SpriteTexture,
                          Components::Renderable,
                          Components::Position,
-                         Components::Quad,
-                         Components::LayerIndex>();
+                         Components::Quad>();
 
     auto it = std::find_if(view.rbegin(), view.rend(), [&mouse, &view, layerIndex](entt::entity entity) {
       auto sprite = view.get<Components::SpriteTexture>(entity);
       auto render = view.get<Components::Renderable>(entity);
       auto position = view.get<Components::Position>(entity);
       auto quad = view.get<Components::Quad>(entity);
-      auto layer = view.get<Components::LayerIndex>(entity);
-      return layer.index == layerIndex &&
+      return render.layer == render.layer &&
         CheckCollisionPointRec(mouse, {
           position.x,
           position.y,
