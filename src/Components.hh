@@ -38,14 +38,9 @@ namespace Components {
     std::unordered_map<std::string, Texture> textures;
   };
 
-  struct Tiles {
-    struct Tile {
-      std::string const *textureName;
-      float alpha = 1.0;
-      Vector2 position;
-      Rectangle dimensions;
-    };
-    std::vector<Tile> tiles;
+  struct Flipable {
+    bool hFlipped = false;
+    bool vFlipped = false;
   };
 
   struct Active {

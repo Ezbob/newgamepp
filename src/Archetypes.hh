@@ -6,6 +6,14 @@
 
 namespace Archetypes {
 
-  entt::entity createTile(entt::registry &registry, Texture const&, Vector2 pos, Rectangle quad, float alpha, int zIndex, int layerIndex = 0);
+  entt::entity createTile(
+    entt::registry &registry,
+    Texture const&,
+    Vector2 pos,
+    Rectangle quad,
+    float alpha,
+    int zIndex,
+    int layerIndex = 0
+  );
 
 }

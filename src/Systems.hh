@@ -9,7 +9,8 @@
 void draw(entt::registry &reg) {
 
   auto spriteGroup = reg.group<Components::Renderable>(
-    entt::get<Components::SpriteTexture, Components::Position, Components::Quad>);
+    entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>
+  );
 
   spriteGroup.sort([&spriteGroup](entt::entity const& a, entt::entity const& b) {
     auto az = spriteGroup.get<Components::Renderable>(a);
@@ -25,8 +26,14 @@ void draw(entt::registry &reg) {
   spriteGroup.each([&spriteGroup](Components::Renderable const &renderable,
     Components::SpriteTexture const &texture,
     Components::Position const &pos,
-    Components::Quad const &dim) {
-    DrawTextureRec(texture.texture, dim.quad, {pos.x, pos.y}, ColorAlpha(WHITE, renderable.alpha));
+    Components::Quad const &dim,
+    Components::Flipable const &flip) {
+    DrawTextureRec(texture.texture, {
+      dim.quad.x,
+      dim.quad.y,
+      flip.vFlipped ? -dim.quad.width : dim.quad.width,
+      flip.hFlipped ? -dim.quad.height : dim.quad.height
+    }, {pos.x, pos.y}, ColorAlpha(WHITE, renderable.alpha));
   });
 
   auto view = reg.view<const Components::Position, const Components::Dimensions>();

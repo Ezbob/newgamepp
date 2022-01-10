@@ -28,7 +28,11 @@ private:
   struct TileProperies {
     float alpha = 1.0;
     int zIndex = 1;
+    bool hFlipped = false;
+    bool vFlipped = false;
+    int layerIndex = 1;
   } surrogateTile_;
+
 
   ITileParser *selectParser(int);
 
@@ -38,7 +42,7 @@ private:
 
   void drawTileSetSection(Rectangle const &);
 
-  void addNewTile(Vector2 const &, Rectangle const&, TileProperies const&);
+  entt::entity createTile(Texture const &texture, Vector2 pos, Rectangle quad, TileProperies const& props);
 
   void renderTileSet(Rectangle const &);
 

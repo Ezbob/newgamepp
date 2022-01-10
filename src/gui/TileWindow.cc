@@ -26,6 +26,13 @@ namespace {
     return (n - a > b - n) ? b : a;
   }
 
+  Vector2 midPoint(Rectangle r) {
+    return {
+      r.x - (r.width / 2),
+      r.y - (r.height / 2)
+    };
+  }
+
   entt::entity findClickedTile(entt::registry &reg, int layerIndex) {
     auto mouse = GetMousePosition();
     auto view = reg.view<Components::SpriteTexture,
@@ -65,6 +72,16 @@ ITileParser *TileWindow::selectParser(int index) {
       return static_cast<ITileParser *>(&aseprite_);
   }
   return nullptr;
+}
+
+entt::entity TileWindow::createTile(Texture const &texture, Vector2 pos, Rectangle quad, TileProperies const& props) {
+  auto entity = registry_.create();
+  registry_.emplace<Components::SpriteTexture>(entity, texture);
+  registry_.emplace<Components::Renderable>(entity, props.alpha, props.zIndex, props.layerIndex);
+  registry_.emplace<Components::Position>(entity, pos.x, pos.y);
+  registry_.emplace<Components::Flipable>(entity, props.hFlipped, props.vFlipped);
+  registry_.emplace<Components::Quad>(entity, quad);
+  return entity;
 }
 
 void TileWindow::openTilesetFile(Rectangle const &tileBox) {
@@ -277,16 +294,6 @@ void TileWindow::removeTile() {
 }
 
 
-void TileWindow::addNewTile(Vector2 const& mousePosition, Rectangle const& dimensions, TileProperies const& tile) {
-  Archetypes::createTile(registry_,
-    selectedTileSet_->texture,
-    mousePosition, dimensions,
-    surrogateTile_.alpha,
-    tile.zIndex,
-    currentLayerId_);
-}
-
-
 bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
@@ -334,12 +341,24 @@ bool TileWindow::render() {
           gridColorbutton.x + (windowBoundary_.width / 2),
           gridColorbutton.y + 60.f,
           (windowBoundary_.width / 2) - 20.f,
-          80.f};
+          80.f + (40.f * 2.f)};
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
   GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &surrogateTile_.alpha, 0.f, 1.f, 0.01f, false);
 
   GuiSpinner({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f + 25.f, 125.f, 20.f}, "Z Index:", &surrogateTile_.zIndex, -100, 100, false);
+
+  auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
+
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+
+  surrogateTile_.hFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Horizontal Flip:", surrogateTile_.hFlipped);
+
+  surrogateTile_.vFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 3.f), 20.f, 20.f}, "Vertical Flip:", surrogateTile_.vFlipped);
+
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+
+  surrogateTile_.layerIndex = currentLayerId_;
 
   if (!isTileSelected()) GuiEnable();
 
@@ -378,17 +397,35 @@ bool TileWindow::render() {
     auto mousePosition = GetMousePosition();
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
 
+      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
+
+      mousePosition = midPoint({
+        mousePosition.x,
+        mousePosition.y,
+        tileFrame.frameDimensions.width,
+        tileFrame.frameDimensions.height
+      });
+
       if (IsKeyDown(KEY_LEFT_SHIFT)) {
         // snapping to the grid
         mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
         mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
       }
 
-      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
-      DrawTextureRec(selectedTileSet_->texture, tileFrame.frameDimensions, mousePosition, ColorAlpha(WHITE, 0.6f));
+      DrawTextureRec(
+        selectedTileSet_->texture,
+        {
+          tileFrame.frameDimensions.x,
+          tileFrame.frameDimensions.y,
+          surrogateTile_.vFlipped ? -tileFrame.frameDimensions.width : tileFrame.frameDimensions.width,
+          surrogateTile_.hFlipped ? -tileFrame.frameDimensions.height : tileFrame.frameDimensions.height
+        },
+        mousePosition,
+        ColorAlpha(WHITE, 0.6f)
+      );
 
       if (IsMouseButtonPressed(0)) {
-        addNewTile(mousePosition, tileFrame.frameDimensions, surrogateTile_);
+        createTile(selectedTileSet_->texture, mousePosition, tileFrame.frameDimensions, surrogateTile_);
       }
     }
   }
