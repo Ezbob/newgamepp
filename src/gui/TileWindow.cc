@@ -45,7 +45,7 @@ namespace {
       auto render = view.get<Components::Renderable>(entity);
       auto position = view.get<Components::Position>(entity);
       auto quad = view.get<Components::Quad>(entity);
-      return render.layer == render.layer &&
+      return layerIndex == render.layer &&
         CheckCollisionPointRec(mouse, {
           position.x,
           position.y,
