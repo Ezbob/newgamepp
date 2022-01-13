@@ -113,7 +113,7 @@ private:
     bool vFlip = false;
     bool hFlip = false;
 
-    inline void write_to(entt::registry &reg, entt::entity &e) const {
+    inline void write_to(entt::registry &reg, entt::entity e) const {
       reg.get<Components::SpriteTexture>(e).texture = texture;
 
       auto &render = reg.get<Components::Renderable>(e);
@@ -132,7 +132,7 @@ private:
       reg.get<Components::Quad>(e).quad = quad;
     }
 
-    inline void read_from(entt::registry &reg, entt::entity &e) {
+    inline entt::entity read_from(entt::registry &reg, entt::entity e) {
       texture = reg.get<Components::SpriteTexture>(e).texture;
 
       auto &render = reg.get<Components::Renderable>(e);
@@ -149,6 +149,7 @@ private:
       position.y = pos.y;
 
       quad = reg.get<Components::Quad>(e).quad;
+      return e;
     }
 
   } tileModel_;

@@ -381,7 +381,7 @@ void TileWindow::doTools() {
       auto mousePosition = GetMousePosition();
       if (CheckCollisionPointRec(mousePosition, windowRect)) {
         if (auto found = findClickedTile(registry_, currentLayerId_); registry_.valid(found)) {
-          selectedTile_ = found;
+          selectedTile_ = tileModel_.read_from(registry_, found);
         }
       }
     }
