@@ -25,15 +25,6 @@ private:
           600.f,
           Constants::screenHeight + 200.f};
 
-  struct TileProperies {
-    float alpha = 1.0;
-    int zIndex = 1;
-    bool hFlipped = false;
-    bool vFlipped = false;
-    int layerIndex = 1;
-  } surrogateTile_;
-
-
   ITileParser *selectParser(int);
 
   void openTilesetFile(Rectangle const &);
@@ -42,7 +33,7 @@ private:
 
   void drawTileSetSection(Rectangle const &);
 
-  entt::entity createTile(Texture const &texture, Vector2 pos, Rectangle quad, TileProperies const& props);
+  entt::entity createTile();
 
   void renderTileSet(Rectangle const &);
 
@@ -61,6 +52,10 @@ private:
   void layerControls();
 
   void removeTile();
+
+  void renderTools(Rectangle &);
+
+  void doTools();
 
   entt::registry &registry_;
 
@@ -83,7 +78,8 @@ private:
   enum class TileTool {
     no_tool,
     paint_tool,
-    remove_tool
+    remove_tool,
+    tile_picker_tool
   } tileToolSelected_ = TileTool::paint_tool;
 
   AsepriteParser aseprite_;
@@ -106,6 +102,55 @@ private:
   Vector2 panelScroller_ = {5.f, 5.f};
   IFileOpener &fileOpener_;
 
-  entt::entity currentLayer_;
+  entt::entity selectedTile_;
+  struct TileModel {
+    Texture texture;
+    int zIndex = 1;
+    int layerIndex = 1;
+    float alpha = 1.0f;
+    Vector2 position = {0, 0};
+    Rectangle quad = {0,0,0,0};
+    bool vFlip = false;
+    bool hFlip = false;
+
+    inline void write_to(entt::registry &reg, entt::entity &e) const {
+      reg.get<Components::SpriteTexture>(e).texture = texture;
+
+      auto &render = reg.get<Components::Renderable>(e);
+      render.alpha = alpha;
+      render.layer = layerIndex;
+      render.zIndex = zIndex;
+
+      auto &flip = reg.get<Components::Flipable>(e);
+      flip.hFlipped = hFlip;
+      flip.vFlipped = vFlip;
+
+      auto &pos = reg.get<Components::Position>(e);
+      pos.x = position.x;
+      pos.y = position.y;
+
+      reg.get<Components::Quad>(e).quad = quad;
+    }
+
+    inline void read_from(entt::registry &reg, entt::entity &e) {
+      texture = reg.get<Components::SpriteTexture>(e).texture;
+
+      auto &render = reg.get<Components::Renderable>(e);
+      alpha = render.alpha;
+      layerIndex = render.layer;
+      zIndex = render.zIndex;
+
+      auto &flip = reg.get<Components::Flipable>(e);
+      flip.hFlipped = hFlip;
+      flip.vFlipped = vFlip;
+
+      auto &pos = reg.get<Components::Position>(e);
+      position.x = pos.x;
+      position.y = pos.y;
+
+      quad = reg.get<Components::Quad>(e).quad;
+    }
+
+  } tileModel_;
 
 };

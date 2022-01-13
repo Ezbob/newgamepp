@@ -74,13 +74,13 @@ ITileParser *TileWindow::selectParser(int index) {
   return nullptr;
 }
 
-entt::entity TileWindow::createTile(Texture const &texture, Vector2 pos, Rectangle quad, TileProperies const& props) {
+entt::entity TileWindow::createTile() {
   auto entity = registry_.create();
-  registry_.emplace<Components::SpriteTexture>(entity, texture);
-  registry_.emplace<Components::Renderable>(entity, props.alpha, props.zIndex, props.layerIndex);
-  registry_.emplace<Components::Position>(entity, pos.x, pos.y);
-  registry_.emplace<Components::Flipable>(entity, props.hFlipped, props.vFlipped);
-  registry_.emplace<Components::Quad>(entity, quad);
+  registry_.emplace<Components::SpriteTexture>(entity);
+  registry_.emplace<Components::Renderable>(entity);
+  registry_.emplace<Components::Position>(entity);
+  registry_.emplace<Components::Flipable>(entity);
+  registry_.emplace<Components::Quad>(entity);
   return entity;
 }
 
@@ -157,13 +157,13 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
 
   GuiLabel({(tileBox.x + tileBox.width) - 65.f - 110.f - 120.f, tileBox.y + 10.f, 120.f, 30.f}, "Select tileset file:");
 
-  if (GuiDropdownBox({(tileBox.x + tileBox.width) - 65.f - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &parseMethodChosen_, chooseParseMethod_)) {
+  if (GuiDropdownBox({(tileBox.x + tileBox.width) - 70.f - 120.f, tileBox.y + 10.f, 110.f, 30.f}, "aseprite", &parseMethodChosen_, chooseParseMethod_)) {
     chooseParseMethod_ = !chooseParseMethod_;
   }
 
   tileParser_ = selectParser(parseMethodChosen_);
 
-  if (GuiButton({(tileBox.x + tileBox.width) - (20.f + 50.f), tileBox.y + 10.f, 20.f + 45.f, 30.f}, "Browse")) {
+  if (GuiButton({(tileBox.x + tileBox.width) - (25.f + 50.f), tileBox.y + 10.f, 20.f + 45.f, 30.f}, "Browse")) {
     openTilesetFile(tileBox);
   }
 
@@ -293,6 +293,101 @@ void TileWindow::removeTile() {
   }
 }
 
+void TileWindow::renderTools(Rectangle &gridColorbutton) {
+
+  Rectangle toolBox = {
+        gridColorbutton.x,
+        gridColorbutton.y + 60.f,
+        (windowBoundary_.width / 2) - 20.f,
+        80.f};
+
+  GuiGroupBox(toolBox, "Tile tools");
+  Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
+  if (
+      GuiToggle(
+        initialButton,
+        GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
+        tileToolSelected_ == TileTool::paint_tool)) {
+    tileToolSelected_ = TileTool::paint_tool;
+  }
+  if (
+      GuiToggle(
+        {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
+        GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
+        tileToolSelected_ == TileTool::remove_tool)) {
+    tileToolSelected_ = TileTool::remove_tool;
+  }
+  if (
+      GuiToggle(
+        {initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
+        GuiIconText(RAYGUI_ICON_COLOR_PICKER, nullptr),
+        tileToolSelected_ == TileTool::tile_picker_tool)) {
+    tileToolSelected_ = TileTool::tile_picker_tool;
+  }
+
+}
+
+void TileWindow::doTools() {
+  Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
+
+  if (isTileSelected() && tileToolSelected_ == TileTool::paint_tool) {
+    auto mousePosition = GetMousePosition();
+    if (CheckCollisionPointRec(mousePosition, windowRect)) {
+      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
+
+      mousePosition = midPoint({
+        mousePosition.x,
+        mousePosition.y,
+        tileFrame.frameDimensions.width,
+        tileFrame.frameDimensions.height
+      });
+
+      if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        // snapping to the grid
+        mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
+        mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
+      }
+
+      DrawTextureRec(
+        selectedTileSet_->texture,
+        {
+          tileFrame.frameDimensions.x,
+          tileFrame.frameDimensions.y,
+          (tileModel_.vFlip ? -tileFrame.frameDimensions.width : tileFrame.frameDimensions.width),
+          (tileModel_.hFlip ? -tileFrame.frameDimensions.height : tileFrame.frameDimensions.height)
+        },
+        mousePosition,
+        ColorAlpha(WHITE, 0.6f)
+      );
+
+      if (IsMouseButtonPressed(0)) {
+        selectedTile_ = createTile();
+
+        tileModel_.texture = selectedTileSet_->texture;
+        tileModel_.position = mousePosition;
+        tileModel_.quad = tileFrame.frameDimensions;
+      }
+    }
+  }
+
+  if (isTileSelected() && tileToolSelected_ == TileTool::remove_tool) {
+    if (IsMouseButtonPressed(0)) {
+      removeTile();
+    }
+  }
+
+  if (tileToolSelected_ == TileTool::tile_picker_tool) {
+    if (IsMouseButtonPressed(0)) {
+      auto mousePosition = GetMousePosition();
+      if (CheckCollisionPointRec(mousePosition, windowRect)) {
+        if (auto found = findClickedTile(registry_, currentLayerId_); registry_.valid(found)) {
+          selectedTile_ = found;
+        }
+      }
+    }
+  }
+}
+
 
 bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
@@ -312,30 +407,10 @@ bool TileWindow::render() {
     GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
   }
 
-  Rectangle toolBox = {
-          gridColorbutton.x,
-          gridColorbutton.y + 60.f,
-          (windowBoundary_.width / 2) - 20.f,
-          80.f};
 
   if (!isTileSelected()) GuiDisable();
 
-  GuiGroupBox(toolBox, "Tile tools");
-  Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
-  if (
-      GuiToggle(
-        initialButton,
-        GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
-        tileToolSelected_ == TileTool::paint_tool)) {
-    tileToolSelected_ = TileTool::paint_tool;
-  }
-  if (
-      GuiToggle(
-        {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
-        GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
-        tileToolSelected_ == TileTool::remove_tool)) {
-    tileToolSelected_ = TileTool::remove_tool;
-  }
+  renderTools(gridColorbutton);
 
   Rectangle tileAttributesBox = {
           gridColorbutton.x + (windowBoundary_.width / 2),
@@ -344,21 +419,22 @@ bool TileWindow::render() {
           80.f + (40.f * 2.f)};
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
-  GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &surrogateTile_.alpha, 0.f, 1.f, 0.01f, false);
+  GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &tileModel_.alpha, 0.f, 1.f, 0.01f, false);
 
-  GuiSpinner({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f + 25.f, 125.f, 20.f}, "Z Index:", &surrogateTile_.zIndex, -100, 100, false);
+  GuiSpinner({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f + 25.f, 125.f, 20.f}, "Z Index:", &tileModel_.zIndex, -100, 100, false);
 
   auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
 
   GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 
-  surrogateTile_.hFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Horizontal Flip:", surrogateTile_.hFlipped);
+  tileModel_.hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Horizontal Flip:", tileModel_.hFlip);
 
-  surrogateTile_.vFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 3.f), 20.f, 20.f}, "Vertical Flip:", surrogateTile_.vFlipped);
+  tileModel_.vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 3.f), 20.f, 20.f}, "Vertical Flip:", tileModel_.vFlip);
 
   GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
 
-  surrogateTile_.layerIndex = currentLayerId_;
+  tileModel_.layerIndex = currentLayerId_;
+
 
   if (!isTileSelected()) GuiEnable();
 
@@ -393,47 +469,10 @@ bool TileWindow::render() {
 
   layerControls();
 
-  if (isTileSelected() && tileToolSelected_ == TileTool::paint_tool) {
-    auto mousePosition = GetMousePosition();
-    if (CheckCollisionPointRec(mousePosition, windowRect)) {
+  doTools();
 
-      auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
-
-      mousePosition = midPoint({
-        mousePosition.x,
-        mousePosition.y,
-        tileFrame.frameDimensions.width,
-        tileFrame.frameDimensions.height
-      });
-
-      if (IsKeyDown(KEY_LEFT_SHIFT)) {
-        // snapping to the grid
-        mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
-        mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
-      }
-
-      DrawTextureRec(
-        selectedTileSet_->texture,
-        {
-          tileFrame.frameDimensions.x,
-          tileFrame.frameDimensions.y,
-          surrogateTile_.vFlipped ? -tileFrame.frameDimensions.width : tileFrame.frameDimensions.width,
-          surrogateTile_.hFlipped ? -tileFrame.frameDimensions.height : tileFrame.frameDimensions.height
-        },
-        mousePosition,
-        ColorAlpha(WHITE, 0.6f)
-      );
-
-      if (IsMouseButtonPressed(0)) {
-        createTile(selectedTileSet_->texture, mousePosition, tileFrame.frameDimensions, surrogateTile_);
-      }
-    }
-  }
-
-  if (isTileSelected() && tileToolSelected_ == TileTool::remove_tool) {
-    if (IsMouseButtonPressed(0)) {
-      removeTile();
-    }
+  if (registry_.valid(selectedTile_)) {
+    tileModel_.write_to(registry_, selectedTile_);
   }
 
   return true;
