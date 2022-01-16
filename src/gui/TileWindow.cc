@@ -62,6 +62,7 @@ namespace {
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener)
     : registry_(registry), fileOpener_(fileOpener) {
   addNewLayer();
+  grid_ = gridModel_.create(registry_);
 }
 
 
@@ -383,16 +384,6 @@ bool TileWindow::render() {
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
 
-
-  Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
-  if (showGrid_) {
-    int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
-    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(gridColor_));
-    auto mouseGridPosition = GuiGrid(windowRect, 10.f, 2);
-    GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
-  }
-
-
   if (!isTileSelected()) GuiDisable();
 
   renderTools(gridColorbutton);
@@ -423,14 +414,14 @@ bool TileWindow::render() {
 
   if (!isTileSelected()) GuiEnable();
 
-  showGrid_ = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", showGrid_);
+  gridModel_.show = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", gridModel_.show);
 
   showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
 
   if (showGridColor_) {
     Rectangle colorWindow = {gridColorbutton.x + 16.f, gridColorbutton.y + 32.f, 200.f, 200.f};
     GuiWindowBoxNoClose(colorWindow, "Grid Color");
-    gridColor_ = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridColor_);
+    gridModel_.color = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridModel_.color);
   }
 
   float tileBoxHeight = 325.f;
@@ -458,6 +449,10 @@ bool TileWindow::render() {
 
   if (registry_.valid(selectedTile_)) {
     tileModel_.update(registry_, selectedTile_);
+  }
+
+  if (registry_.valid(grid_)) {
+    gridModel_.update(registry_, grid_);
   }
 
   return true;

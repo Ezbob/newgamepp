@@ -61,4 +61,10 @@ namespace Components {
     Rectangle quad;
   };
 
+  struct Debug {};
+
+  struct Coloring {
+    Color color;
+  };
+
 };// namespace Components

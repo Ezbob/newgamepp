@@ -5,6 +5,7 @@
 #include "Components.hh"
 #include "Constants.hh"
 #include "raylib.h"
+#include "raygui.h"
 
 void draw(entt::registry &reg) {
 
@@ -23,6 +24,24 @@ void draw(entt::registry &reg) {
     }
   });
 
+
+  auto debugGridView = reg.view<const Components::Debug,
+      const Components::Active,
+      const Components::Coloring,
+      const Components::Position,
+      const Components::Dimensions>();
+
+  for(auto [debug, active, coloring, position, dimension]: debugGridView.each()) {
+    if (active.isActive) {
+      int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
+      GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(coloring.color));
+      GuiGrid({
+        position.x, position.y, dimension.w, dimension.h
+      }, 10.f, 2);
+      GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
+    }
+  }
+
   spriteGroup.each([&spriteGroup](Components::Renderable const &renderable,
     Components::SpriteTexture const &texture,
     Components::Position const &pos,
@@ -36,7 +55,7 @@ void draw(entt::registry &reg) {
     }, {pos.x, pos.y}, ColorAlpha(WHITE, renderable.alpha));
   });
 
-  auto view = reg.view<const Components::Position, const Components::Dimensions>();
+  auto view = reg.view<const Components::Position, const Components::Dimensions>(entt::exclude<Components::Debug>);
 
   view.each([](const Components::Position &pos, const Components::Dimensions &dim) {
     DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);

@@ -75,7 +75,7 @@ struct TileModel {
     return e;
   }
 
-  inline void del(entt::registry &reg, entt::entity e) {
+  inline void destroy(entt::registry &reg, entt::entity e) {
     reg.destroy(e);
   }
 };

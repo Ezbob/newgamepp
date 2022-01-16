@@ -105,4 +105,40 @@ private:
 
   TileModel tileModel_;
 
+  struct GridModel {
+    Color color = GRAY;
+    bool show = false;
+
+    inline void reset() {
+      color = GRAY;
+      show = false;
+    }
+
+    inline entt::entity create(entt::registry &r) const {
+      entt::entity entity = r.create();
+      r.emplace<Components::Coloring>(entity, color);
+      r.emplace<Components::Debug>(entity);
+      r.emplace<Components::Active>(entity, show);
+      r.emplace<Components::Position>(entity, 0.f, 0.f);
+      r.emplace<Components::Dimensions>(entity, Constants::screenWidth, Constants::screenHeight);
+      return entity;
+    }
+
+    inline void destroy(entt::registry &r, entt::entity e) {
+      r.destroy(e);
+    }
+
+    inline entt::entity read(entt::registry &r, entt::entity e) {
+      color = r.get<Components::Coloring>(e).color;
+      show = r.get<Components::Active>(e).isActive;
+    }
+
+    inline void update(entt::registry &r, entt::entity e) const {
+      r.get<Components::Coloring>(e).color = color;
+      r.get<Components::Active>(e).isActive = show;
+    }
+  } gridModel_;
+
+  entt::entity grid_;
+
 };
