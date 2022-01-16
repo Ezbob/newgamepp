@@ -8,6 +8,7 @@
 #include "NFDFileOpener.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
+#include "TileModel.hh"
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -32,8 +33,6 @@ private:
   void showTilesetError(Rectangle const &);
 
   void drawTileSetSection(Rectangle const &);
-
-  entt::entity createTile();
 
   void renderTileSet(Rectangle const &);
 
@@ -103,55 +102,7 @@ private:
   IFileOpener &fileOpener_;
 
   entt::entity selectedTile_;
-  struct TileModel {
-    Texture texture;
-    int zIndex = 1;
-    int layerIndex = 1;
-    float alpha = 1.0f;
-    Vector2 position = {0, 0};
-    Rectangle quad = {0,0,0,0};
-    bool vFlip = false;
-    bool hFlip = false;
 
-    inline void write_to(entt::registry &reg, entt::entity e) const {
-      reg.get<Components::SpriteTexture>(e).texture = texture;
-
-      auto &render = reg.get<Components::Renderable>(e);
-      render.alpha = alpha;
-      render.layer = layerIndex;
-      render.zIndex = zIndex;
-
-      auto &flip = reg.get<Components::Flipable>(e);
-      flip.hFlipped = hFlip;
-      flip.vFlipped = vFlip;
-
-      auto &pos = reg.get<Components::Position>(e);
-      pos.x = position.x;
-      pos.y = position.y;
-
-      reg.get<Components::Quad>(e).quad = quad;
-    }
-
-    inline entt::entity read_from(entt::registry &reg, entt::entity e) {
-      texture = reg.get<Components::SpriteTexture>(e).texture;
-
-      auto &render = reg.get<Components::Renderable>(e);
-      alpha = render.alpha;
-      layerIndex = render.layer;
-      zIndex = render.zIndex;
-
-      auto &flip = reg.get<Components::Flipable>(e);
-      flip.hFlipped = hFlip;
-      flip.vFlipped = vFlip;
-
-      auto &pos = reg.get<Components::Position>(e);
-      position.x = pos.x;
-      position.y = pos.y;
-
-      quad = reg.get<Components::Quad>(e).quad;
-      return e;
-    }
-
-  } tileModel_;
+  TileModel tileModel_;
 
 };

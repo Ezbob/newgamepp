@@ -28,9 +28,8 @@ namespace {
 
   Vector2 midPoint(Rectangle r) {
     return {
-      r.x - (r.width / 2),
-      r.y - (r.height / 2)
-    };
+            r.x - (r.width / 2),
+            r.y - (r.height / 2)};
   }
 
   entt::entity findClickedTile(entt::registry &reg, int layerIndex) {
@@ -46,12 +45,12 @@ namespace {
       auto position = view.get<Components::Position>(entity);
       auto quad = view.get<Components::Quad>(entity);
       return layerIndex == render.layer &&
-        CheckCollisionPointRec(mouse, {
-          position.x,
-          position.y,
-          quad.quad.width,
-          quad.quad.height,
-        });
+             CheckCollisionPointRec(mouse, {
+                                                   position.x,
+                                                   position.y,
+                                                   quad.quad.width,
+                                                   quad.quad.height,
+                                           });
     });
 
     return *it;
@@ -62,7 +61,7 @@ namespace {
 
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener)
     : registry_(registry), fileOpener_(fileOpener) {
-    addNewLayer();
+  addNewLayer();
 }
 
 
@@ -74,15 +73,6 @@ ITileParser *TileWindow::selectParser(int index) {
   return nullptr;
 }
 
-entt::entity TileWindow::createTile() {
-  auto entity = registry_.create();
-  registry_.emplace<Components::SpriteTexture>(entity);
-  registry_.emplace<Components::Renderable>(entity);
-  registry_.emplace<Components::Position>(entity);
-  registry_.emplace<Components::Flipable>(entity);
-  registry_.emplace<Components::Quad>(entity);
-  return entity;
-}
 
 void TileWindow::openTilesetFile(Rectangle const &tileBox) {
   const char *extensions = tileParser_->getFileExtensions();// a semi-colon seperated list of extensions
@@ -267,9 +257,9 @@ void TileWindow::layerControls() {
     addNewLayer();
   }
 
-  std::vector<const char*> present;
+  std::vector<const char *> present;
   present.reserve(layers_.size());
-  for (auto const&v : layers_) {
+  for (auto const &v : layers_) {
     present.emplace_back(v.data());
   }
 
@@ -296,35 +286,34 @@ void TileWindow::removeTile() {
 void TileWindow::renderTools(Rectangle &gridColorbutton) {
 
   Rectangle toolBox = {
-        gridColorbutton.x,
-        gridColorbutton.y + 60.f,
-        (windowBoundary_.width / 2) - 20.f,
-        80.f};
+          gridColorbutton.x,
+          gridColorbutton.y + 60.f,
+          (windowBoundary_.width / 2) - 20.f,
+          80.f};
 
   GuiGroupBox(toolBox, "Tile tools");
   Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
   if (
-      GuiToggle(
-        initialButton,
-        GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
-        tileToolSelected_ == TileTool::paint_tool)) {
+          GuiToggle(
+                  initialButton,
+                  GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
+                  tileToolSelected_ == TileTool::paint_tool)) {
     tileToolSelected_ = TileTool::paint_tool;
   }
   if (
-      GuiToggle(
-        {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
-        GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
-        tileToolSelected_ == TileTool::remove_tool)) {
+          GuiToggle(
+                  {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
+                  GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
+                  tileToolSelected_ == TileTool::remove_tool)) {
     tileToolSelected_ = TileTool::remove_tool;
   }
   if (
-      GuiToggle(
-        {initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
-        GuiIconText(RAYGUI_ICON_COLOR_PICKER, nullptr),
-        tileToolSelected_ == TileTool::tile_picker_tool)) {
+          GuiToggle(
+                  {initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
+                  GuiIconText(RAYGUI_ICON_COLOR_PICKER, nullptr),
+                  tileToolSelected_ == TileTool::tile_picker_tool)) {
     tileToolSelected_ = TileTool::tile_picker_tool;
   }
-
 }
 
 void TileWindow::doTools() {
@@ -335,12 +324,10 @@ void TileWindow::doTools() {
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
 
-      mousePosition = midPoint({
-        mousePosition.x,
-        mousePosition.y,
-        tileFrame.frameDimensions.width,
-        tileFrame.frameDimensions.height
-      });
+      mousePosition = midPoint({mousePosition.x,
+                                mousePosition.y,
+                                tileFrame.frameDimensions.width,
+                                tileFrame.frameDimensions.height});
 
       if (IsKeyDown(KEY_LEFT_SHIFT)) {
         // snapping to the grid
@@ -349,19 +336,17 @@ void TileWindow::doTools() {
       }
 
       DrawTextureRec(
-        selectedTileSet_->texture,
-        {
-          tileFrame.frameDimensions.x,
-          tileFrame.frameDimensions.y,
-          (tileModel_.vFlip ? -tileFrame.frameDimensions.width : tileFrame.frameDimensions.width),
-          (tileModel_.hFlip ? -tileFrame.frameDimensions.height : tileFrame.frameDimensions.height)
-        },
-        mousePosition,
-        ColorAlpha(WHITE, 0.6f)
-      );
+              selectedTileSet_->texture,
+              {tileFrame.frameDimensions.x,
+               tileFrame.frameDimensions.y,
+               (tileModel_.vFlip ? -tileFrame.frameDimensions.width : tileFrame.frameDimensions.width),
+               (tileModel_.hFlip ? -tileFrame.frameDimensions.height : tileFrame.frameDimensions.height)},
+              mousePosition,
+              ColorAlpha(WHITE, 0.6f));
 
       if (IsMouseButtonPressed(0)) {
-        selectedTile_ = createTile();
+        tileModel_.reset();
+        selectedTile_ = tileModel_.create(registry_);
 
         tileModel_.texture = selectedTileSet_->texture;
         tileModel_.position = mousePosition;
@@ -381,7 +366,7 @@ void TileWindow::doTools() {
       auto mousePosition = GetMousePosition();
       if (CheckCollisionPointRec(mousePosition, windowRect)) {
         if (auto found = findClickedTile(registry_, currentLayerId_); registry_.valid(found)) {
-          selectedTile_ = tileModel_.read_from(registry_, found);
+          selectedTile_ = tileModel_.read(registry_, found);
         }
       }
     }
@@ -472,7 +457,7 @@ bool TileWindow::render() {
   doTools();
 
   if (registry_.valid(selectedTile_)) {
-    tileModel_.write_to(registry_, selectedTile_);
+    tileModel_.update(registry_, selectedTile_);
   }
 
   return true;
