@@ -4,8 +4,9 @@
 #include "Components.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
+#include "IEnttModel.hh"
 
-struct TileModel {
+struct TileModel : public IEnttModel {
   Texture texture;
   int zIndex = 1;
   int layerIndex = 1;
@@ -26,7 +27,7 @@ struct TileModel {
     hFlip = false;
   }
 
-  inline entt::entity create(entt::registry &reg) const {
+  inline entt::entity create(entt::registry &reg) const override {
     entt::entity entity = reg.create();
     reg.emplace<Components::SpriteTexture>(entity, texture);
     reg.emplace<Components::Renderable>(entity, alpha, zIndex, layerIndex);
@@ -36,7 +37,7 @@ struct TileModel {
     return entity;
   };
 
-  inline void update(entt::registry &reg, entt::entity e) const {
+  inline void update(entt::registry &reg, entt::entity e) const override {
     reg.get<Components::SpriteTexture>(e).texture = texture;
 
     auto &render = reg.get<Components::Renderable>(e);
@@ -55,7 +56,7 @@ struct TileModel {
     reg.get<Components::Quad>(e).quad = quad;
   }
 
-  inline entt::entity read(entt::registry &reg, entt::entity e) {
+  inline entt::entity read(entt::registry &reg, entt::entity e) override {
     texture = reg.get<Components::SpriteTexture>(e).texture;
 
     auto const&render = reg.get<Components::Renderable>(e);
@@ -75,7 +76,7 @@ struct TileModel {
     return e;
   }
 
-  inline void destroy(entt::registry &reg, entt::entity e) {
+  inline void destroy(entt::registry &reg, entt::entity e) override {
     reg.destroy(e);
   }
 };

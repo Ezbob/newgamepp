@@ -9,6 +9,7 @@
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include "TileModel.hh"
+#include "IEnttModel.hh"
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -105,16 +106,16 @@ private:
 
   TileModel tileModel_;
 
-  struct GridModel {
+  struct GridModel : public IEnttModel {
     Color color = GRAY;
     bool show = false;
 
-    inline void reset() {
+    inline void reset() override {
       color = GRAY;
       show = false;
     }
 
-    inline entt::entity create(entt::registry &r) const {
+    inline entt::entity create(entt::registry &r) const override {
       entt::entity entity = r.create();
       r.emplace<Components::Coloring>(entity, color);
       r.emplace<Components::Debug>(entity);
@@ -124,16 +125,17 @@ private:
       return entity;
     }
 
-    inline void destroy(entt::registry &r, entt::entity e) {
+    inline void destroy(entt::registry &r, entt::entity e) override {
       r.destroy(e);
     }
 
-    inline entt::entity read(entt::registry &r, entt::entity e) {
+    inline entt::entity read(entt::registry &r, entt::entity e) override {
       color = r.get<Components::Coloring>(e).color;
       show = r.get<Components::Active>(e).isActive;
+      return e;
     }
 
-    inline void update(entt::registry &r, entt::entity e) const {
+    inline void update(entt::registry &r, entt::entity e) const override {
       r.get<Components::Coloring>(e).color = color;
       r.get<Components::Active>(e).isActive = show;
     }
