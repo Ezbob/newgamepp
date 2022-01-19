@@ -3,13 +3,13 @@
 
 #include "AsepriteParser.hh"
 #include "Constants.hh"
+#include "GridModel.hh"
 #include "IRenderable.hh"
 #include "ITileParser.hh"
 #include "NFDFileOpener.hh"
+#include "TileModel.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
-#include "TileModel.hh"
-#include "GridModel.hh"
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -37,7 +37,7 @@ private:
 
   void renderTileSet(Rectangle const &);
 
-  inline bool isTileSelected() const {
+  inline bool isTileFrameSelected() const {
     return selectedFrameIndex_ != -1 && selectedTileSet_;
   }
 
@@ -106,5 +106,4 @@ private:
   GridModel gridModel_;
 
   entt::entity grid_;
-
 };

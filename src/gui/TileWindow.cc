@@ -27,24 +27,24 @@ namespace {
   }
 
   void drawCornerBox(Rectangle bounds, float thick = 1.f, float lineLength = 10.f, Color color = GREEN) {
-      auto endX = bounds.x + bounds.width;
-      auto endY = bounds.y + bounds.height;
+    auto endX = bounds.x + bounds.width;
+    auto endY = bounds.y + bounds.height;
 
-      // upper left corner
-      DrawLineEx({bounds.x, bounds.y}, {bounds.x + lineLength, bounds.y}, thick, color); // horizontal
-      DrawLineEx({bounds.x, bounds.y}, {bounds.x, bounds.y + lineLength}, thick, color); // vertical
+    // upper left corner
+    DrawLineEx({bounds.x, bounds.y}, {bounds.x + lineLength, bounds.y}, thick, color);// horizontal
+    DrawLineEx({bounds.x, bounds.y}, {bounds.x, bounds.y + lineLength}, thick, color);// vertical
 
-      // upper right corner
-      DrawLineEx({endX, bounds.y}, {endX - lineLength, bounds.y}, thick, color);
-      DrawLineEx({endX, bounds.y}, {endX, bounds.y + lineLength}, thick, color);
+    // upper right corner
+    DrawLineEx({endX, bounds.y}, {endX - lineLength, bounds.y}, thick, color);
+    DrawLineEx({endX, bounds.y}, {endX, bounds.y + lineLength}, thick, color);
 
-      // lower left corner
-      DrawLineEx({bounds.x, endY}, {bounds.x + lineLength, endY}, thick, color);
-      DrawLineEx({bounds.x, endY}, {bounds.x, endY - lineLength}, thick, color);
+    // lower left corner
+    DrawLineEx({bounds.x, endY}, {bounds.x + lineLength, endY}, thick, color);
+    DrawLineEx({bounds.x, endY}, {bounds.x, endY - lineLength}, thick, color);
 
-      // lower right corner
-      DrawLineEx({endX, endY}, {endX - lineLength, endY}, thick, color);
-      DrawLineEx({endX, endY}, {endX, endY - lineLength}, thick, color);
+    // lower right corner
+    DrawLineEx({endX, endY}, {endX - lineLength, endY}, thick, color);
+    DrawLineEx({endX, endY}, {endX, endY - lineLength}, thick, color);
   }
 
   Vector2 midPoint(Rectangle r) {
@@ -235,7 +235,7 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
       }
       i++;
     }
-    if (isGuiNormal && isTileSelected()) {
+    if (isGuiNormal && isTileFrameSelected()) {
       DrawRectangleLinesEx({selectedFrameSample_.x - 5.f,
                             selectedFrameSample_.y - 5.f,
                             selectedFrameSample_.width + 10.f,
@@ -341,7 +341,7 @@ void TileWindow::renderTools(Rectangle &gridColorbutton) {
 void TileWindow::doTools() {
   Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
 
-  if (isTileSelected() && tileToolSelected_ == TileTool::paint_tool) {
+  if (isTileFrameSelected() && tileToolSelected_ == TileTool::paint_tool) {
     auto mousePosition = GetMousePosition();
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
       auto &tileFrame = selectedTileSet_->frames[selectedFrameIndex_];
@@ -377,7 +377,7 @@ void TileWindow::doTools() {
     }
   }
 
-  if (isTileSelected() && tileToolSelected_ == TileTool::remove_tool) {
+  if (isTileFrameSelected() && tileToolSelected_ == TileTool::remove_tool) {
     if (IsMouseButtonPressed(0)) {
       removeTile();
     }
@@ -405,9 +405,13 @@ bool TileWindow::render() {
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
 
-  if (!isTileSelected()) GuiDisable();
+  if (!isTileFrameSelected()) GuiDisable();
 
   renderTools(gridColorbutton);
+
+  if (!isTileFrameSelected()) GuiEnable();
+
+  if (!registry_.valid(selectedTile_)) GuiDisable();
 
   Rectangle tileAttributesBox = {
           gridColorbutton.x + (windowBoundary_.width / 2),
@@ -432,8 +436,8 @@ bool TileWindow::render() {
 
   tileModel_.layerIndex = currentLayerId_;
 
+  if (!registry_.valid(selectedTile_)) GuiEnable();
 
-  if (!isTileSelected()) GuiEnable();
 
   gridModel_.show = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", gridModel_.show);
 
