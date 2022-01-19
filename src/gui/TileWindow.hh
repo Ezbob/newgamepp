@@ -90,8 +90,6 @@ private:
   bool layerSelectEditable_ = false;
 
 
-  bool showGrid_ = true;
-
   std::unordered_map<std::string, TileSet> tilesets_;
 
   TileSet *selectedTileSet_ = nullptr;

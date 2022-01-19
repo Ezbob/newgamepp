@@ -26,6 +26,28 @@ namespace {
     return (n - a > b - n) ? b : a;
   }
 
+
+  void drawCornerBox(Rectangle bounds, float thick = 1.f, float lineLength = 10.f) {
+      auto endX = bounds.x + bounds.width;
+      auto endY = bounds.y + bounds.height;
+
+      // upper left corner
+      DrawLineEx({bounds.x, bounds.y}, {bounds.x + lineLength, bounds.y}, thick, GREEN); // horizontal
+      DrawLineEx({bounds.x, bounds.y}, {bounds.x, bounds.y + lineLength}, thick, GREEN); // vertical
+
+      // upper right corner
+      DrawLineEx({endX, bounds.y}, {endX - lineLength, bounds.y}, thick, GREEN);
+      DrawLineEx({endX, bounds.y}, {endX, bounds.y + lineLength}, thick, GREEN);
+
+      // lower left corner
+      DrawLineEx({bounds.x, endY}, {bounds.x + lineLength, endY}, thick, GREEN);
+      DrawLineEx({bounds.x, endY}, {bounds.x, endY - lineLength}, thick, GREEN);
+
+      // lower right corner
+      DrawLineEx({endX, endY}, {endX - lineLength, endY}, thick, GREEN);
+      DrawLineEx({endX, endY}, {endX, endY - lineLength}, thick, GREEN);
+  }
+
   Vector2 midPoint(Rectangle r) {
     return {
             r.x - (r.width / 2),
@@ -449,6 +471,9 @@ bool TileWindow::render() {
 
   if (registry_.valid(selectedTile_)) {
     tileModel_.update(registry_, selectedTile_);
+
+    auto [pos, dim] = registry_.get<Components::Position, Components::Quad>(selectedTile_);
+    drawCornerBox({pos.x, pos.y, dim.quad.width, dim.quad.height});
   }
 
   if (registry_.valid(grid_)) {
