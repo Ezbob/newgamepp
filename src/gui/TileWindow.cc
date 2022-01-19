@@ -367,7 +367,10 @@ void TileWindow::doTools() {
               ColorAlpha(WHITE, 0.6f));
 
       if (IsMouseButtonPressed(0)) {
-        tileModel_.reset();
+
+        if (!IsKeyDown(KEY_LEFT_CONTROL)) {
+          tileModel_.reset();
+        }
         selectedTile_ = tileModel_.create(registry_);
 
         tileModel_.texture = selectedTileSet_->texture;
