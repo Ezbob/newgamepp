@@ -55,16 +55,15 @@ namespace {
 
   entt::entity findClickedTile(entt::registry &reg, int layerIndex) {
     auto mouse = GetMousePosition();
-    auto view = reg.view<Components::SpriteTexture,
-                         Components::Renderable,
-                         Components::Position,
-                         Components::Quad>();
 
-    auto it = std::find_if(view.rbegin(), view.rend(), [&mouse, &view, layerIndex](entt::entity entity) {
-      auto sprite = view.get<Components::SpriteTexture>(entity);
-      auto render = view.get<Components::Renderable>(entity);
-      auto position = view.get<Components::Position>(entity);
-      auto quad = view.get<Components::Quad>(entity);
+    auto spriteGroup = reg.group<Components::Renderable>(
+            entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
+
+    auto it = std::find_if(spriteGroup.rbegin(), spriteGroup.rend(), [&mouse, &spriteGroup, layerIndex](entt::entity entity) {
+      auto sprite = spriteGroup.get<Components::SpriteTexture>(entity);
+      auto render = spriteGroup.get<Components::Renderable>(entity);
+      auto position = spriteGroup.get<Components::Position>(entity);
+      auto quad = spriteGroup.get<Components::Quad>(entity);
       return layerIndex == render.layer &&
              CheckCollisionPointRec(mouse, {
                                                    position.x,
