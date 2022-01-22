@@ -256,6 +256,10 @@ void TileWindow::drawTileSetSection(Rectangle const &tileBox) {
 }
 
 void TileWindow::addNewLayer() {
+  if (registry_.valid(selectedTile_)) {
+    selectedTile_ = entt::null;
+  }
+
   currentLayerId_ = ids_++;
   layers_.emplace_back(fmt::format("Layer {}", currentLayerId_));
 }
