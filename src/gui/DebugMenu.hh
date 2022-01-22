@@ -3,7 +3,7 @@
 
 #include "EntityWindow.hh"
 #include "IRenderable.hh"
-#include "TileWindow.hh"
+#include "tileEditor/TileWindow.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include <optional>

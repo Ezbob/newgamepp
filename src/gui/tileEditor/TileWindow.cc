@@ -451,16 +451,15 @@ bool TileWindow::render() {
     gridModel_.color = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridModel_.color);
   }
 
-  float tileBoxHeight = 325.f;
-  Rectangle tileBox = {
-          windowBoundary_.x + 5.f,
-          windowBoundary_.height - tileBoxHeight,
-          windowBoundary_.width - 10.f,
-          tileBoxHeight - 5.f};
-
   if (!hasTileSetError()) {
     GuiDisable();
   }
+
+  Rectangle tileBox = {
+          windowBoundary_.x + 5.f,
+          windowBoundary_.height - 325.f,
+          windowBoundary_.width - 10.f,
+          325.f - 5.f};
 
   drawTileSetSection(tileBox);
 

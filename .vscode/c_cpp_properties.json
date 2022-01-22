@@ -10,11 +10,10 @@
             ],
             "windowsSdkVersion": "10.0.18362.0",
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/bin/Hostx64/x64/cl.exe",
-            "intelliSenseMode": "msvc-x64",
+            "intelliSenseMode": "windows-msvc-x64",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/src/",
-                "${workspaceFolder}/src/gui",
+                "${workspaceFolder}/src/**",
                 "${workspaceFolder}/libs/raygui/src",
                 "${env:VCPKG_ROOT}/installed/x64-windows/include",
                 "${workspaceFolder}/libs/nativefiledialog/src/include",
