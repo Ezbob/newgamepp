@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "AsepriteParser.hh"
+
 #include "Constants.hh"
 #include "GridModel.hh"
 #include "IRenderable.hh"
@@ -10,8 +10,8 @@
 #include "TileModel.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
+#include "TileSelector.hh"
 #include <functional>
-#include <unordered_map>
 #include <vector>
 
 class TileWindow : public IRenderable {
@@ -27,24 +27,6 @@ private:
           600.f,
           Constants::screenHeight + 200.f};
 
-  ITileParser *selectParser(int);
-
-  void openTilesetFile(Rectangle const &);
-
-  void showTilesetError(Rectangle const &);
-
-  void drawTileSetSection(Rectangle const &);
-
-  void renderTileSet(Rectangle const &);
-
-  inline bool isTileFrameSelected() const {
-    return selectedFrameIndex_ != -1 && selectedTileSet_;
-  }
-
-  inline bool hasTileSetError() const {
-    return tilesetError_ == TilesetErrors::no_error;
-  }
-
   void addNewLayer();
 
   void removeLayer();
@@ -59,21 +41,10 @@ private:
 
   entt::registry &registry_;
 
-  bool chooseParseMethod_ = false;
+  TileSelector tileSelector_;
 
-  int parseMethodChosen_ = 0;
-  ITileParser *tileParser_;
-
-  Color gridColor_ = GRAY;
   bool mousepressed_ = false;
   bool showGridColor_ = false;
-
-  enum class TilesetErrors {
-    no_error,
-    file_not_found,
-    tileset_already_loaded,
-    tileset_parse_error
-  } tilesetError_ = TilesetErrors::no_error;
 
   enum class TileTool {
     no_tool,
@@ -82,23 +53,10 @@ private:
     tile_picker_tool
   } tileToolSelected_ = TileTool::paint_tool;
 
-  AsepriteParser aseprite_;
-
   int ids_ = 0;
   int currentLayerId_ = 0;
   std::vector<std::string> layers_;
   bool layerSelectEditable_ = false;
-
-
-  std::unordered_map<std::string, TileSet> tilesets_;
-
-  TileSet *selectedTileSet_ = nullptr;
-
-  int selectedFrameIndex_ = -1;
-  Rectangle selectedFrameSample_;
-
-  Vector2 panelScroller_ = {5.f, 5.f};
-  IFileOpener &fileOpener_;
 
   entt::entity selectedTile_;
 
