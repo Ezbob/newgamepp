@@ -17,6 +17,9 @@ int main() {
   entt::registry registry;
   DebugGUI dgui{registry};
 
+  Camera2D cam = {0};
+  cam.zoom = 1.f;
+
   auto whiteBlockInitializer = [&registry](float xpos, float ypos, float width, float height, std::string name) {
     const auto entity = registry.create();
     registry.emplace<Components::Position>(entity, xpos, ypos);
@@ -38,13 +41,17 @@ int main() {
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();
 
-    update(registry, dt);
+    Systems::update(registry, dt);
 
     BeginDrawing();
 
     ClearBackground(BLACK);
 
-    draw(registry);
+    BeginMode2D(cam);
+
+    Systems::draw(registry, cam);
+
+    EndMode2D();
 
     dgui.doGui();
 
