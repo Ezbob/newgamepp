@@ -7,6 +7,29 @@
 #include "raylib.h"
 #include "raygui.h"
 
+namespace {
+  void drawCornerBox(Rectangle bounds, float thick = 1.f, float lineLength = 10.f, Color color = GREEN) {
+    auto endX = bounds.x + bounds.width;
+    auto endY = bounds.y + bounds.height;
+
+    // upper left corner
+    DrawLineEx({bounds.x, bounds.y}, {bounds.x + lineLength, bounds.y}, thick, color);// horizontal
+    DrawLineEx({bounds.x, bounds.y}, {bounds.x, bounds.y + lineLength}, thick, color);// vertical
+
+    // upper right corner
+    DrawLineEx({endX, bounds.y}, {endX - lineLength, bounds.y}, thick, color);
+    DrawLineEx({endX, bounds.y}, {endX, bounds.y + lineLength}, thick, color);
+
+    // lower left corner
+    DrawLineEx({bounds.x, endY}, {bounds.x + lineLength, endY}, thick, color);
+    DrawLineEx({bounds.x, endY}, {bounds.x, endY - lineLength}, thick, color);
+
+    // lower right corner
+    DrawLineEx({endX, endY}, {endX - lineLength, endY}, thick, color);
+    DrawLineEx({endX, endY}, {endX, endY - lineLength}, thick, color);
+  }
+}
+
 namespace Systems {
 
   inline void draw(entt::registry &reg, Camera2D &cam) {
@@ -35,35 +58,46 @@ namespace Systems {
 
     for(auto [debug, active, coloring, position, dimension]: debugGridView.each()) {
       if (active.isActive) {
-        auto world = GetScreenToWorld2D({position.x, position.y}, cam);
+        auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
         int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
         GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(coloring.color));
         GuiGrid({
-          world.x, world.y, dimension.w, dimension.h
+          screen.x, screen.y, dimension.w, dimension.h
         }, 10.f, 2);
         GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
       }
     }
+
+
 
     spriteGroup.each([&spriteGroup, &cam](Components::Renderable const &renderable,
       Components::SpriteTexture const &texture,
       Components::Position const &pos,
       Components::Quad const &dim,
       Components::Flipable const &flip) {
-      auto world = GetScreenToWorld2D({dim.quad.x, dim.quad.y}, cam);
+      auto screen = GetWorldToScreen2D({pos.x, pos.y}, cam);
       DrawTextureRec(texture.texture, {
-        world.x,
-        world.y,
+        dim.quad.x,
+        dim.quad.y,
         flip.vFlipped ? -dim.quad.width : dim.quad.width,
         flip.hFlipped ? -dim.quad.height : dim.quad.height
-      }, {pos.x, pos.y}, ColorAlpha(WHITE, renderable.alpha));
+      }, {screen.x, screen.y}, ColorAlpha(WHITE, renderable.alpha));
     });
+
+    auto selection = reg.view<const Components::Debug,
+        const Components::Position,
+        const Components::Quad>();
+
+    for(auto [debug, position, dimension]: selection.each()) {
+      auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
+      drawCornerBox({screen.x, screen.y, dimension.quad.width, dimension.quad.height});
+    }
 
     auto view = reg.view<const Components::Position, const Components::Dimensions>(entt::exclude<Components::Debug>);
 
     view.each([&cam](const Components::Position &pos, const Components::Dimensions &dim) {
-      auto world = GetScreenToWorld2D({pos.x, pos.y}, cam);
-      DrawRectangleRec({world.x, world.y, dim.w, dim.h}, WHITE);
+      auto screen = GetWorldToScreen2D({pos.x, pos.y}, cam);
+      DrawRectangleRec({screen.x, screen.y, dim.w, dim.h}, WHITE);
     });
 
   }

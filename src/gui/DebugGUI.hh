@@ -13,7 +13,7 @@ private:
   bool drawWindow_ = false;
 
 public:
-  explicit DebugGUI(entt::registry &);
+  explicit DebugGUI(entt::registry &, Camera2D &);
 
   void doGui();
 };

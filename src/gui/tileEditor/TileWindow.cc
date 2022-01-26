@@ -6,6 +6,7 @@
 #include "Archetypes.hh"
 #include "fmt/core.h"
 #include "raygui.h"
+#include "raymath.h"
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -26,51 +27,33 @@ namespace {
     return (n - a > b - n) ? b : a;
   }
 
-  void drawCornerBox(Rectangle bounds, float thick = 1.f, float lineLength = 10.f, Color color = GREEN) {
-    auto endX = bounds.x + bounds.width;
-    auto endY = bounds.y + bounds.height;
-
-    // upper left corner
-    DrawLineEx({bounds.x, bounds.y}, {bounds.x + lineLength, bounds.y}, thick, color);// horizontal
-    DrawLineEx({bounds.x, bounds.y}, {bounds.x, bounds.y + lineLength}, thick, color);// vertical
-
-    // upper right corner
-    DrawLineEx({endX, bounds.y}, {endX - lineLength, bounds.y}, thick, color);
-    DrawLineEx({endX, bounds.y}, {endX, bounds.y + lineLength}, thick, color);
-
-    // lower left corner
-    DrawLineEx({bounds.x, endY}, {bounds.x + lineLength, endY}, thick, color);
-    DrawLineEx({bounds.x, endY}, {bounds.x, endY - lineLength}, thick, color);
-
-    // lower right corner
-    DrawLineEx({endX, endY}, {endX - lineLength, endY}, thick, color);
-    DrawLineEx({endX, endY}, {endX, endY - lineLength}, thick, color);
-  }
-
   Vector2 midPoint(Rectangle r) {
     return {
             r.x - (r.width / 2),
             r.y - (r.height / 2)};
   }
 
-  entt::entity findClickedTile(entt::registry &reg, int layerIndex) {
+  entt::entity findClickedTile(entt::registry &reg, int layerIndex, Camera2D &cam) {
     auto mouse = GetMousePosition();
 
     auto spriteGroup = reg.group<Components::Renderable>(
             entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
 
-    auto it = std::find_if(spriteGroup.rbegin(), spriteGroup.rend(), [&mouse, &spriteGroup, layerIndex](entt::entity entity) {
+    auto it = std::find_if(spriteGroup.rbegin(), spriteGroup.rend(), [&mouse, &spriteGroup, layerIndex, &cam](entt::entity entity) {
       auto sprite = spriteGroup.get<Components::SpriteTexture>(entity);
       auto render = spriteGroup.get<Components::Renderable>(entity);
       auto position = spriteGroup.get<Components::Position>(entity);
       auto quad = spriteGroup.get<Components::Quad>(entity);
-      return layerIndex == render.layer &&
-             CheckCollisionPointRec(mouse, {
-                                                   position.x,
-                                                   position.y,
-                                                   quad.quad.width,
-                                                   quad.quad.height,
-                                           });
+      auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
+
+      bool is_colliding = CheckCollisionPointRec(mouse,
+      {
+        screen.x,
+        screen.y,
+        quad.quad.width,
+        quad.quad.height
+      });
+      return layerIndex == render.layer && is_colliding;
     });
 
     return *it;
@@ -79,12 +62,14 @@ namespace {
 };// namespace
 
 
-TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener)
-    : registry_(registry), tileSelector_({
+TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera2D &camera)
+    : registry_(registry)
+    , tileSelector_({
           windowBoundary_.x + 5.f,
           windowBoundary_.height - 325.f,
           windowBoundary_.width - 10.f,
-          325.f - 5.f}, fileOpener) {
+          325.f - 5.f}, fileOpener)
+    , camera_(camera) {
   addNewLayer();
   grid_ = gridModel_.create(registry_);
 }
@@ -137,7 +122,7 @@ void TileWindow::layerControls() {
 
 
 void TileWindow::removeTile() {
-  auto entity = findClickedTile(registry_, currentLayerId_);
+  auto entity = findClickedTile(registry_, currentLayerId_, camera_);
   if (registry_.valid(entity)) {
     registry_.destroy(entity);
   }
@@ -145,6 +130,8 @@ void TileWindow::removeTile() {
 
 
 void TileWindow::renderTools(Rectangle &gridColorbutton) {
+
+  if (!tileSelector_.isTileFrameSelected()) GuiDisable();
 
   Rectangle toolBox = {
           gridColorbutton.x,
@@ -175,6 +162,8 @@ void TileWindow::renderTools(Rectangle &gridColorbutton) {
                   tileToolSelected_ == TileTool::tile_picker_tool)) {
     tileToolSelected_ = TileTool::tile_picker_tool;
   }
+
+  if (!tileSelector_.isTileFrameSelected()) GuiEnable();
 }
 
 
@@ -213,10 +202,17 @@ void TileWindow::doTools() {
         if (!IsKeyDown(KEY_LEFT_CONTROL)) {
           tileModel_.reset();
         }
+
+        if (registry_.valid(selectedTile_) && registry_.all_of<Components::Debug>(selectedTile_)) {
+          registry_.remove<Components::Debug>(selectedTile_);
+        }
+
         selectedTile_ = tileModel_.create(registry_);
 
+        registry_.emplace<Components::Debug>(selectedTile_);
+
         tileModel_.texture = selectedTileSet_->set.texture;
-        tileModel_.position = mousePosition;
+        tileModel_.position = GetScreenToWorld2D(mousePosition, camera_);
         tileModel_.quad = tileFrame.frameDimensions;
       }
     }
@@ -232,8 +228,13 @@ void TileWindow::doTools() {
     if (IsMouseButtonPressed(0)) {
       auto mousePosition = GetMousePosition();
       if (CheckCollisionPointRec(mousePosition, windowRect)) {
-        if (auto found = findClickedTile(registry_, currentLayerId_); registry_.valid(found)) {
+        if (auto found = findClickedTile(registry_, currentLayerId_, camera_); registry_.valid(found)) {
+          if (registry_.valid(selectedTile_) && registry_.all_of<Components::Debug>(selectedTile_)) {
+            registry_.remove<Components::Debug>(selectedTile_);
+          }
           selectedTile_ = tileModel_.read(registry_, found);
+
+          registry_.emplace<Components::Debug>(selectedTile_);
         }
       }
     }
@@ -302,14 +303,21 @@ bool TileWindow::render() {
 
   if (registry_.valid(selectedTile_)) {
     tileModel_.update(registry_, selectedTile_);
-
-    auto [pos, dim] = registry_.get<Components::Position, Components::Quad>(selectedTile_);
-    drawCornerBox({pos.x, pos.y, dim.quad.width, dim.quad.height});
   }
 
   if (registry_.valid(grid_)) {
     gridModel_.update(registry_, grid_);
   }
 
+  auto mouse = GetMousePosition();
+  auto delta = Vector2Subtract(prevMouse_, mouse);
+
+  prevMouse_ = mouse;
+
+  if (IsMouseButtonDown(1)) {
+    camera_.target = GetScreenToWorld2D(Vector2Add(camera_.offset, delta), camera_);
+  }
+
+  prevMouse_ = GetMousePosition();
   return true;
 }

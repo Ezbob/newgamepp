@@ -16,7 +16,7 @@
 
 class TileWindow : public IRenderable {
 public:
-  TileWindow(entt::registry &, IFileOpener &);
+  TileWindow(entt::registry &, IFileOpener &, Camera2D &);
 
   bool render() override;
 
@@ -50,7 +50,8 @@ private:
     no_tool,
     paint_tool,
     remove_tool,
-    tile_picker_tool
+    tile_picker_tool,
+    pan_tool
   } tileToolSelected_ = TileTool::paint_tool;
 
   int ids_ = 0;
@@ -64,4 +65,6 @@ private:
   GridModel gridModel_;
 
   entt::entity grid_;
+  Camera2D &camera_;
+  Vector2 prevMouse_;
 };

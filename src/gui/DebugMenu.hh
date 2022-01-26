@@ -13,7 +13,7 @@
 class DebugMenu : public IRenderable {
 
 public:
-  explicit DebugMenu(entt::registry &);
+  explicit DebugMenu(entt::registry &, Camera2D &);
   ~DebugMenu() = default;
 
   bool render() override;

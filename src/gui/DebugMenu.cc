@@ -3,8 +3,8 @@
 
 #include "raygui.h"
 
-DebugMenu::DebugMenu(entt::registry &reg) 
-  : entityWindow_(reg), tileWindow_(reg, nfdFileOpener_)
+DebugMenu::DebugMenu(entt::registry &reg, Camera2D &cam)
+  : entityWindow_(reg), tileWindow_(reg, nfdFileOpener_, cam)
 {}
 
 bool DebugMenu::render() {

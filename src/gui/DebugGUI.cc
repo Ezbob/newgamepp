@@ -3,7 +3,7 @@
 #include "Constants.hh"
 #include "raylib.h"
 
-DebugGUI::DebugGUI(entt::registry &r) : entityChooser_(r) {}
+DebugGUI::DebugGUI(entt::registry &r, Camera2D &cam) : entityChooser_(r, cam) {}
 
 void DebugGUI::doGui() {
 

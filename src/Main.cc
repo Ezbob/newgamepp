@@ -15,10 +15,11 @@ int main() {
   const auto title = "Raylib example";
 
   entt::registry registry;
-  DebugGUI dgui{registry};
 
   Camera2D cam = {0};
   cam.zoom = 1.f;
+
+  DebugGUI dgui(registry, cam);
 
   auto whiteBlockInitializer = [&registry](float xpos, float ypos, float width, float height, std::string name) {
     const auto entity = registry.create();
@@ -26,7 +27,7 @@ int main() {
     registry.emplace<Components::Dimensions>(entity, width, height);
     registry.emplace<Components::Velocity>(entity, 0.f, 0.f);
     registry.emplace<Components::Name>(entity, std::move(name));
-    registry.emplace<Components::ScreenClamp>(entity);
+    //registry.emplace<Components::ScreenClamp>(entity);
   };
 
   whiteBlockInitializer(10.f, 10.f, 20.f, 20.f, "Hello");
