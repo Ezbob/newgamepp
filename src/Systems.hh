@@ -59,9 +59,10 @@ namespace Systems {
     for(auto [debug, active, coloring, position, dimension]: debugGridView.each()) {
       if (active.isActive) {
         int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
+        auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
         GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(coloring.color));
         GuiGrid({
-          position.x, position.y, dimension.w, dimension.h
+          -screen.x, -screen.y, dimension.w, dimension.h
         }, 10.f, 2);
         GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
       }
