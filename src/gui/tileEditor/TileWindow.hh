@@ -39,6 +39,8 @@ private:
 
   void doTools();
 
+  entt::entity findClickedTile(entt::registry &, int);
+
   entt::registry &registry_;
 
   TileSelector tileSelector_;

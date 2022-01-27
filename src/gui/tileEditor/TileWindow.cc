@@ -33,31 +33,7 @@ namespace {
             r.y - (r.height / 2)};
   }
 
-  entt::entity findClickedTile(entt::registry &reg, int layerIndex, Camera2D &cam) {
-    auto mouse = GetMousePosition();
 
-    auto spriteGroup = reg.group<Components::Renderable>(
-            entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
-
-    auto it = std::find_if(spriteGroup.rbegin(), spriteGroup.rend(), [&mouse, &spriteGroup, layerIndex, &cam](entt::entity entity) {
-      auto sprite = spriteGroup.get<Components::SpriteTexture>(entity);
-      auto render = spriteGroup.get<Components::Renderable>(entity);
-      auto position = spriteGroup.get<Components::Position>(entity);
-      auto quad = spriteGroup.get<Components::Quad>(entity);
-      auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
-
-      bool is_colliding = CheckCollisionPointRec(mouse,
-      {
-        screen.x,
-        screen.y,
-        quad.quad.width,
-        quad.quad.height
-      });
-      return layerIndex == render.layer && is_colliding;
-    });
-
-    return *it;
-  }
 
 };// namespace
 
@@ -73,6 +49,33 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
   addNewLayer();
   grid_ = gridModel_.create(registry_);
 }
+
+
+entt::entity TileWindow::findClickedTile(entt::registry &reg, int layerIndex) {
+  auto mouse = GetScreenToWorld2D(GetMousePosition(), camera_);
+
+  auto spriteGroup = reg.group<Components::Renderable>(
+          entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
+
+  auto it = std::find_if(spriteGroup.rbegin(), spriteGroup.rend(), [this, &mouse, &spriteGroup, layerIndex](entt::entity entity) {
+    auto sprite = spriteGroup.get<Components::SpriteTexture>(entity);
+    auto render = spriteGroup.get<Components::Renderable>(entity);
+    auto position = spriteGroup.get<Components::Position>(entity);
+    auto quad = spriteGroup.get<Components::Quad>(entity);
+
+    bool is_colliding = CheckCollisionPointRec(mouse,
+    {
+      position.x,
+      position.y,
+      quad.quad.width,
+      quad.quad.height
+    });
+    return layerIndex == render.layer && is_colliding;
+  });
+
+  return *it;
+}
+
 
 void TileWindow::addNewLayer() {
   if (registry_.valid(selectedTile_)) {
@@ -122,7 +125,7 @@ void TileWindow::layerControls() {
 
 
 void TileWindow::removeTile() {
-  auto entity = findClickedTile(registry_, currentLayerId_, camera_);
+  auto entity = findClickedTile(registry_, currentLayerId_);
   if (registry_.valid(entity)) {
     registry_.destroy(entity);
   }
@@ -188,6 +191,9 @@ void TileWindow::doTools() {
         mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
       }
 
+      mousePosition = GetScreenToWorld2D(mousePosition, camera_);
+
+      BeginMode2D(camera_);
       DrawTextureRec(
               selectedTileSet_->set.texture,
               {tileFrame.frameDimensions.x,
@@ -196,6 +202,7 @@ void TileWindow::doTools() {
                tileFrame.frameDimensions.height},
               mousePosition,
               ColorAlpha(WHITE, 0.6f));
+      EndMode2D();
 
       if (IsMouseButtonPressed(0)) {
 
@@ -212,7 +219,8 @@ void TileWindow::doTools() {
         registry_.emplace<Components::Debug>(selectedTile_);
 
         tileModel_.texture = selectedTileSet_->set.texture;
-        tileModel_.position = GetScreenToWorld2D(mousePosition, camera_);
+        tileModel_.position = mousePosition;
+       
         tileModel_.quad = tileFrame.frameDimensions;
       }
     }
@@ -228,7 +236,7 @@ void TileWindow::doTools() {
     if (IsMouseButtonPressed(0)) {
       auto mousePosition = GetMousePosition();
       if (CheckCollisionPointRec(mousePosition, windowRect)) {
-        if (auto found = findClickedTile(registry_, currentLayerId_, camera_); registry_.valid(found)) {
+        if (auto found = findClickedTile(registry_, currentLayerId_); registry_.valid(found)) {
           if (registry_.valid(selectedTile_) && registry_.all_of<Components::Debug>(selectedTile_)) {
             registry_.remove<Components::Debug>(selectedTile_);
           }
@@ -315,9 +323,8 @@ bool TileWindow::render() {
   prevMouse_ = mouse;
 
   if (IsMouseButtonDown(1)) {
-    camera_.target = GetScreenToWorld2D(Vector2Add(camera_.offset, delta), camera_);
+    camera_.target = Vector2Add(camera_.target, delta);
   }
 
-  prevMouse_ = GetMousePosition();
   return true;
 }

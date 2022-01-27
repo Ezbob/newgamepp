@@ -58,11 +58,10 @@ namespace Systems {
 
     for(auto [debug, active, coloring, position, dimension]: debugGridView.each()) {
       if (active.isActive) {
-        auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
         int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
         GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(coloring.color));
         GuiGrid({
-          screen.x, screen.y, dimension.w, dimension.h
+          position.x, position.y, dimension.w, dimension.h
         }, 10.f, 2);
         GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
       }
@@ -75,13 +74,12 @@ namespace Systems {
       Components::Position const &pos,
       Components::Quad const &dim,
       Components::Flipable const &flip) {
-      auto screen = GetWorldToScreen2D({pos.x, pos.y}, cam);
       DrawTextureRec(texture.texture, {
         dim.quad.x,
         dim.quad.y,
         flip.vFlipped ? -dim.quad.width : dim.quad.width,
         flip.hFlipped ? -dim.quad.height : dim.quad.height
-      }, {screen.x, screen.y}, ColorAlpha(WHITE, renderable.alpha));
+      }, {pos.x, pos.y}, ColorAlpha(WHITE, renderable.alpha));
     });
 
     auto selection = reg.view<const Components::Debug,
@@ -89,15 +87,13 @@ namespace Systems {
         const Components::Quad>();
 
     for(auto [debug, position, dimension]: selection.each()) {
-      auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
-      drawCornerBox({screen.x, screen.y, dimension.quad.width, dimension.quad.height});
+      drawCornerBox({position.x, position.y, dimension.quad.width, dimension.quad.height});
     }
 
     auto view = reg.view<const Components::Position, const Components::Dimensions>(entt::exclude<Components::Debug>);
 
     view.each([&cam](const Components::Position &pos, const Components::Dimensions &dim) {
-      auto screen = GetWorldToScreen2D({pos.x, pos.y}, cam);
-      DrawRectangleRec({screen.x, screen.y, dim.w, dim.h}, WHITE);
+      DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);
     });
 
   }
