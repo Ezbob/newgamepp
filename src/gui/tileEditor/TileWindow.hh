@@ -68,5 +68,12 @@ private:
 
   entt::entity grid_;
   Camera2D &camera_;
-  Vector2 prevMouse_;
+
+  struct MousePosition {
+    Vector2 delta;
+    Vector2 prev;
+    Vector2 current;
+    void update();
+  } mousePosition_;
+
 };

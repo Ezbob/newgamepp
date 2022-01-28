@@ -11,17 +11,19 @@
 #include <cmath>
 #include <functional>
 #include <stdint.h>
+#include <cassert>
 
 #define RAYGUI_CUSTOM_RICONS
 #include "ricons.h"
 
 namespace {
-  int roundDownTo10(int n) {
+  int roundDownTo(int N, int n) {
+    assert(N > 0);
     // Smaller multiple
-    int a = (n / 10) * 10;
+    int a = (n / N) * N;
 
     // Larger multiple
-    int b = a + 10;
+    int b = a + N;
 
     // Return of closest of two
     return (n - a > b - n) ? b : a;
@@ -32,8 +34,6 @@ namespace {
             r.x - (r.width / 2),
             r.y - (r.height / 2)};
   }
-
-
 
 };// namespace
 
@@ -178,29 +178,27 @@ void TileWindow::doTools() {
     if (CheckCollisionPointRec(mousePosition, windowRect)) {
       auto selectedTileSet_ = tileSelector_.getSelectedFrame();
 
-      auto &tileFrame = selectedTileSet_->set.frames[selectedTileSet_->frameIndex]; // selectedTileSet_->frames[selectedFrameIndex_];
+      auto &tileFrame = selectedTileSet_->set.frames[selectedTileSet_->frameIndex];
 
-      mousePosition = midPoint({mousePosition.x,
+      auto midPointMouse = midPoint({mousePosition.x,
                                 mousePosition.y,
                                 tileFrame.frameDimensions.width,
                                 tileFrame.frameDimensions.height});
 
-      if (IsKeyDown(KEY_LEFT_SHIFT)) {
-        // snapping to the grid
-        mousePosition.x = (float) roundDownTo10(static_cast<int>(mousePosition.x));
-        mousePosition.y = (float) roundDownTo10(static_cast<int>(mousePosition.y));
+      midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
+
+      if (!IsKeyDown(KEY_LEFT_SHIFT)) {
+        // snapping to tile width/height
+        midPointMouse.x = (float) roundDownTo(static_cast<int>(tileFrame.frameDimensions.width), static_cast<int>(midPointMouse.x));
+        midPointMouse.y = (float) roundDownTo(static_cast<int>(tileFrame.frameDimensions.height), static_cast<int>(midPointMouse.y));
       }
 
-      mousePosition = GetScreenToWorld2D(mousePosition, camera_);
-
       BeginMode2D(camera_);
+
       DrawTextureRec(
               selectedTileSet_->set.texture,
-              {tileFrame.frameDimensions.x,
-               tileFrame.frameDimensions.y,
-               tileFrame.frameDimensions.width,
-               tileFrame.frameDimensions.height},
-              mousePosition,
+              tileFrame.frameDimensions,
+              midPointMouse,
               ColorAlpha(WHITE, 0.6f));
       EndMode2D();
 
@@ -219,8 +217,8 @@ void TileWindow::doTools() {
         registry_.emplace<Components::Debug>(selectedTile_);
 
         tileModel_.texture = selectedTileSet_->set.texture;
-        tileModel_.position = mousePosition;
-       
+        tileModel_.position = midPointMouse;
+
         tileModel_.quad = tileFrame.frameDimensions;
       }
     }
@@ -249,12 +247,18 @@ void TileWindow::doTools() {
   }
 }
 
+void TileWindow::MousePosition::update() {
+  current = GetMousePosition();
+  delta = Vector2Subtract(prev, current);
+  prev = current;
+}
+
 
 bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
   }
-
+  mousePosition_.update();
   mousepressed_ = IsMouseButtonPressed(0);
 
   auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
@@ -317,13 +321,8 @@ bool TileWindow::render() {
     gridModel_.update(registry_, grid_);
   }
 
-  auto mouse = GetMousePosition();
-  auto delta = Vector2Subtract(prevMouse_, mouse);
-
-  prevMouse_ = mouse;
-
   if (IsMouseButtonDown(1)) {
-    camera_.target = Vector2Add(camera_.target, delta);
+    camera_.target = Vector2Add(camera_.target, mousePosition_.delta);
   }
 
   return true;

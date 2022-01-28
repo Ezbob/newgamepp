@@ -55,6 +55,7 @@ namespace Systems {
         const Components::Coloring,
         const Components::Dimensions>();
 
+
     for(auto [debug, active, coloring, dimension]: debugGridView.each()) {
       if (active.isActive) {
 
@@ -62,14 +63,12 @@ namespace Systems {
 
         for (float i = -size; i <= size; i += 10.f)
         {
-            DrawLineEx({i, -size}, {i, size}, 1.f, Fade(coloring.color, 0.8f));
-            DrawLineEx({-size, i}, {size, i}, 1.f, Fade(coloring.color, 0.8f));
+          DrawLineEx({i, -size}, {i, size}, 1.f, Fade(coloring.color, 0.8f));
+          DrawLineEx({-size, i}, {size, i}, 1.f, Fade(coloring.color, 0.8f));
         }
 
       }
     }
-
-
 
     spriteGroup.each([&spriteGroup, &cam](Components::Renderable const &renderable,
       Components::SpriteTexture const &texture,
