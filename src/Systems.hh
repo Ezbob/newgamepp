@@ -53,18 +53,19 @@ namespace Systems {
     auto debugGridView = reg.view<const Components::Debug,
         const Components::Active,
         const Components::Coloring,
-        const Components::Position,
         const Components::Dimensions>();
 
-    for(auto [debug, active, coloring, position, dimension]: debugGridView.each()) {
+    for(auto [debug, active, coloring, dimension]: debugGridView.each()) {
       if (active.isActive) {
-        int oldStyle = GuiGetStyle(DEFAULT, LINE_COLOR);
-        auto screen = GetWorldToScreen2D({position.x, position.y}, cam);
-        GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(coloring.color));
-        GuiGrid({
-          -screen.x, -screen.y, dimension.w, dimension.h
-        }, 10.f, 2);
-        GuiSetStyle(DEFAULT, LINE_COLOR, oldStyle);
+
+        float size = dimension.w;
+
+        for (float i = -size; i <= size; i += 10.f)
+        {
+            DrawLineEx({i, -size}, {i, size}, 1.f, Fade(coloring.color, 0.8f));
+            DrawLineEx({-size, i}, {size, i}, 1.f, Fade(coloring.color, 0.8f));
+        }
+
       }
     }
 

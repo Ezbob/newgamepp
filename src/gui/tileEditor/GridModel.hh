@@ -9,10 +9,12 @@
 struct GridModel : public IEnttModel {
     Color color = GRAY;
     bool show = false;
+    Vector2 dimensions = {Constants::screenWidth * 4.f, Constants::screenHeight};
 
     inline void reset() override {
       color = GRAY;
       show = false;
+      dimensions = {Constants::screenWidth * 4.f, Constants::screenHeight};
     }
 
     inline entt::entity create(entt::registry &r) const override {
@@ -20,8 +22,7 @@ struct GridModel : public IEnttModel {
       r.emplace<Components::Coloring>(entity, color);
       r.emplace<Components::Debug>(entity);
       r.emplace<Components::Active>(entity, show);
-      r.emplace<Components::Position>(entity, 0.f, 0.f);
-      r.emplace<Components::Dimensions>(entity, Constants::screenWidth, Constants::screenHeight);
+      r.emplace<Components::Dimensions>(entity, dimensions.x, dimensions.y);
       return entity;
     }
 
