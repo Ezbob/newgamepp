@@ -33,11 +33,13 @@ private:
 
   void layerControls();
 
-  void removeTile();
-
   void renderTools(Rectangle &);
 
   void doTools();
+
+  void doPaintTool(Rectangle const windowRect);
+  void doRemoveTool(Rectangle const windowRect);
+  void doTilePickerTool(Rectangle const windowRect);
 
   entt::entity findClickedTile(entt::registry &, int);
 
@@ -52,8 +54,7 @@ private:
     no_tool,
     paint_tool,
     remove_tool,
-    tile_picker_tool,
-    pan_tool
+    tile_picker_tool
   } tileToolSelected_ = TileTool::paint_tool;
 
   int ids_ = 0;
