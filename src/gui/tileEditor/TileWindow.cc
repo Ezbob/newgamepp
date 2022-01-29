@@ -8,10 +8,10 @@
 #include "raygui.h"
 #include "raymath.h"
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <functional>
 #include <stdint.h>
-#include <cassert>
 
 #define RAYGUI_CUSTOM_RICONS
 #include "ricons.h"
@@ -39,13 +39,12 @@ namespace {
 
 
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera2D &camera)
-    : registry_(registry)
-    , tileSelector_({
-          windowBoundary_.x + 5.f,
-          windowBoundary_.height - 325.f,
-          windowBoundary_.width - 10.f,
-          325.f - 5.f}, fileOpener)
-    , camera_(camera) {
+    : registry_(registry), tileSelector_({windowBoundary_.x + 5.f,
+                                          windowBoundary_.height - 325.f,
+                                          windowBoundary_.width - 10.f,
+                                          325.f - 5.f},
+                                         fileOpener),
+      camera_(camera) {
   addNewLayer();
   grid_ = gridModel_.create(registry_);
 }
@@ -64,16 +63,18 @@ entt::entity TileWindow::findClickedTile(entt::registry &reg, int layerIndex) {
     auto quad = spriteGroup.get<Components::Quad>(entity);
 
     bool is_colliding = CheckCollisionPointRec(mouse,
-    {
-      position.x,
-      position.y,
-      quad.quad.width,
-      quad.quad.height
-    });
+                                               {position.x,
+                                                position.y,
+                                                quad.quad.width,
+                                                quad.quad.height});
     return layerIndex == render.layer && is_colliding;
   });
 
-  return *it;
+  if (it != spriteGroup.rend()) {
+    return *it;
+  } else {
+    return entt::null;
+  }
 }
 
 
@@ -94,6 +95,7 @@ void TileWindow::removeLayer() {
     currentLayerId_ -= 1;
   }
 }
+
 
 void TileWindow::layerControls() {
 
@@ -179,25 +181,30 @@ void TileWindow::doTools() {
       auto selectedTileSet_ = tileSelector_.getSelectedFrame();
 
       auto &tileFrame = selectedTileSet_->set.frames[selectedTileSet_->frameIndex];
+      auto frame = tileFrame.frameDimensions;
 
       auto midPointMouse = midPoint({mousePosition.x,
-                                mousePosition.y,
-                                tileFrame.frameDimensions.width,
-                                tileFrame.frameDimensions.height});
+                                     mousePosition.y,
+                                     tileFrame.frameDimensions.width,
+                                     tileFrame.frameDimensions.height});
 
       midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
 
       if (!IsKeyDown(KEY_LEFT_SHIFT)) {
         // snapping to tile width/height
-        midPointMouse.x = (float) roundDownTo(static_cast<int>(tileFrame.frameDimensions.width), static_cast<int>(midPointMouse.x));
-        midPointMouse.y = (float) roundDownTo(static_cast<int>(tileFrame.frameDimensions.height), static_cast<int>(midPointMouse.y));
+        midPointMouse.x = (float) roundDownTo(static_cast<int>(frame.width), static_cast<int>(midPointMouse.x));
+        midPointMouse.y = (float) roundDownTo(static_cast<int>(frame.height), static_cast<int>(midPointMouse.y));
+      }
+
+      if (IsKeyDown(KEY_LEFT_CONTROL)) {
+        frame.width = tileModel_.vFlip ? -frame.width : frame.width;
+        frame.height = tileModel_.hFlip ? -frame.height : frame.height;
       }
 
       BeginMode2D(camera_);
-
       DrawTextureRec(
               selectedTileSet_->set.texture,
-              tileFrame.frameDimensions,
+              frame,
               midPointMouse,
               ColorAlpha(WHITE, 0.6f));
       EndMode2D();
@@ -246,6 +253,7 @@ void TileWindow::doTools() {
     }
   }
 }
+
 
 void TileWindow::MousePosition::update() {
   current = GetMousePosition();
