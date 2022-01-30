@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <functional>
+#include <vector>
 
 #include "Constants.hh"
 #include "GridModel.hh"
@@ -11,8 +13,10 @@
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include "TileSelector.hh"
-#include <functional>
-#include <vector>
+#include "PainterTool.hh"
+#include "RemoveTool.hh"
+#include "TilePickerTool.hh"
+
 
 class TileWindow : public IRenderable {
 public:
@@ -36,10 +40,6 @@ private:
   void renderTools(Rectangle &);
 
   void doTools();
-
-  void doPaintTool(Rectangle const windowRect);
-  void doRemoveTool(Rectangle const windowRect);
-  void doTilePickerTool(Rectangle const windowRect);
 
   entt::entity findClickedTile(entt::registry &, int);
 
@@ -77,4 +77,7 @@ private:
     void update();
   } mousePosition_;
 
+  PainterTool painterTool_;
+  RemoveTool removeTool_;
+  TilePickerTool pickerTool_;
 };

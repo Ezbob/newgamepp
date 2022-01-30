@@ -39,12 +39,15 @@ namespace {
 
 
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera2D &camera)
-    : registry_(registry), tileSelector_({windowBoundary_.x + 5.f,
-                                          windowBoundary_.height - 325.f,
-                                          windowBoundary_.width - 10.f,
-                                          325.f - 5.f},
-                                         fileOpener),
-      camera_(camera) {
+    : registry_(registry)
+    , tileSelector_({windowBoundary_.x + 5.f,
+                    windowBoundary_.height - 325.f,
+                    windowBoundary_.width - 10.f,
+                    325.f - 5.f}, fileOpener)
+    , camera_(camera)
+    , painterTool_(registry_, tileSelector_, tileModel_, camera_, selectedTile_)
+    , removeTool_(registry_, camera_, currentLayerId_)
+    , pickerTool_(registry_, camera_, currentLayerId_, selectedTile_, tileModel_) {
   addNewLayer();
   grid_ = gridModel_.create(registry_);
 }
@@ -163,99 +166,16 @@ void TileWindow::renderTools(Rectangle &gridColorbutton) {
   if (!tileSelector_.isTileFrameSelected()) GuiEnable();
 }
 
-void TileWindow::doPaintTool(Rectangle const windowRect) {
-  auto mousePosition = GetMousePosition();
-  if (CheckCollisionPointRec(mousePosition, {0, 0, Constants::screenWidth, Constants::screenHeight})) {
-    auto selectedTileSet_ = tileSelector_.getSelectedFrame();
-
-    auto &tileFrame = selectedTileSet_->set.frames[selectedTileSet_->frameIndex];
-    auto frame = tileFrame.frameDimensions;
-
-    auto midPointMouse = midPoint({mousePosition.x,
-                                    mousePosition.y,
-                                    tileFrame.frameDimensions.width,
-                                    tileFrame.frameDimensions.height});
-
-    midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
-
-    if (!IsKeyDown(KEY_LEFT_SHIFT)) {
-      // snapping to tile width/height
-      midPointMouse.x = (float) roundDownTo(static_cast<int>(frame.width), static_cast<int>(midPointMouse.x));
-      midPointMouse.y = (float) roundDownTo(static_cast<int>(frame.height), static_cast<int>(midPointMouse.y));
-    }
-
-    if (IsKeyDown(KEY_LEFT_CONTROL)) {
-      frame.width = tileModel_.vFlip ? -frame.width : frame.width;
-      frame.height = tileModel_.hFlip ? -frame.height : frame.height;
-    }
-
-    BeginMode2D(camera_);
-    DrawTextureRec(
-            selectedTileSet_->set.texture,
-            frame,
-            midPointMouse,
-            ColorAlpha(WHITE, 0.6f));
-    EndMode2D();
-
-    if (IsMouseButtonPressed(0)) {
-
-      if (!IsKeyDown(KEY_LEFT_CONTROL)) {
-        tileModel_.reset();
-      }
-
-      if (registry_.valid(selectedTile_) && registry_.all_of<Components::Debug>(selectedTile_)) {
-        registry_.remove<Components::Debug>(selectedTile_);
-      }
-
-      selectedTile_ = tileModel_.create(registry_);
-
-      registry_.emplace<Components::Debug>(selectedTile_);
-
-      tileModel_.texture = selectedTileSet_->set.texture;
-      tileModel_.position = midPointMouse;
-
-      tileModel_.quad = tileFrame.frameDimensions;
-    }
-  }
-}
-
-
-void TileWindow::doRemoveTool(Rectangle const) {
-  if (IsMouseButtonPressed(0)) {
-    auto entity = findClickedTile(registry_, currentLayerId_);
-    if (registry_.valid(entity)) {
-      registry_.destroy(entity);
-    }
-  }
-}
-
-
-void TileWindow::doTilePickerTool(Rectangle const windowRect) {
-  if (IsMouseButtonPressed(0)) {
-    auto mousePosition = GetMousePosition();
-    if (CheckCollisionPointRec(mousePosition, windowRect)) {
-      if (auto found = findClickedTile(registry_, currentLayerId_); registry_.valid(found)) {
-        if (registry_.valid(selectedTile_) && registry_.all_of<Components::Debug>(selectedTile_)) {
-          registry_.remove<Components::Debug>(selectedTile_);
-        }
-        selectedTile_ = tileModel_.read(registry_, found);
-
-        registry_.emplace<Components::Debug>(selectedTile_);
-      }
-    }
-  }
-}
-
 
 void TileWindow::doTools() {
   Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
 
   if (tileToolSelected_ == TileTool::paint_tool && tileSelector_.isTileFrameSelected()) {
-    doPaintTool(windowRect);
+    painterTool_.execute();
   } else if (tileToolSelected_ == TileTool::remove_tool && tileSelector_.isTileFrameSelected()) {
-    doRemoveTool(windowRect);
+    removeTool_.execute();
   } else if (tileToolSelected_ == TileTool::tile_picker_tool) {
-    doTilePickerTool(windowRect);
+    pickerTool_.execute();
   }
 }
 
