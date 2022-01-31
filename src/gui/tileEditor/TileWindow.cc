@@ -129,7 +129,7 @@ void TileWindow::layerControls() {
 }
 
 
-void TileWindow::renderTools(Rectangle &gridColorbutton) {
+void TileWindow::renderTools(Rectangle const& gridColorbutton) {
 
   if (!tileSelector_.isTileFrameSelected()) GuiDisable();
 
@@ -179,36 +179,9 @@ void TileWindow::doTools() {
   }
 }
 
-
-void TileWindow::MousePosition::update() {
-  current = GetMousePosition();
-  delta = Vector2Subtract(prev, current);
-  prev = current;
-}
-
-
-bool TileWindow::render() {
-  if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
-    return false;
-  }
-  mousePosition_.update();
-  mousepressed_ = IsMouseButtonPressed(0);
-
-  auto gridColorbutton = Rectangle{windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
-
-  if (!tileSelector_.isTileFrameSelected()) GuiDisable();
-
-  renderTools(gridColorbutton);
-
-  if (!tileSelector_.isTileFrameSelected()) GuiEnable();
-
+void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
   if (!registry_.valid(selectedTile_)) GuiDisable();
-
-  Rectangle tileAttributesBox = {
-          gridColorbutton.x + (windowBoundary_.width / 2),
-          gridColorbutton.y + 60.f,
-          (windowBoundary_.width / 2) - 20.f,
-          80.f + (40.f * 2.f)};
+  
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
   GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &tileModel_.alpha, 0.f, 1.f, 0.01f, false);
@@ -228,7 +201,26 @@ bool TileWindow::render() {
   tileModel_.layerIndex = currentLayerId_;
 
   if (!registry_.valid(selectedTile_)) GuiEnable();
+}
 
+
+bool TileWindow::render() {
+  if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
+    return false;
+  }
+
+  mousepressed_ = IsMouseButtonPressed(0);
+
+  Rectangle gridColorbutton = {windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
+
+  renderTools(gridColorbutton);
+
+  renderTileAttributes({
+    gridColorbutton.x + (windowBoundary_.width / 2),
+    gridColorbutton.y + 60.f,
+    (windowBoundary_.width / 2) - 20.f,
+    60.f + (40.f * 2.f)
+  });
 
   gridModel_.show = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", gridModel_.show);
 
@@ -246,17 +238,15 @@ bool TileWindow::render() {
 
   doTools();
 
-  if (registry_.valid(selectedTile_)) {
-    tileModel_.update(registry_, selectedTile_);
-  }
+  tileModel_.update(registry_, selectedTile_);
+  gridModel_.update(registry_, grid_);
 
-  if (registry_.valid(grid_)) {
-    gridModel_.update(registry_, grid_);
-  }
-
+  auto currentMouse = GetMousePosition();
   if (IsMouseButtonDown(1)) {
-    camera_.target = Vector2Add(camera_.target, mousePosition_.delta);
+    auto delta = Vector2Subtract(prevMouse_, currentMouse);
+    camera_.target = Vector2Add(camera_.target, delta);
   }
+  prevMouse_ = currentMouse;
 
   return true;
 }

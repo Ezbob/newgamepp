@@ -38,6 +38,8 @@ struct TileModel : public IEnttModel {
   };
 
   inline void update(entt::registry &reg, entt::entity e) const override {
+    if (!reg.valid(e)) return;
+
     reg.get<Components::SpriteTexture>(e).texture = texture;
 
     auto &render = reg.get<Components::Renderable>(e);
@@ -57,6 +59,8 @@ struct TileModel : public IEnttModel {
   }
 
   inline entt::entity read(entt::registry &reg, entt::entity e) override {
+    if (!reg.valid(e)) return e;
+
     texture = reg.get<Components::SpriteTexture>(e).texture;
 
     auto const&render = reg.get<Components::Renderable>(e);
@@ -77,6 +81,7 @@ struct TileModel : public IEnttModel {
   }
 
   inline void destroy(entt::registry &reg, entt::entity e) override {
+    if (!reg.valid(e)) return;
     reg.destroy(e);
   }
 };

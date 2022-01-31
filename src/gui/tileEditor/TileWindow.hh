@@ -37,9 +37,11 @@ private:
 
   void layerControls();
 
-  void renderTools(Rectangle &);
-
   void doTools();
+
+  void renderTools(Rectangle const&);
+
+  void renderTileAttributes(Rectangle const&);
 
   entt::entity findClickedTile(entt::registry &, int);
 
@@ -70,12 +72,7 @@ private:
   entt::entity grid_;
   Camera2D &camera_;
 
-  struct MousePosition {
-    Vector2 delta;
-    Vector2 prev;
-    Vector2 current;
-    void update();
-  } mousePosition_;
+  Vector2 prevMouse_;
 
   PainterTool painterTool_;
   RemoveTool removeTool_;
