@@ -12,7 +12,6 @@ namespace Archetypes {
     Vector2 pos,
     Rectangle quad,
     float alpha,
-    int zIndex,
     int layerIndex = 0
   );
 

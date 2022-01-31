@@ -50,7 +50,7 @@ private:
 
   bool showGridColor_ = false;
 
-  int ids_ = 0;
+  int nextLayerId_ = 0;
   int currentLayerId_ = 0;
   std::vector<std::string> layers_;
   bool layerSelectEditable_ = false;

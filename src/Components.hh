@@ -49,7 +49,6 @@ namespace Components {
 
   struct Renderable {
     float alpha = 1.0;
-    int zIndex = 1;
     int layer = 1;
   };
 

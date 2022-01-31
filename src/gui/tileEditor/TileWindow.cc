@@ -16,27 +16,6 @@
 #define RAYGUI_CUSTOM_RICONS
 #include "ricons.h"
 
-namespace {
-  int roundDownTo(int N, int n) {
-    assert(N > 0);
-    // Smaller multiple
-    int a = (n / N) * N;
-
-    // Larger multiple
-    int b = a + N;
-
-    // Return of closest of two
-    return (n - a > b - n) ? b : a;
-  }
-
-  Vector2 midPoint(Rectangle r) {
-    return {
-            r.x - (r.width / 2),
-            r.y - (r.height / 2)};
-  }
-
-};// namespace
-
 
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera2D &camera)
     : registry_(registry)
@@ -87,14 +66,14 @@ void TileWindow::addNewLayer() {
     selectedTile_ = entt::null;
   }
 
-  currentLayerId_ = ids_++;
+  currentLayerId_ = nextLayerId_++;
   layers_.emplace_back(fmt::format("Layer {}", currentLayerId_));
 }
 
 
 void TileWindow::removeLayer() {
   layers_.pop_back();
-  ids_ -= 1;
+  nextLayerId_ -= 1;
   if (currentLayerId_ == layers_.size()) {
     currentLayerId_ -= 1;
   }
@@ -171,15 +150,13 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
 
   GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &tileModel_.alpha, 0.f, 1.f, 0.01f, false);
 
-  GuiSpinner({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f + 25.f, 125.f, 20.f}, "Z Index:", &tileModel_.zIndex, -100, 100, false);
-
   auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
 
   GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 
-  tileModel_.hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Horizontal Flip:", tileModel_.hFlip);
+  tileModel_.hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", tileModel_.hFlip);
 
-  tileModel_.vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 3.f), 20.f, 20.f}, "Vertical Flip:", tileModel_.vFlip);
+  tileModel_.vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", tileModel_.vFlip);
 
   GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
 

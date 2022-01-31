@@ -6,15 +6,16 @@
 #include "IEnttModel.hh"
 #include "Constants.hh"
 
+
 struct GridModel : public IEnttModel {
     Color color = GRAY;
     bool show = false;
-    Vector2 dimensions = {Constants::screenWidth * 4.f, Constants::screenHeight};
+    Vector2 dimensions = {Constants::screenWidth * 4.f, Constants::screenWidth * 4.f};
 
     inline void reset() override {
       color = GRAY;
       show = false;
-      dimensions = {Constants::screenWidth * 4.f, Constants::screenHeight};
+      dimensions = {Constants::screenWidth * 4.f, Constants::screenWidth * 4.f};
     }
 
     inline entt::entity create(entt::registry &r) const override {

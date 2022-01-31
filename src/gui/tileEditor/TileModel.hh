@@ -8,7 +8,6 @@
 
 struct TileModel : public IEnttModel {
   Texture texture;
-  int zIndex = 1;
   int layerIndex = 1;
   float alpha = 1.0f;
   Vector2 position = {0, 0};
@@ -18,7 +17,6 @@ struct TileModel : public IEnttModel {
 
   inline void reset() {
     texture = {0};
-    zIndex = 1;
     layerIndex = 1;
     alpha = 1.0f;
     position = {0, 0};
@@ -30,7 +28,7 @@ struct TileModel : public IEnttModel {
   inline entt::entity create(entt::registry &reg) const override {
     entt::entity entity = reg.create();
     reg.emplace<Components::SpriteTexture>(entity, texture);
-    reg.emplace<Components::Renderable>(entity, alpha, zIndex, layerIndex);
+    reg.emplace<Components::Renderable>(entity, alpha, layerIndex);
     reg.emplace<Components::Position>(entity, position.x, position.y);
     reg.emplace<Components::Flipable>(entity, hFlip, vFlip);
     reg.emplace<Components::Quad>(entity, quad);
@@ -45,7 +43,6 @@ struct TileModel : public IEnttModel {
     auto &render = reg.get<Components::Renderable>(e);
     render.alpha = alpha;
     render.layer = layerIndex;
-    render.zIndex = zIndex;
 
     auto &flip = reg.get<Components::Flipable>(e);
     flip.hFlipped = hFlip;
@@ -66,7 +63,6 @@ struct TileModel : public IEnttModel {
     auto const&render = reg.get<Components::Renderable>(e);
     alpha = render.alpha;
     layerIndex = render.layer;
-    zIndex = render.zIndex;
 
     auto const&flip = reg.get<Components::Flipable>(e);
     hFlip = flip.hFlipped;

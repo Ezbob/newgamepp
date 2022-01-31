@@ -41,12 +41,7 @@ namespace Systems {
     spriteGroup.sort([&spriteGroup](entt::entity const& a, entt::entity const& b) {
       auto az = spriteGroup.get<Components::Renderable>(a);
       auto bz = spriteGroup.get<Components::Renderable>(b);
-
-      if (az.zIndex == bz.zIndex) {
-        return az.layer < bz.layer;
-      } else {
-        return az.zIndex < bz.zIndex;
-      }
+      return az.layer < bz.layer;
     });
 
 
@@ -59,12 +54,16 @@ namespace Systems {
     for(auto [debug, active, coloring, dimension]: debugGridView.each()) {
       if (active.isActive) {
 
-        float size = dimension.w;
+        float width = dimension.w;
+        float height = dimension.h;
 
-        for (float i = -size; i <= size; i += 10.f)
+        for (float i = -width; i <= width; i += 20.f)
         {
-          DrawLineEx({i, -size}, {i, size}, 1.f, Fade(coloring.color, 0.8f));
-          DrawLineEx({-size, i}, {size, i}, 1.f, Fade(coloring.color, 0.8f));
+          DrawLineEx({-width, i}, {width, i}, 1.f, Fade(coloring.color, 0.8f));
+          for (float j = -height; j <= height; j += 20.f)
+          {
+            DrawLineEx({j, -height}, {j, height}, 1.f, Fade(coloring.color, 0.8f));
+          }
         }
 
       }
