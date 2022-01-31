@@ -181,7 +181,7 @@ void TileWindow::doTools() {
 
 void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
   if (!registry_.valid(selectedTile_)) GuiDisable();
-  
+
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
   GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &tileModel_.alpha, 0.f, 1.f, 0.01f, false);
@@ -208,8 +208,6 @@ bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
     return false;
   }
-
-  mousepressed_ = IsMouseButtonPressed(0);
 
   Rectangle gridColorbutton = {windowBoundary_.x + 10.f, windowBoundary_.y + 32.f, 100.f, 30.f};
 

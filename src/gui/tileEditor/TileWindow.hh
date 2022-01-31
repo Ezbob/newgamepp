@@ -49,7 +49,6 @@ private:
 
   TileSelector tileSelector_;
 
-  bool mousepressed_ = false;
   bool showGridColor_ = false;
 
   enum class TileTool {

@@ -71,6 +71,7 @@
     "valarray": "cpp",
     "variant": "cpp",
     "fstream": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "any": "cpp"
   }
 }
