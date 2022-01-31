@@ -47,7 +47,8 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
     , camera_(camera)
     , painterTool_(registry_, tileSelector_, tileModel_, camera_, selectedTile_)
     , removeTool_(registry_, camera_, currentLayerId_)
-    , pickerTool_(registry_, camera_, currentLayerId_, selectedTile_, tileModel_) {
+    , pickerTool_(registry_, camera_, currentLayerId_, selectedTile_, tileModel_)
+    , currentTileTool_(&nullTool_) {
   addNewLayer();
   grid_ = gridModel_.create(registry_);
 }
@@ -141,43 +142,27 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
 
   GuiGroupBox(toolBox, "Tile tools");
   Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
-  if (
-          GuiToggle(
-                  initialButton,
-                  GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
-                  tileToolSelected_ == TileTool::paint_tool)) {
-    tileToolSelected_ = TileTool::paint_tool;
+  if (GuiToggle(initialButton,
+                GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
+                currentTileTool_ == &painterTool_)) {
+    currentTileTool_ = &painterTool_;
   }
-  if (
-          GuiToggle(
-                  {initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
-                  GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
-                  tileToolSelected_ == TileTool::remove_tool)) {
-    tileToolSelected_ = TileTool::remove_tool;
+
+  if (GuiToggle({initialButton.x + 35.f, initialButton.y, initialButton.width, initialButton.height},
+                GuiIconText(RAYGUI_ICON_RUBBER, nullptr),
+                currentTileTool_ == &removeTool_)) {
+    currentTileTool_ = &removeTool_;
   }
-  if (
-          GuiToggle(
-                  {initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
+
+  if (GuiToggle({initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
                   GuiIconText(RAYGUI_ICON_COLOR_PICKER, nullptr),
-                  tileToolSelected_ == TileTool::tile_picker_tool)) {
-    tileToolSelected_ = TileTool::tile_picker_tool;
+                  currentTileTool_ == &pickerTool_)) {
+    currentTileTool_ = &pickerTool_;
   }
 
   if (!tileSelector_.isTileFrameSelected()) GuiEnable();
 }
 
-
-void TileWindow::doTools() {
-  Rectangle windowRect = {0, 0, Constants::screenWidth, Constants::screenHeight};
-
-  if (tileToolSelected_ == TileTool::paint_tool && tileSelector_.isTileFrameSelected()) {
-    painterTool_.execute();
-  } else if (tileToolSelected_ == TileTool::remove_tool && tileSelector_.isTileFrameSelected()) {
-    removeTool_.execute();
-  } else if (tileToolSelected_ == TileTool::tile_picker_tool) {
-    pickerTool_.execute();
-  }
-}
 
 void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
   if (!registry_.valid(selectedTile_)) GuiDisable();
@@ -234,7 +219,7 @@ bool TileWindow::render() {
 
   layerControls();
 
-  doTools();
+  currentTileTool_->execute();
 
   tileModel_.update(registry_, selectedTile_);
   gridModel_.update(registry_, grid_);

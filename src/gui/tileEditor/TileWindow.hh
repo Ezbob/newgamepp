@@ -16,6 +16,7 @@
 #include "PainterTool.hh"
 #include "RemoveTool.hh"
 #include "TilePickerTool.hh"
+#include "NullTileTool.hh"
 
 
 class TileWindow : public IRenderable {
@@ -37,8 +38,6 @@ private:
 
   void layerControls();
 
-  void doTools();
-
   void renderTools(Rectangle const&);
 
   void renderTileAttributes(Rectangle const&);
@@ -50,13 +49,6 @@ private:
   TileSelector tileSelector_;
 
   bool showGridColor_ = false;
-
-  enum class TileTool {
-    no_tool,
-    paint_tool,
-    remove_tool,
-    tile_picker_tool
-  } tileToolSelected_ = TileTool::paint_tool;
 
   int ids_ = 0;
   int currentLayerId_ = 0;
@@ -73,7 +65,10 @@ private:
 
   Vector2 prevMouse_;
 
+  NullTileTool nullTool_;
   PainterTool painterTool_;
   RemoveTool removeTool_;
   TilePickerTool pickerTool_;
+
+  ITileTool *currentTileTool_;
 };
