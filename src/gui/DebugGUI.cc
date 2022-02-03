@@ -45,7 +45,6 @@ void DebugGUI::doGui() {
     camera_.zoom = 0.1f;
   }
 
-  
   GuiPanel({0, Constants::debugScreenHeight - 20.f, static_cast<float>(Constants::debugScreenWidth), 20.f});
   GuiValueBoxEx({ Constants::debugScreenWidth - 60.f, Constants::debugScreenHeight - 20.f, 40.f, 20.f}, "Zoom:", &camera_.zoom, 0.f, 10.f, false);
 
