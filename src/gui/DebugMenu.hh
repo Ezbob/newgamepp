@@ -23,11 +23,12 @@ private:
           0.f,
           Constants::screenHeight,
           200.f,
-          200.f};
+          180.f};
 
   EntityWindow entityWindow_;
   TileWindow tileWindow_;
 
   IRenderable *currentWindow_ = nullptr;
   NFDFileOpener nfdFileOpener_;
+  Camera2D &camera_;
 };

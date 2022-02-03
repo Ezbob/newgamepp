@@ -17,7 +17,7 @@
 #include "RemoveTool.hh"
 #include "TilePickerTool.hh"
 #include "NullTileTool.hh"
-
+#include "MultiSelectTool.hh"
 
 class TileWindow : public IRenderable {
 public:
@@ -30,7 +30,7 @@ private:
           Constants::screenWidth,
           0.f,
           600.f,
-          Constants::screenHeight + 200.f};
+          Constants::screenHeight + 180.f};
 
   void addNewLayer();
 

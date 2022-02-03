@@ -2,9 +2,12 @@
 #include "DebugMenu.hh"
 
 #include "raygui.h"
+#include "Constants.hh"
 
 DebugMenu::DebugMenu(entt::registry &reg, Camera2D &cam)
-  : entityWindow_(reg), tileWindow_(reg, nfdFileOpener_, cam)
+  : entityWindow_(reg)
+  , tileWindow_(reg, nfdFileOpener_, cam)
+  , camera_(cam)
 {}
 
 bool DebugMenu::render() {

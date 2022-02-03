@@ -3,7 +3,6 @@
 #include "Components.hh"
 #include "Constants.hh"
 
-#include "Archetypes.hh"
 #include "fmt/core.h"
 #include "raygui.h"
 #include "raymath.h"
@@ -182,8 +181,10 @@ bool TileWindow::render() {
     60.f + (40.f * 2.f)
   });
 
-  gridModel_.show = GuiCheckBox({gridColorbutton.x + 120.f, gridColorbutton.y + 7.5f, 15.f, 15.f}, "Toggle grid", gridModel_.show);
+  float height = 46.f;
+  gridModel_.show = GuiCheckBox({gridColorbutton.x + 10.f, height, 15.f, 15.f}, "Toggle grid", gridModel_.show);
 
+  /*
   showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
 
   if (showGridColor_) {
@@ -191,6 +192,7 @@ bool TileWindow::render() {
     GuiWindowBoxNoClose(colorWindow, "Grid Color");
     gridModel_.color = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridModel_.color);
   }
+  */
 
   tileSelector_.render();
 
@@ -200,13 +202,6 @@ bool TileWindow::render() {
 
   tileModel_.update(registry_, selectedTile_);
   gridModel_.update(registry_, grid_);
-
-  auto currentMouse = GetMousePosition();
-  if (IsMouseButtonDown(1)) {
-    auto delta = Vector2Subtract(prevMouse_, currentMouse);
-    camera_.target = Vector2Add(camera_.target, delta);
-  }
-  prevMouse_ = currentMouse;
 
   return true;
 }
