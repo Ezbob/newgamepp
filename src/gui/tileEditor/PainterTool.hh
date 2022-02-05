@@ -15,9 +15,9 @@ private:
   Camera2D &camera_;
   entt::entity &selectedTile_;
 
-  int roundDownTo(int N, int n);
+  int roundDownTo(int N, int n) const;
 
-  Vector2 midPoint(Rectangle r);
+  Vector2 midPoint(Rectangle r) const;
 public:
   PainterTool(entt::registry &, TileSelector &, TileModel &, Camera2D &, entt::entity &);
 

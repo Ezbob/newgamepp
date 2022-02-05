@@ -18,7 +18,7 @@ PainterTool::PainterTool(
   , selectedTile_(selectedTile) {
 }
 
-int PainterTool::roundDownTo(int N, int n) {
+int PainterTool::roundDownTo(int N, int n) const {
     assert(N > 0);
     // Smaller multiple
     int a = (n / N) * N;
@@ -30,7 +30,7 @@ int PainterTool::roundDownTo(int N, int n) {
     return (n - a > b - n) ? b : a;
 }
 
-Vector2 PainterTool::midPoint(Rectangle r) {
+Vector2 PainterTool::midPoint(Rectangle r) const {
   return {r.x - (r.width / 2), r.y - (r.height / 2)};
 }
 
