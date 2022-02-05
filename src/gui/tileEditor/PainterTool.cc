@@ -48,13 +48,13 @@ void PainterTool::execute() {
                                     tileFrame.frameDimensions.width,
                                     tileFrame.frameDimensions.height});
 
-    midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
-
     if (!IsKeyDown(KEY_LEFT_SHIFT)) {
       // snapping to tile width/height
       midPointMouse.x = (float) roundDownTo(static_cast<int>(frame.width), static_cast<int>(midPointMouse.x));
       midPointMouse.y = (float) roundDownTo(static_cast<int>(frame.height), static_cast<int>(midPointMouse.y));
     }
+
+    midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
 
     if (IsKeyDown(KEY_LEFT_CONTROL)) {
       frame.width = tileModel_.vFlip ? -frame.width : frame.width;
