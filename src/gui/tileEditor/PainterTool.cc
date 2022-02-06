@@ -2,6 +2,7 @@
 #include "PainterTool.hh"
 #include "raylib.h"
 #include "Constants.hh"
+#include "Components.hh"
 #include "raymath.h"
 
 

@@ -4,7 +4,6 @@
 #include "ITileTool.hh"
 #include "TileSelector.hh"
 #include "raylib.h"
-#include "TileModel.hh"
 #include "entt/entity/registry.hpp"
 
 class PainterTool : public ITileTool {

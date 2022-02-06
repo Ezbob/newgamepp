@@ -37,8 +37,8 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
 }
 
 void TileWindow::addNewLayer() {
-  if (registry_.valid(selectedTile_)) {
-    selectedTile_ = entt::null;
+  if (selectedTiles_.size() > 0) {
+    selectedTiles_.clear();
   }
 
   currentLayerId_ = nextLayerId_++;
@@ -125,11 +125,28 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
 
 
 void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
-/*
-  if (!registry_.valid(selectedTile_)) GuiDisable();
+
+  if (selectedTiles_.size() == 0) GuiDisable();
 
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
+  TraceLog(LOG_INFO, "%u\n", selectedTiles_.size());
+  if (selectedTiles_.size() == 1) {
+    entt::entity e = selectedTiles_.at(0);
+    auto &renderable = registry_.get<Components::Renderable>(e);
+    GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &renderable.alpha, 0.f, 1.f, 0.01f, false);
+
+    auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
+    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    auto &flipable = registry_.get<Components::Flipable>(e);
+    flipable.hFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", flipable.hFlipped);
+
+    flipable.vFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", flipable.vFlipped);
+
+    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+  }
+
+/*
   GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &tileModel_.alpha, 0.f, 1.f, 0.01f, false);
 
   auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
@@ -143,9 +160,9 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
   GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
 
   tileModel_.layerIndex = currentLayerId_;
-
-  if (!registry_.valid(selectedTile_)) GuiEnable();
 */
+  if (selectedTiles_.size() == 0) GuiEnable();
+
 }
 
 
@@ -158,14 +175,14 @@ bool TileWindow::render() {
 
   renderTools(gridColorbutton);
 
-/*
+
   renderTileAttributes({
     gridColorbutton.x + (windowBoundary_.width / 2),
     gridColorbutton.y + 60.f,
     (windowBoundary_.width / 2) - 20.f,
     60.f + (40.f * 2.f)
   });
-*/
+
   auto &activeGrid = registry_.get<Components::Active>(grid_);
   activeGrid.isActive = GuiCheckBox({gridColorbutton.x + 10.f, 46.f, 15.f, 15.f}, "Toggle grid", activeGrid.isActive);
 

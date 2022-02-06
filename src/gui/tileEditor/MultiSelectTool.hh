@@ -3,7 +3,6 @@
 
 #include "ITileTool.hh"
 #include "entt/entity/registry.hpp"
-#include "SelectionBoxModel.hh"
 #include <vector>
 
 class MultiSelectTool : public ITileTool {

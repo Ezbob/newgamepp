@@ -25,6 +25,7 @@ void TilePickerTool::execute() {
             registry_.remove<Components::Debug>(et);
           }
         }
+        selectedTiles_.clear();
         selectedTiles_.push_back(found);
         registry_.emplace<Components::Debug>(found);
       }

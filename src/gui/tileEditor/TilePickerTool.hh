@@ -3,7 +3,6 @@
 
 #include "ITileTool.hh"
 #include "entt/entity/registry.hpp"
-#include "TileModel.hh"
 #include <vector>
 
 class TilePickerTool : public ITileTool {

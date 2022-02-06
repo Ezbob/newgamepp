@@ -5,11 +5,9 @@
 #include <vector>
 
 #include "Constants.hh"
-#include "GridModel.hh"
 #include "IRenderable.hh"
 #include "ITileParser.hh"
 #include "NFDFileOpener.hh"
-#include "TileModel.hh"
 #include "entt/entity/registry.hpp"
 #include "raylib.h"
 #include "TileSelector.hh"
@@ -54,7 +52,6 @@ private:
   bool layerSelectEditable_ = false;
 
   std::vector<entt::entity> selectedTiles_;
-  entt::entity selectedTile_;
 
   entt::entity grid_;
   Camera2D &camera_;
