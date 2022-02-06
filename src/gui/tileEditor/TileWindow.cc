@@ -26,38 +26,12 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
     , painterTool_(registry_, tileSelector_, tileModel_, camera_, selectedTile_)
     , removeTool_(registry_, camera_, currentLayerId_)
     , pickerTool_(registry_, camera_, currentLayerId_, selectedTile_, tileModel_)
+    , multiSelectTool_(registry_)
     , currentTileTool_(&nullTool_) {
   addNewLayer();
   grid_ = gridModel_.create(registry_);
 }
 
-
-entt::entity TileWindow::findClickedTile(entt::registry &reg, int layerIndex) {
-  auto mouse = GetScreenToWorld2D(GetMousePosition(), camera_);
-
-  auto spriteGroup = reg.group<Components::Renderable>(
-          entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
-
-  auto it = std::find_if(spriteGroup.rbegin(), spriteGroup.rend(), [this, &mouse, &spriteGroup, layerIndex](entt::entity entity) {
-    auto sprite = spriteGroup.get<Components::SpriteTexture>(entity);
-    auto render = spriteGroup.get<Components::Renderable>(entity);
-    auto position = spriteGroup.get<Components::Position>(entity);
-    auto quad = spriteGroup.get<Components::Quad>(entity);
-
-    bool is_colliding = CheckCollisionPointRec(mouse,
-                                               {position.x,
-                                                position.y,
-                                                quad.quad.width,
-                                                quad.quad.height});
-    return layerIndex == render.layer && is_colliding;
-  });
-
-  if (it != spriteGroup.rend()) {
-    return *it;
-  } else {
-    return entt::null;
-  }
-}
 
 
 void TileWindow::addNewLayer() {
@@ -136,6 +110,12 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
                   GuiIconText(RAYGUI_ICON_COLOR_PICKER, nullptr),
                   currentTileTool_ == &pickerTool_)) {
     currentTileTool_ = &pickerTool_;
+  }
+
+  if (GuiToggle({initialButton.x + (35.f * 3.f), initialButton.y, initialButton.width, initialButton.height},
+                  GuiIconText(RAYGUI_ICON_CURSOR_SCALE, nullptr),
+                  currentTileTool_ == &multiSelectTool_)) {
+    currentTileTool_ = &multiSelectTool_;
   }
 
   if (!tileSelector_.isTileFrameSelected()) GuiEnable();

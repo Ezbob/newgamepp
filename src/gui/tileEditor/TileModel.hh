@@ -75,9 +75,4 @@ struct TileModel : public IEnttModel {
     quad = reg.get<Components::Quad>(e).quad;
     return e;
   }
-
-  inline void destroy(entt::registry &reg, entt::entity e) override {
-    if (!reg.valid(e)) return;
-    reg.destroy(e);
-  }
 };

@@ -42,8 +42,6 @@ private:
 
   void renderTileAttributes(Rectangle const&);
 
-  entt::entity findClickedTile(entt::registry &, int);
-
   entt::registry &registry_;
 
   TileSelector tileSelector_;
@@ -69,6 +67,7 @@ private:
   PainterTool painterTool_;
   RemoveTool removeTool_;
   TilePickerTool pickerTool_;
+  MultiSelectTool multiSelectTool_;
 
   ITileTool *currentTileTool_;
 };
