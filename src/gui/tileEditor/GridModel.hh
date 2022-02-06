@@ -27,11 +27,6 @@ struct GridModel : public IEnttModel {
       return entity;
     }
 
-    inline void destroy(entt::registry &r, entt::entity e) override {
-      if (!r.valid(e)) return;
-      r.destroy(e);
-    }
-
     inline entt::entity read(entt::registry &r, entt::entity e) override {
       if (!r.valid(e)) return e;
       color = r.get<Components::Coloring>(e).color;

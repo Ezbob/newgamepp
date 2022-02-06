@@ -26,7 +26,7 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
     , painterTool_(registry_, tileSelector_, tileModel_, camera_, selectedTile_)
     , removeTool_(registry_, camera_, currentLayerId_)
     , pickerTool_(registry_, camera_, currentLayerId_, selectedTile_, tileModel_)
-    , multiSelectTool_(registry_)
+    , multiSelectTool_(registry_, currentLayerId_, selectedTiles_, camera_)
     , currentTileTool_(&nullTool_) {
   addNewLayer();
   grid_ = gridModel_.create(registry_);

@@ -53,6 +53,7 @@ private:
   std::vector<std::string> layers_;
   bool layerSelectEditable_ = false;
 
+  std::vector<entt::entity> selectedTiles_;
   entt::entity selectedTile_;
 
   TileModel tileModel_;

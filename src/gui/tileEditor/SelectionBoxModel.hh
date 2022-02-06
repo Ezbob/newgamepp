@@ -6,7 +6,7 @@
 
 struct SelectionBoxModel : public IEnttModel {
   Rectangle boundary = {0};
-  bool show = true;
+  bool show = false;
 
   inline entt::entity create(entt::registry &reg) const override {
     entt::entity entity = reg.create();
