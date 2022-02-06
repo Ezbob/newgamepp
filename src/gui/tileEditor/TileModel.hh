@@ -7,7 +7,7 @@
 #include "IEnttModel.hh"
 
 struct TileModel : public IEnttModel {
-  Texture texture;
+  Texture texture = {0};
   int layerIndex = 1;
   float alpha = 1.0f;
   Vector2 position = {0, 0};

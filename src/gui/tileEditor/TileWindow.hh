@@ -56,9 +56,6 @@ private:
   std::vector<entt::entity> selectedTiles_;
   entt::entity selectedTile_;
 
-  TileModel tileModel_;
-  GridModel gridModel_;
-
   entt::entity grid_;
   Camera2D &camera_;
 

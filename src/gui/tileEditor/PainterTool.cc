@@ -8,14 +8,14 @@
 PainterTool::PainterTool(
     entt::registry &reg,
     TileSelector &selector,
-    TileModel &model,
     Camera2D &camera,
-    entt::entity &selectedTile) 
+    std::vector<entt::entity> &selectionTiles,
+    int &currentLayer)
   : registry_(reg)
   , selector_(selector)
-  , tileModel_(model)
   , camera_(camera)
-  , selectedTile_(selectedTile) {
+  , selectedTiles_(selectionTiles)
+  , currentLayer_(currentLayer) {
 }
 
 int PainterTool::roundDownTo(int N, int n) const {
@@ -59,11 +59,12 @@ void PainterTool::execute() {
       midPointMouse.y = midPointMouse.y < 0.f ? -roundedY : roundedY;
     }
 
-
+/*
     if (IsKeyDown(KEY_LEFT_CONTROL)) {
       frame.width = tileModel_.vFlip ? -frame.width : frame.width;
       frame.height = tileModel_.hFlip ? -frame.height : frame.height;
     }
+*/
 
     BeginMode2D(camera_);
     DrawTextureRec(
@@ -74,23 +75,23 @@ void PainterTool::execute() {
     EndMode2D();
 
     if (IsMouseButtonPressed(0)) {
+      entt::entity entity = registry_.create();
 
-      if (!IsKeyDown(KEY_LEFT_CONTROL)) {
-        tileModel_.reset();
+      registry_.emplace<Components::SpriteTexture>(entity, selectedTileSet_->set.texture);
+      registry_.emplace<Components::Renderable>(entity, 1.f, currentLayer_);
+      registry_.emplace<Components::Position>(entity, midPointMouse.x, midPointMouse.y);
+      registry_.emplace<Components::Flipable>(entity);
+      registry_.emplace<Components::Quad>(entity, tileFrame.frameDimensions);
+      registry_.emplace<Components::Debug>(entity);
+
+      for (entt::entity et : selectedTiles_) {
+        if (registry_.valid(et) && registry_.all_of<Components::Debug>(et)) {
+          registry_.remove<Components::Debug>(et);
+        }
       }
 
-      if (registry_.valid(selectedTile_) && registry_.all_of<Components::Debug>(selectedTile_)) {
-        registry_.remove<Components::Debug>(selectedTile_);
-      }
-
-      selectedTile_ = tileModel_.create(registry_);
-
-      registry_.emplace<Components::Debug>(selectedTile_);
-
-      tileModel_.texture = selectedTileSet_->set.texture;
-      tileModel_.position = midPointMouse;
-
-      tileModel_.quad = tileFrame.frameDimensions;
+      selectedTiles_.clear();
+      selectedTiles_.push_back(entity);
     }
   }
 }

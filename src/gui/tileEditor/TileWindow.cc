@@ -23,16 +23,18 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
                     windowBoundary_.width - 10.f,
                     325.f - 5.f}, fileOpener)
     , camera_(camera)
-    , painterTool_(registry_, tileSelector_, tileModel_, camera_, selectedTile_)
+    , painterTool_(registry_, tileSelector_, camera_, selectedTiles_, currentLayerId_)
     , removeTool_(registry_, camera_, currentLayerId_)
-    , pickerTool_(registry_, camera_, currentLayerId_, selectedTile_, tileModel_)
+    , pickerTool_(registry_, camera_, currentLayerId_, selectedTiles_)
     , multiSelectTool_(registry_, currentLayerId_, selectedTiles_, camera_)
     , currentTileTool_(&nullTool_) {
   addNewLayer();
-  grid_ = gridModel_.create(registry_);
+  grid_ = registry_.create();
+  registry_.emplace<Components::Coloring>(grid_, Fade(GRAY, 0.3f));
+  registry_.emplace<Components::Debug>(grid_);
+  registry_.emplace<Components::Active>(grid_, false);
+  registry_.emplace<Components::Dimensions>(grid_, Constants::screenWidth * 4.f, Constants::screenWidth * 4.f);
 }
-
-
 
 void TileWindow::addNewLayer() {
   if (registry_.valid(selectedTile_)) {
@@ -123,6 +125,7 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
 
 
 void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
+/*
   if (!registry_.valid(selectedTile_)) GuiDisable();
 
   GuiGroupBox(tileAttributesBox, "Tile attributes");
@@ -142,6 +145,7 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
   tileModel_.layerIndex = currentLayerId_;
 
   if (!registry_.valid(selectedTile_)) GuiEnable();
+*/
 }
 
 
@@ -154,34 +158,23 @@ bool TileWindow::render() {
 
   renderTools(gridColorbutton);
 
+/*
   renderTileAttributes({
     gridColorbutton.x + (windowBoundary_.width / 2),
     gridColorbutton.y + 60.f,
     (windowBoundary_.width / 2) - 20.f,
     60.f + (40.f * 2.f)
   });
+*/
+  auto &activeGrid = registry_.get<Components::Active>(grid_);
+  activeGrid.isActive = GuiCheckBox({gridColorbutton.x + 10.f, 46.f, 15.f, 15.f}, "Toggle grid", activeGrid.isActive);
 
-  float height = 46.f;
-  gridModel_.show = GuiCheckBox({gridColorbutton.x + 10.f, height, 15.f, 15.f}, "Toggle grid", gridModel_.show);
-
-  /*
-  showGridColor_ = GuiToggle(gridColorbutton, "Grid color", showGridColor_);
-
-  if (showGridColor_) {
-    Rectangle colorWindow = {gridColorbutton.x + 16.f, gridColorbutton.y + 32.f, 200.f, 200.f};
-    GuiWindowBoxNoClose(colorWindow, "Grid Color");
-    gridModel_.color = GuiColorPicker({colorWindow.x + 10.f, colorWindow.y + 34.f, 150.f, 150.f}, gridModel_.color);
-  }
-  */
 
   tileSelector_.render();
 
   layerControls();
 
   currentTileTool_->execute();
-
-  tileModel_.update(registry_, selectedTile_);
-  gridModel_.update(registry_, grid_);
 
   return true;
 }

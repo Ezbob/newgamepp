@@ -11,15 +11,16 @@ class PainterTool : public ITileTool {
 private:
   entt::registry &registry_;
   TileSelector &selector_;
-  TileModel &tileModel_;
   Camera2D &camera_;
-  entt::entity &selectedTile_;
+  std::vector<entt::entity> &selectedTiles_;
+  int &currentLayer_;
 
   int roundDownTo(int N, int n) const;
 
   Vector2 midPoint(Rectangle r) const;
 public:
-  PainterTool(entt::registry &, TileSelector &, TileModel &, Camera2D &, entt::entity &);
+  PainterTool(entt::registry &, TileSelector &, Camera2D &,
+    std::vector<entt::entity> &, int &);
 
   void execute() override;
 };
