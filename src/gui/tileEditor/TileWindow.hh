@@ -56,8 +56,6 @@ private:
   entt::entity grid_;
   Camera2D &camera_;
 
-  Vector2 prevMouse_;
-
   NullTileTool nullTool_;
   PainterTool painterTool_;
   RemoveTool removeTool_;
