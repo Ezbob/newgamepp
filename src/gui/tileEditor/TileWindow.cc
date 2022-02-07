@@ -198,7 +198,6 @@ bool TileWindow::render() {
   auto &activeGrid = registry_.get<Components::Active>(grid_);
   activeGrid.isActive = GuiCheckBox({gridColorbutton.x + 10.f, 46.f, 15.f, 15.f}, "Toggle grid", activeGrid.isActive);
 
-
   tileSetSelector_.render();
 
   layerControls();
