@@ -1,34 +1,30 @@
 
 #include "PainterTool.hh"
-#include "raylib.h"
-#include "Constants.hh"
 #include "Components.hh"
+#include "Constants.hh"
+#include "raylib.h"
 #include "raymath.h"
 
 
 PainterTool::PainterTool(
-    entt::registry &reg,
-    TileSelector &selector,
-    Camera2D &camera,
-    SelectedCollection &selectionTiles,
-    int &currentLayer)
-  : registry_(reg)
-  , selector_(selector)
-  , camera_(camera)
-  , selectedTiles_(selectionTiles)
-  , currentLayer_(currentLayer) {
+        entt::registry &reg,
+        TileSetSelector &selector,
+        Camera2D &camera,
+        SelectedCollection &selectionTiles,
+        int &currentLayer)
+    : registry_(reg), selector_(selector), camera_(camera), selectedTiles_(selectionTiles), currentLayer_(currentLayer) {
 }
 
 int PainterTool::roundDownTo(int N, int n) const {
-    assert(N > 0);
-    // Smaller multiple
-    int a = (n / N) * N;
+  assert(N > 0);
+  // Smaller multiple
+  int a = (n / N) * N;
 
-    // Larger multiple
-    int b = a + N;
+  // Larger multiple
+  int b = a + N;
 
-    // Return of closest of two
-    return (n - a > b - n) ? b : a;
+  // Return of closest of two
+  return (n - a > b - n) ? b : a;
 }
 
 Vector2 PainterTool::midPoint(Rectangle r) const {
@@ -45,9 +41,9 @@ void PainterTool::execute() {
     auto frame = tileFrame.frameDimensions;
 
     auto midPointMouse = midPoint({mousePosition.x,
-                                    mousePosition.y,
-                                    tileFrame.frameDimensions.width,
-                                    tileFrame.frameDimensions.height});
+                                   mousePosition.y,
+                                   tileFrame.frameDimensions.width,
+                                   tileFrame.frameDimensions.height});
 
     midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
 
@@ -60,7 +56,7 @@ void PainterTool::execute() {
       midPointMouse.y = midPointMouse.y < 0.f ? -roundedY : roundedY;
     }
 
-/*
+    /*
     if (IsKeyDown(KEY_LEFT_CONTROL)) {
       frame.width = tileModel_.vFlip ? -frame.width : frame.width;
       frame.height = tileModel_.hFlip ? -frame.height : frame.height;

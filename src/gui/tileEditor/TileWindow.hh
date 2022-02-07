@@ -7,15 +7,15 @@
 #include "Constants.hh"
 #include "IRenderable.hh"
 #include "ITileParser.hh"
+#include "MultiSelectTool.hh"
 #include "NFDFileOpener.hh"
-#include "entt/entity/registry.hpp"
-#include "raylib.h"
-#include "TileSelector.hh"
+#include "NullTileTool.hh"
 #include "PainterTool.hh"
 #include "RemoveTool.hh"
-#include "NullTileTool.hh"
-#include "MultiSelectTool.hh"
 #include "SelectedCollection.hh"
+#include "TileSetSelector.hh"
+#include "entt/entity/registry.hpp"
+#include "raylib.h"
 
 class TileWindow : public IRenderable {
 public:
@@ -36,13 +36,13 @@ private:
 
   void layerControls();
 
-  void renderTools(Rectangle const&);
+  void renderTools(Rectangle const &);
 
-  void renderTileAttributes(Rectangle const&);
+  void renderTileAttributes(Rectangle const &);
 
   entt::registry &registry_;
 
-  TileSelector tileSelector_;
+  TileSetSelector tileSetSelector_;
 
   bool showGridColor_ = false;
 
@@ -59,12 +59,9 @@ private:
   Vector2 prevMouse_;
 
   NullTileTool nullTool_;
-
   PainterTool painterTool_;
-
   RemoveTool removeTool_;
   MultiSelectTool multiSelectTool_;
-  
 
   ITileTool *currentTileTool_;
 };

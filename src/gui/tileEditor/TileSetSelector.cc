@@ -1,14 +1,14 @@
 
 #pragma once
 
-#include "raylib.h"
-#include "TileSelector.hh"
+#include "TileSetSelector.hh"
 #include "raygui.h"
+#include "raylib.h"
 
 
-TileSelector::TileSelector(Rectangle r, IFileOpener &fo) : boundary_(r), fileOpener_(fo) {}
+TileSetSelector::TileSetSelector(Rectangle r, IFileOpener &fo) : boundary_(r), fileOpener_(fo) {}
 
-std::optional<TileSet> TileSelector::openTilesetFile(Rectangle const &tileBox) {
+std::optional<TileSet> TileSetSelector::openTilesetFile(Rectangle const &tileBox) {
   const char *extensions = tileParser_->getFileExtensions();// a semi-colon seperated list of extensions
   std::filesystem::path path;
 
@@ -39,7 +39,7 @@ std::optional<TileSet> TileSelector::openTilesetFile(Rectangle const &tileBox) {
   return std::nullopt;
 }
 
-ITileParser *TileSelector::selectParser(int index) {
+ITileParser *TileSetSelector::selectParser(int index) {
   switch (index) {
     case 0:
       return static_cast<ITileParser *>(&aseprite_);
@@ -48,7 +48,7 @@ ITileParser *TileSelector::selectParser(int index) {
 }
 
 
-void TileSelector::drawTileSetSection(Rectangle const &tileBox) {
+void TileSetSelector::drawTileSetSection(Rectangle const &tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
 
   int fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
@@ -105,7 +105,7 @@ void TileSelector::drawTileSetSection(Rectangle const &tileBox) {
             static_cast<int>(view.width),
             static_cast<int>(view.height));
     size_t i = 0;
-    for (auto const&tileFrame : selectedTileSet_->frames) {
+    for (auto const &tileFrame : selectedTileSet_->frames) {
       Vector2 position;
       size_t xIndex = tileFrame.index % rowSize;
       size_t yIndex = tileFrame.index / rowSize;
@@ -122,9 +122,8 @@ void TileSelector::drawTileSetSection(Rectangle const &tileBox) {
               tileFrame.frameDimensions.height};
       if (isGuiNormal && mousePressed && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
         SelectedTileFrame selectedFrame = {
-          *selectedTileSet_,
-          static_cast<int>(i)
-        };
+                *selectedTileSet_,
+                static_cast<int>(i)};
 
         selectedFrame_.emplace(selectedFrame);
         selectedFrameSample_ = tileRect;
@@ -152,7 +151,7 @@ void TileSelector::drawTileSetSection(Rectangle const &tileBox) {
   }
 }
 
-void TileSelector::render() {
+void TileSetSelector::render() {
   if (!hasTileSetError()) {
     GuiDisable();
   }
@@ -166,7 +165,7 @@ void TileSelector::render() {
   showTilesetError(boundary_);
 }
 
-void TileSelector::showTilesetError(Rectangle const &tileBox) {
+void TileSetSelector::showTilesetError(Rectangle const &tileBox) {
   static const char *ok_button = "OK";
   Rectangle window_bounds = {tileBox.x + 10 + 160.f, tileBox.y + 10 + 50.f, 250.f, 100.f};
 

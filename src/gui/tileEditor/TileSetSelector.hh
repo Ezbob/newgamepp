@@ -1,17 +1,17 @@
 
 #pragma once
 
-#include "raylib.h"
-#include "TileSet.hh"
-#include "ITileParser.hh"
-#include <unordered_map>
-#include "IFileOpener.hh"
 #include "AsepriteParser.hh"
+#include "IFileOpener.hh"
+#include "ITileParser.hh"
+#include "TileSet.hh"
+#include "raylib.h"
 #include <optional>
+#include <unordered_map>
 
-class TileSelector {
+class TileSetSelector {
 public:
-  TileSelector(Rectangle, IFileOpener &);
+  TileSetSelector(Rectangle, IFileOpener &);
 
   void render();
 
@@ -73,6 +73,4 @@ public:
   inline std::optional<SelectedTileFrame> getSelectedFrame() const {
     return selectedFrame_;
   }
-
-
 };

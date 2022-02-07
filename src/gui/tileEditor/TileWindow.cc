@@ -17,17 +17,12 @@
 
 
 TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera2D &camera)
-    : registry_(registry)
-    , tileSelector_({windowBoundary_.x + 5.f,
-                    windowBoundary_.height - 325.f,
-                    windowBoundary_.width - 10.f,
-                    325.f - 5.f}, fileOpener)
-    , camera_(camera)
-    , selected_(registry_)
-    , painterTool_(registry_, tileSelector_, camera_, selected_, currentLayerId_)
-    , removeTool_(registry_, camera_, currentLayerId_, selected_)
-    , multiSelectTool_(registry_, currentLayerId_, selected_, camera_)
-    , currentTileTool_(&nullTool_) {
+    : registry_(registry), tileSetSelector_({windowBoundary_.x + 5.f,
+                                             windowBoundary_.height - 325.f,
+                                             windowBoundary_.width - 10.f,
+                                             325.f - 5.f},
+                                            fileOpener),
+      camera_(camera), selected_(registry_), painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_), removeTool_(registry_, camera_, currentLayerId_, selected_), multiSelectTool_(registry_, currentLayerId_, selected_, camera_), currentTileTool_(&nullTool_) {
   addNewLayer();
   grid_ = registry_.create();
   registry_.emplace<Components::Coloring>(grid_, Fade(GRAY, 0.3f));
@@ -84,9 +79,9 @@ void TileWindow::layerControls() {
 }
 
 
-void TileWindow::renderTools(Rectangle const& gridColorbutton) {
+void TileWindow::renderTools(Rectangle const &gridColorbutton) {
 
-  if (!tileSelector_.isTileFrameSelected()) GuiDisable();
+  if (!tileSetSelector_.isTileFrameSelected()) GuiDisable();
 
   Rectangle toolBox = {
           gridColorbutton.x,
@@ -108,19 +103,19 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
                 currentTileTool_ == &removeTool_)) {
     currentTileTool_ = &removeTool_;
   }
-  
+
   if (GuiToggle({initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
-                  GuiIconText(RAYGUI_ICON_CURSOR_SCALE, nullptr),
-                  currentTileTool_ == &multiSelectTool_)) {
+                GuiIconText(RAYGUI_ICON_CURSOR_SCALE, nullptr),
+                currentTileTool_ == &multiSelectTool_)) {
     currentTileTool_ = &multiSelectTool_;
   }
-  
 
-  if (!tileSelector_.isTileFrameSelected()) GuiEnable();
+
+  if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
 
 
-void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
+void TileWindow::renderTileAttributes(Rectangle const &tileAttributesBox) {
 
   if (selected_.size() == 0) GuiDisable();
 
@@ -148,7 +143,7 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
     auto &flipFirst = registry_.get<Components::Flipable>(first);
     auto &renderFirst = registry_.get<Components::Renderable>(first);
 
-    bool matches = std::all_of(selected_.begin(), selected_.end(), [this, &flipFirst, &renderFirst](entt::entity &e){
+    bool matches = std::all_of(selected_.begin(), selected_.end(), [this, &flipFirst, &renderFirst](entt::entity &e) {
       auto flip = registry_.get<Components::Flipable>(e);
       auto render = registry_.get<Components::Renderable>(e);
 
@@ -182,7 +177,6 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
   }
 
   if (selected_.size() == 0) GuiEnable();
-
 }
 
 
@@ -196,18 +190,16 @@ bool TileWindow::render() {
   renderTools(gridColorbutton);
 
 
-  renderTileAttributes({
-    gridColorbutton.x + (windowBoundary_.width / 2),
-    gridColorbutton.y + 60.f,
-    (windowBoundary_.width / 2) - 20.f,
-    60.f + (40.f * 2.f)
-  });
+  renderTileAttributes({gridColorbutton.x + (windowBoundary_.width / 2),
+                        gridColorbutton.y + 60.f,
+                        (windowBoundary_.width / 2) - 20.f,
+                        60.f + (40.f * 2.f)});
 
   auto &activeGrid = registry_.get<Components::Active>(grid_);
   activeGrid.isActive = GuiCheckBox({gridColorbutton.x + 10.f, 46.f, 15.f, 15.f}, "Toggle grid", activeGrid.isActive);
 
 
-  tileSelector_.render();
+  tileSetSelector_.render();
 
   layerControls();
 
