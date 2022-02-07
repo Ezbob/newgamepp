@@ -5,13 +5,14 @@
 #include "TileSelector.hh"
 #include "raylib.h"
 #include "entt/entity/registry.hpp"
+#include "SelectedCollection.hh"
 
 class PainterTool : public ITileTool {
 private:
   entt::registry &registry_;
   TileSelector &selector_;
   Camera2D &camera_;
-  std::vector<entt::entity> &selectedTiles_;
+  SelectedCollection &selectedTiles_;
   int &currentLayer_;
 
   int roundDownTo(int N, int n) const;
@@ -19,7 +20,7 @@ private:
   Vector2 midPoint(Rectangle r) const;
 public:
   PainterTool(entt::registry &, TileSelector &, Camera2D &,
-    std::vector<entt::entity> &, int &);
+    SelectedCollection &, int &);
 
   void execute() override;
 };

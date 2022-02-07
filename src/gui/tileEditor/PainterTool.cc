@@ -10,7 +10,7 @@ PainterTool::PainterTool(
     entt::registry &reg,
     TileSelector &selector,
     Camera2D &camera,
-    std::vector<entt::entity> &selectionTiles,
+    SelectedCollection &selectionTiles,
     int &currentLayer)
   : registry_(reg)
   , selector_(selector)
@@ -83,13 +83,6 @@ void PainterTool::execute() {
       registry_.emplace<Components::Position>(entity, midPointMouse.x, midPointMouse.y);
       registry_.emplace<Components::Flipable>(entity);
       registry_.emplace<Components::Quad>(entity, tileFrame.frameDimensions);
-      registry_.emplace<Components::Debug>(entity);
-
-      for (entt::entity et : selectedTiles_) {
-        if (registry_.valid(et) && registry_.all_of<Components::Debug>(et)) {
-          registry_.remove<Components::Debug>(et);
-        }
-      }
 
       selectedTiles_.clear();
       selectedTiles_.push_back(entity);

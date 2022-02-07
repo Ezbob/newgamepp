@@ -15,6 +15,7 @@
 #include "RemoveTool.hh"
 #include "NullTileTool.hh"
 #include "MultiSelectTool.hh"
+#include "SelectedCollection.hh"
 
 class TileWindow : public IRenderable {
 public:
@@ -50,7 +51,7 @@ private:
   std::vector<std::string> layers_;
   bool layerSelectEditable_ = false;
 
-  std::vector<entt::entity> selectedTiles_;
+  SelectedCollection selected_;
 
   entt::entity grid_;
   Camera2D &camera_;
@@ -58,9 +59,12 @@ private:
   Vector2 prevMouse_;
 
   NullTileTool nullTool_;
+
   PainterTool painterTool_;
+
   RemoveTool removeTool_;
   MultiSelectTool multiSelectTool_;
+  
 
   ITileTool *currentTileTool_;
 };

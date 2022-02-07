@@ -23,9 +23,10 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
                     windowBoundary_.width - 10.f,
                     325.f - 5.f}, fileOpener)
     , camera_(camera)
-    , painterTool_(registry_, tileSelector_, camera_, selectedTiles_, currentLayerId_)
-    , removeTool_(registry_, camera_, currentLayerId_, selectedTiles_)
-    , multiSelectTool_(registry_, currentLayerId_, selectedTiles_, camera_)
+    , selected_(registry_)
+    , painterTool_(registry_, tileSelector_, camera_, selected_, currentLayerId_)
+    , removeTool_(registry_, camera_, currentLayerId_, selected_)
+    , multiSelectTool_(registry_, currentLayerId_, selected_, camera_)
     , currentTileTool_(&nullTool_) {
   addNewLayer();
   grid_ = registry_.create();
@@ -36,8 +37,8 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
 }
 
 void TileWindow::addNewLayer() {
-  if (selectedTiles_.size() > 0) {
-    selectedTiles_.clear();
+  if (selected_.size() > 0) {
+    selected_.clear();
   }
 
   currentLayerId_ = nextLayerId_++;
@@ -95,6 +96,7 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
 
   GuiGroupBox(toolBox, "Tile tools");
   Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
+
   if (GuiToggle(initialButton,
                 GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
                 currentTileTool_ == &painterTool_)) {
@@ -106,12 +108,13 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
                 currentTileTool_ == &removeTool_)) {
     currentTileTool_ = &removeTool_;
   }
-
+  
   if (GuiToggle({initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
                   GuiIconText(RAYGUI_ICON_CURSOR_SCALE, nullptr),
                   currentTileTool_ == &multiSelectTool_)) {
     currentTileTool_ = &multiSelectTool_;
   }
+  
 
   if (!tileSelector_.isTileFrameSelected()) GuiEnable();
 }
@@ -119,12 +122,12 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
 
 void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
 
-  if (selectedTiles_.size() == 0) GuiDisable();
+  if (selected_.size() == 0) GuiDisable();
 
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
-  if (selectedTiles_.size() == 1) {
-    entt::entity e = selectedTiles_.at(0);
+  if (selected_.size() == 1) {
+    entt::entity e = selected_.at(0);
     auto &renderable = registry_.get<Components::Renderable>(e);
     GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &renderable.alpha, 0.f, 1.f, 0.01f, false);
 
@@ -136,16 +139,16 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
     flipable.vFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", flipable.vFlipped);
 
     GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
-  } else if (selectedTiles_.size() > 0) {
+  } else if (selected_.size() > 0) {
     float alpha = 0.f;
     bool vFlip = false;
     bool hFlip = false;
 
-    auto first = selectedTiles_.at(0);
+    auto first = selected_.at(0);
     auto &flipFirst = registry_.get<Components::Flipable>(first);
     auto &renderFirst = registry_.get<Components::Renderable>(first);
 
-    bool matches = std::all_of(selectedTiles_.begin(), selectedTiles_.end(), [this, &flipFirst, &renderFirst](entt::entity &e){
+    bool matches = std::all_of(selected_.begin(), selected_.end(), [this, &flipFirst, &renderFirst](entt::entity &e){
       auto flip = registry_.get<Components::Flipable>(e);
       auto render = registry_.get<Components::Renderable>(e);
 
@@ -169,7 +172,7 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
 
     GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
 
-    std::for_each(selectedTiles_.begin(), selectedTiles_.end(), [this, vFlip, hFlip, alpha](entt::entity e) {
+    std::for_each(selected_.begin(), selected_.end(), [this, vFlip, hFlip, alpha](entt::entity e) {
       auto &flipable = registry_.get<Components::Flipable>(e);
       flipable.hFlipped = hFlip;
       flipable.vFlipped = vFlip;
@@ -178,7 +181,7 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
     });
   }
 
-  if (selectedTiles_.size() == 0) GuiEnable();
+  if (selected_.size() == 0) GuiEnable();
 
 }
 

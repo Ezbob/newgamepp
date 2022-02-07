@@ -25,7 +25,7 @@ namespace {
   }
 };
 
-MultiSelectTool::MultiSelectTool(entt::registry &reg, int &layer, std::vector<entt::entity> &sel, Camera2D &cam)
+MultiSelectTool::MultiSelectTool(entt::registry &reg, int &layer, SelectedCollection &sel, Camera2D &cam)
   : registry_(reg)
   , currentLayer_(layer) 
   , selections_(sel)
@@ -64,12 +64,6 @@ void MultiSelectTool::execute() {
       boundaries.quad.height = (world.y - boundaries.quad.y);
       active_comp.isActive = false;
 
-      for (entt::entity et : selections_) {
-        if (registry_.valid(et) && registry_.all_of<Components::Debug>(et)) {
-          registry_.remove<Components::Debug>(et);
-        }
-      }
-
       selections_.clear();
 
       auto spriteGroup = registry_.group<Components::Renderable>(
@@ -84,7 +78,6 @@ void MultiSelectTool::execute() {
         bool is_colliding = CheckCollisionRecs(spriteBox, boundaries.quad);
 
         if (render.layer == currentLayer_ && is_colliding) {
-          registry_.emplace<Components::Debug>(entity);
           selections_.push_back(entity);
         }
       }
