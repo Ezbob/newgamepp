@@ -24,8 +24,7 @@ TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera
                     325.f - 5.f}, fileOpener)
     , camera_(camera)
     , painterTool_(registry_, tileSelector_, camera_, selectedTiles_, currentLayerId_)
-    , removeTool_(registry_, camera_, currentLayerId_)
-    , pickerTool_(registry_, camera_, currentLayerId_, selectedTiles_)
+    , removeTool_(registry_, camera_, currentLayerId_, selectedTiles_)
     , multiSelectTool_(registry_, currentLayerId_, selectedTiles_, camera_)
     , currentTileTool_(&nullTool_) {
   addNewLayer();
@@ -109,12 +108,6 @@ void TileWindow::renderTools(Rectangle const& gridColorbutton) {
   }
 
   if (GuiToggle({initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
-                  GuiIconText(RAYGUI_ICON_COLOR_PICKER, nullptr),
-                  currentTileTool_ == &pickerTool_)) {
-    currentTileTool_ = &pickerTool_;
-  }
-
-  if (GuiToggle({initialButton.x + (35.f * 3.f), initialButton.y, initialButton.width, initialButton.height},
                   GuiIconText(RAYGUI_ICON_CURSOR_SCALE, nullptr),
                   currentTileTool_ == &multiSelectTool_)) {
     currentTileTool_ = &multiSelectTool_;
@@ -130,7 +123,6 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
 
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
-  TraceLog(LOG_INFO, "%u\n", selectedTiles_.size());
   if (selectedTiles_.size() == 1) {
     entt::entity e = selectedTiles_.at(0);
     auto &renderable = registry_.get<Components::Renderable>(e);
@@ -144,23 +136,48 @@ void TileWindow::renderTileAttributes(Rectangle const& tileAttributesBox) {
     flipable.vFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", flipable.vFlipped);
 
     GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+  } else if (selectedTiles_.size() > 0) {
+    float alpha = 0.f;
+    bool vFlip = false;
+    bool hFlip = false;
+
+    auto first = selectedTiles_.at(0);
+    auto &flipFirst = registry_.get<Components::Flipable>(first);
+    auto &renderFirst = registry_.get<Components::Renderable>(first);
+
+    bool matches = std::all_of(selectedTiles_.begin(), selectedTiles_.end(), [this, &flipFirst, &renderFirst](entt::entity &e){
+      auto flip = registry_.get<Components::Flipable>(e);
+      auto render = registry_.get<Components::Renderable>(e);
+
+      return flip.hFlipped == flipFirst.hFlipped && render.alpha == renderFirst.alpha;
+    });
+
+    if (matches) {
+      alpha = renderFirst.alpha;
+      vFlip = flipFirst.vFlipped;
+      hFlip = flipFirst.hFlipped;
+    }
+
+    GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &alpha, 0.f, 1.f, 0.01f, false);
+
+    auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
+    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+
+    hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", hFlip);
+
+    vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", vFlip);
+
+    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+
+    std::for_each(selectedTiles_.begin(), selectedTiles_.end(), [this, vFlip, hFlip, alpha](entt::entity e) {
+      auto &flipable = registry_.get<Components::Flipable>(e);
+      flipable.hFlipped = hFlip;
+      flipable.vFlipped = vFlip;
+      auto &renderable = registry_.get<Components::Renderable>(e);
+      renderable.alpha = alpha;
+    });
   }
 
-/*
-  GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &tileModel_.alpha, 0.f, 1.f, 0.01f, false);
-
-  auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
-
-  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-
-  tileModel_.hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", tileModel_.hFlip);
-
-  tileModel_.vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", tileModel_.vFlip);
-
-  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
-
-  tileModel_.layerIndex = currentLayerId_;
-*/
   if (selectedTiles_.size() == 0) GuiEnable();
 
 }

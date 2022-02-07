@@ -13,7 +13,6 @@
 #include "TileSelector.hh"
 #include "PainterTool.hh"
 #include "RemoveTool.hh"
-#include "TilePickerTool.hh"
 #include "NullTileTool.hh"
 #include "MultiSelectTool.hh"
 
@@ -61,7 +60,6 @@ private:
   NullTileTool nullTool_;
   PainterTool painterTool_;
   RemoveTool removeTool_;
-  TilePickerTool pickerTool_;
   MultiSelectTool multiSelectTool_;
 
   ITileTool *currentTileTool_;
