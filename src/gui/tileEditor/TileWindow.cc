@@ -66,6 +66,7 @@ void TileWindow::layerControls() {
     present.emplace_back(v.data());
   }
 
+  int old = currentLayerId_;
   if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 160.f - 25.f, height + 27.f, 150.f, 20.f},
                        present.data(), static_cast<unsigned>(present.size()), &currentLayerId_, layerSelectEditable_)) {
     layerSelectEditable_ = !layerSelectEditable_;
@@ -76,6 +77,10 @@ void TileWindow::layerControls() {
     removeLayer();
   }
   if (currentLayerId_ == 0) GuiEnable();
+
+  if (old != currentLayerId_) {
+    selected_.clear();
+  }
 }
 
 
@@ -121,29 +126,19 @@ void TileWindow::renderTileAttributes(Rectangle const &tileAttributesBox) {
 
   GuiGroupBox(tileAttributesBox, "Tile attributes");
 
-  if (selected_.size() == 1) {
-    entt::entity e = selected_.at(0);
-    auto &renderable = registry_.get<Components::Renderable>(e);
-    GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &renderable.alpha, 0.f, 1.f, 0.01f, false);
+  float alpha = 1.f;
+  bool vFlip = false;
+  bool hFlip = false;
 
-    auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
-    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    auto &flipable = registry_.get<Components::Flipable>(e);
-    flipable.hFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", flipable.hFlipped);
+  bool matches = true;
 
-    flipable.vFlipped = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", flipable.vFlipped);
-
-    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
-  } else if (selected_.size() > 0) {
-    float alpha = 0.f;
-    bool vFlip = false;
-    bool hFlip = false;
+  if (selected_.size() > 0) {
 
     auto first = selected_.at(0);
     auto &flipFirst = registry_.get<Components::Flipable>(first);
     auto &renderFirst = registry_.get<Components::Renderable>(first);
 
-    bool matches = std::all_of(selected_.begin(), selected_.end(), [this, &flipFirst, &renderFirst](entt::entity &e) {
+    matches = std::all_of(selected_.begin(), selected_.end(), [this, &flipFirst, &renderFirst](entt::entity &e) {
       auto flip = registry_.get<Components::Flipable>(e);
       auto render = registry_.get<Components::Renderable>(e);
 
@@ -155,18 +150,20 @@ void TileWindow::renderTileAttributes(Rectangle const &tileAttributesBox) {
       vFlip = flipFirst.vFlipped;
       hFlip = flipFirst.hFlipped;
     }
+  }
 
-    GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &alpha, 0.f, 1.f, 0.01f, false);
+  GuiSpinnerEx({tileAttributesBox.x + 55.f, tileAttributesBox.y + 10.f, 125.f, 20.f}, "Alpha:", &alpha, 0.f, 1.f, 0.01f, false);
 
-    auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
-    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+  auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 
-    hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", hFlip);
+  hFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", hFlip);
 
-    vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", vFlip);
+  vFlip = GuiCheckBox({tileAttributesBox.x + 90.f, tileAttributesBox.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", vFlip);
 
-    GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
 
+  if (selected_.size() > 0) {
     std::for_each(selected_.begin(), selected_.end(), [this, vFlip, hFlip, alpha](entt::entity e) {
       auto &flipable = registry_.get<Components::Flipable>(e);
       flipable.hFlipped = hFlip;
