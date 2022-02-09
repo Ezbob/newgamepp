@@ -64,7 +64,7 @@ namespace {
   }
 }// namespace
 
-EntityWindow::EntityWindow(entt::registry &r) : registry_(r) {}
+EntityWindow::EntityWindow(entt::registry &r, Camera2D &c) : registry_(r), camera_(c) {}
 
 void EntityWindow::drawEntity() {
 

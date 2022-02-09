@@ -5,7 +5,7 @@
 #include "Constants.hh"
 
 DebugMenu::DebugMenu(entt::registry &reg, Camera2D &cam)
-  : entityWindow_(reg)
+  : entityWindow_(reg, cam)
   , tileWindow_(reg, nfdFileOpener_, cam)
   , camera_(cam)
 {}

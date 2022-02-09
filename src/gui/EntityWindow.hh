@@ -28,6 +28,8 @@ private:
   entt::registry &registry_;
   std::optional<entt::entity> selected_;
 
+  Camera2D &camera_;
+
   bool nameFieldEditable_ = false;
 
   bool velocityXFieldEditable_ = false;
@@ -45,7 +47,7 @@ private:
   void drawEntity();
 
 public:
-  explicit EntityWindow(entt::registry &);
+  explicit EntityWindow(entt::registry &, Camera2D &);
 
   bool render();
 };
