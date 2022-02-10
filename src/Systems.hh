@@ -104,8 +104,8 @@ namespace Systems {
         // Note drawing with lines not the rectangle, as the rectangle drawing function cannot flip the orientation
 
         // horizontal lines
-        DrawLineEx({quad.quad.x, quad.quad.y}, { quad.quad.x + quad.quad.width, quad.quad.y }, 1.f, WHITE);
-        DrawLineEx({quad.quad.x, quad.quad.y + quad.quad.height}, { quad.quad.x + quad.quad.width, quad.quad.y + quad.quad.height}, 1.f, WHITE);
+        DrawLineEx({quad.quad.x, quad.quad.y}, {quad.quad.x + quad.quad.width, quad.quad.y}, 1.f, WHITE);
+        DrawLineEx({quad.quad.x, quad.quad.y + quad.quad.height}, {quad.quad.x + quad.quad.width, quad.quad.y + quad.quad.height}, 1.f, WHITE);
 
         // vertical lines
         DrawLineEx({quad.quad.x, quad.quad.y}, {quad.quad.x, quad.quad.y + quad.quad.height}, 1.f, WHITE);
@@ -113,13 +113,6 @@ namespace Systems {
       }
     }
 
-/*
-    view2.each([&cam](const Components::Quad q, const Components::Active a, const Components::Debug) {
-      if (a.isActive) {
-        DrawRectangleLinesEx(q.quad, 1, WHITE);
-      }
-    });
-*/
   }
 
   inline void update(entt::registry &reg, float dt) {

@@ -48,10 +48,10 @@ void DebugGUI::doGui() {
   GuiPanel({0, Constants::debugScreenHeight - 20.f, static_cast<float>(Constants::debugScreenWidth), 20.f});
   GuiValueBoxEx({ Constants::debugScreenWidth - 60.f, Constants::debugScreenHeight - 20.f, 40.f, 20.f}, "Zoom:", &camera_.zoom, 0.f, 10.f, false);
 
-  GuiValueBoxEx({ Constants::debugScreenWidth - 180.f, Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "WX:", &mouseWorld.x, 0.f, 10.f, false);
-  GuiValueBoxEx({ Constants::debugScreenWidth - (145.f * 2.f), Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "WY:", &mouseWorld.y, 0.f, 10.f, false);
+  GuiValueBoxEx({ Constants::debugScreenWidth - 180.f, Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "WY:", &mouseWorld.y, 0.f, 10.f, false);
+  GuiValueBoxEx({ Constants::debugScreenWidth - (145.f * 2.f), Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "WX:", &mouseWorld.x, 0.f, 10.f, false);
 
-  GuiValueBoxEx({ Constants::debugScreenWidth - (145.f * 3.f), Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "SX:", &currentMouse.x, 0.f, 10.f, false);
-  GuiValueBoxEx({ Constants::debugScreenWidth - (145.f * 3.f) - 110.f, Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "SY:", &currentMouse.y, 0.f, 10.f, false);
+  GuiValueBoxEx({ Constants::debugScreenWidth - (145.f * 3.f), Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "SY:", &currentMouse.y, 0.f, 10.f, false);
+  GuiValueBoxEx({ Constants::debugScreenWidth - (145.f * 3.f) - 110.f, Constants::debugScreenHeight - 20.f, 80.f, 20.f}, "SX:", &currentMouse.x, 0.f, 10.f, false);
 
 }

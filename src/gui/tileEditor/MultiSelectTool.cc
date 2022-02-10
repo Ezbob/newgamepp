@@ -10,18 +10,26 @@
 #include "Components.hh"
 
 namespace {
-  void getCorners(Rectangle r, Vector2 &upper, Vector2 &lower) {
-    upper.x = r.x;
-    upper.y = r.y;
-    lower.x = r.x + r.width;
-    lower.y = r.y + r.height;
-  }
+  /**
+   * Handle "Signed" rectangles, i.e. rectangles with potential negative
+   * width and height. This function computes the "upper" point of the rectangle 
+   * if the width or height are negative so that, the invariant that a rectangle is
+   * a point + a positive offset holds.
+   */
+  Rectangle flipSignedRectangle(Rectangle const &r) {
+    Rectangle boundaries(r);
+    if (r.width < 0) {
+      auto xs = r.x + r.width;
+      boundaries.x = xs;
+      boundaries.width = abs(r.width);
+    }
 
-  void mergeCorners(Vector2 upper, Vector2 lower, Rectangle &r) {
-    r.x = upper.x;
-    r.y = upper.y;
-    r.width = abs(lower.x - upper.x);
-    r.height = abs(lower.y - upper.y);
+    if (r.height < 0) {
+      auto ys = r.y + r.height;
+      boundaries.y = ys;
+      boundaries.height = abs(r.height);
+    }
+    return boundaries;
   }
 };
 
@@ -69,13 +77,15 @@ void MultiSelectTool::execute() {
       auto spriteGroup = registry_.group<Components::Renderable>(
           entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
 
+      Rectangle flippedBoundaries = flipSignedRectangle(boundaries.quad);
+
       for (entt::entity entity : spriteGroup) {
         auto render = spriteGroup.get<Components::Renderable>(entity);
         auto position = spriteGroup.get<Components::Position>(entity);
         auto quad = spriteGroup.get<Components::Quad>(entity);
 
         Rectangle spriteBox = {position.x, position.y, quad.quad.width, quad.quad.height};
-        bool is_colliding = CheckCollisionRecs(spriteBox, boundaries.quad);
+        bool is_colliding = CheckCollisionRecs(spriteBox, flippedBoundaries);
 
         if (render.layer == currentLayer_ && is_colliding) {
           selections_.push_back(entity);
