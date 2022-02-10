@@ -32,6 +32,12 @@ public:
   reference operator[](size_type);
   const_reference operator[](size_type) const;
 
+  void pop_back() noexcept;
+
+  inline entt::entity back() const noexcept {
+    return selected_.back();
+  }
+
   inline size_type size() const {
     return selected_.size();
   };

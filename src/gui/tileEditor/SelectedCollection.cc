@@ -50,3 +50,11 @@ SelectedCollection::reference SelectedCollection::operator[](SelectedCollection:
 SelectedCollection::const_reference SelectedCollection::operator[](SelectedCollection::size_type i) const {
   return selected_[i];
 }
+
+void SelectedCollection::pop_back() noexcept {
+  auto e = selected_.back();
+  if (!registry_.all_of<Components::Debug>(e)) {
+    registry_.emplace<Components::Debug>(e);
+  }
+  return selected_.pop_back();
+}

@@ -201,5 +201,13 @@ bool TileWindow::render() {
 
   currentTileTool_->execute();
 
+  if (IsKeyPressed(KEY_DELETE)) {
+    while(selected_.size() > 0) {
+      entt::entity e = selected_.back();
+      selected_.pop_back();
+      registry_.destroy(e);
+    }
+  }
+
   return true;
 }
