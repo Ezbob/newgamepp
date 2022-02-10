@@ -72,6 +72,8 @@
     "variant": "cpp",
     "fstream": "cpp",
     "iostream": "cpp",
-    "any": "cpp"
+    "any": "cpp",
+    "ranges": "cpp",
+    "span": "cpp"
   }
 }
