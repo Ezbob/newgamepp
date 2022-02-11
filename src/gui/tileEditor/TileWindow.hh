@@ -38,8 +38,6 @@ private:
 
   void renderTools(Rectangle const &);
 
-  void renderTileAttributes(Rectangle const &);
-
   entt::registry &registry_;
 
   TileSetSelector tileSetSelector_;

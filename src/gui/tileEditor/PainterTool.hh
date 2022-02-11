@@ -23,5 +23,7 @@ public:
   PainterTool(entt::registry &, TileSetSelector &, Camera2D &,
               SelectedCollection &, int &);
 
+  void renderToolAttributes(Rectangle const&) override;
+
   void execute() override;
 };

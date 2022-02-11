@@ -4,6 +4,7 @@
 #include "Constants.hh"
 #include "raylib.h"
 #include "raymath.h"
+#include "raygui.h"
 
 
 PainterTool::PainterTool(
@@ -31,6 +32,59 @@ Vector2 PainterTool::midPoint(Rectangle r) const {
   return {r.x - (r.width / 2), r.y - (r.height / 2)};
 }
 
+void PainterTool::renderToolAttributes(Rectangle const& position) {
+
+  if (selectedTiles_.size() == 0) GuiDisable();
+
+  float alpha = 1.f;
+  bool vFlip = false;
+  bool hFlip = false;
+
+  bool matches = true;
+
+  if (selectedTiles_.size() > 0) {
+
+    auto first = selectedTiles_.at(0);
+    auto &flipFirst = registry_.get<Components::Flipable>(first);
+    auto &renderFirst = registry_.get<Components::Renderable>(first);
+
+    matches = std::all_of(selectedTiles_.begin(), selectedTiles_.end(), [this, &flipFirst, &renderFirst](entt::entity &e) {
+      auto flip = registry_.get<Components::Flipable>(e);
+      auto render = registry_.get<Components::Renderable>(e);
+
+      return flip.hFlipped == flipFirst.hFlipped && render.alpha == renderFirst.alpha;
+    });
+
+    if (matches) {
+      alpha = renderFirst.alpha;
+      vFlip = flipFirst.vFlipped;
+      hFlip = flipFirst.hFlipped;
+    }
+  }
+
+  GuiSpinnerEx({position.x + 55.f, position.y + 10.f, 125.f, 20.f}, "Alpha:", &alpha, 0.f, 1.f, 0.01f, false);
+
+  auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+
+  hFlip = GuiCheckBox({position.x + 90.f, position.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", hFlip);
+
+  vFlip = GuiCheckBox({position.x + 90.f, position.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", vFlip);
+
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+
+  if (selectedTiles_.size() > 0) {
+    auto e = selectedTiles_.at(0);
+    auto &flipable = registry_.get<Components::Flipable>(e);
+    flipable.hFlipped = hFlip;
+    flipable.vFlipped = vFlip;
+    auto &renderable = registry_.get<Components::Renderable>(e);
+    renderable.alpha = alpha;
+  }
+
+  if (selectedTiles_.size() == 0) GuiEnable();
+}
+
 
 void PainterTool::execute() {
   auto mousePosition = GetMousePosition();
@@ -56,12 +110,6 @@ void PainterTool::execute() {
       midPointMouse.y = midPointMouse.y < 0.f ? -roundedY : roundedY;
     }
 
-    /*
-    if (IsKeyDown(KEY_LEFT_CONTROL)) {
-      frame.width = tileModel_.vFlip ? -frame.width : frame.width;
-      frame.height = tileModel_.hFlip ? -frame.height : frame.height;
-    }
-*/
 
     BeginMode2D(camera_);
     DrawTextureRec(
