@@ -31,6 +31,7 @@ void SelectedCollection::remove(entt::entity e) {
   if (!registry_.all_of<Components::Debug>(e)) {
     return;
   }
+  registry_.remove<Components::Debug>(e);
   for (auto it = selected_.begin(); it != selected_.end(); ++it ) {
     if (*it == e) {
       selected_.erase(it);

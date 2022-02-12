@@ -72,7 +72,9 @@ void MultiSelectTool::execute() {
       boundaries.quad.height = (world.y - boundaries.quad.y);
       active_comp.isActive = false;
 
-      selections_.clear();
+      if (!IsKeyDown(KEY_LEFT_CONTROL) && !IsKeyDown(KEY_LEFT_SHIFT)) {
+        selections_.clear();
+      }
 
       auto spriteGroup = registry_.group<Components::Renderable>(
           entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
@@ -88,7 +90,12 @@ void MultiSelectTool::execute() {
         bool is_colliding = CheckCollisionRecs(spriteBox, flippedBoundaries);
 
         if (render.layer == currentLayer_ && is_colliding) {
-          selections_.insert(entity);
+
+          if (IsKeyDown(KEY_LEFT_SHIFT)) {
+            selections_.remove(entity);
+          } else {
+            selections_.insert(entity);
+          }
         }
       }
     }
