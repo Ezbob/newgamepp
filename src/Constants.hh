@@ -1,10 +1,14 @@
 
 #pragma once
 
-namespace Constants {
-  const float screenHeight = 650.f;
-  const float screenWidth = 900.f;
+#include "raylib.h"
 
-  const int debugScreenHeight = static_cast<const int>(screenHeight + 200.f);
-  const int debugScreenWidth = static_cast<const int>(screenWidth + 600.f);
+namespace Constants {
+  static const float screenHeight = 650.f;
+  static const float screenWidth = 900.f;
+
+  static const Rectangle screenRectangle { 0, 0, screenWidth, screenHeight };
+
+  static const int debugScreenHeight = static_cast<const int>(screenHeight + 200.f);
+  static const int debugScreenWidth = static_cast<const int>(screenWidth + 600.f);
 }// namespace Constants

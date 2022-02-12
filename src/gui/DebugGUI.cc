@@ -37,12 +37,14 @@ void DebugGUI::doGui() {
   }
   prevMouse_ = currentMouse;
 
-  camera_.zoom += ((float)GetMouseWheelMove() * 0.05f);
+  if (CheckCollisionPointRec(currentMouse, Constants::screenRectangle)) {
+    camera_.zoom += ((float)GetMouseWheelMove() * 0.05f);
 
-  if (camera_.zoom > 3.0f) {
-    camera_.zoom = 3.0f;
-  } else if (camera_.zoom < 0.1f) {
-    camera_.zoom = 0.1f;
+    if (camera_.zoom > 3.0f) {
+      camera_.zoom = 3.0f;
+    } else if (camera_.zoom < 0.1f) {
+      camera_.zoom = 0.1f;
+    }
   }
 
   GuiPanel({0, Constants::debugScreenHeight - 20.f, static_cast<float>(Constants::debugScreenWidth), 20.f});
