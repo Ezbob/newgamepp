@@ -97,6 +97,8 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
   GuiGroupBox(toolBox, "Tile tools");
   Rectangle initialButton = {toolBox.x + 10.f, toolBox.y + 10.f, 30.f, 30.f};
 
+  auto oldSelection = currentTileTool_;
+
   if (GuiToggle(initialButton,
                 GuiIconText(RAYGUI_ICON_BRUSH_PAINTER, nullptr),
                 currentTileTool_ == &painterTool_)) {
@@ -115,6 +117,9 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
     currentTileTool_ = &multiSelectTool_;
   }
 
+  if (oldSelection != currentTileTool_) {
+    currentTileTool_->onSelected();
+  }
 
   if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
@@ -149,11 +154,7 @@ bool TileWindow::render() {
   currentTileTool_->execute();
 
   if (IsKeyPressed(KEY_DELETE)) {
-    while(selected_.size() > 0) {
-      entt::entity e = selected_.back();
-      selected_.pop_back();
-      registry_.destroy(e);
-    }
+    selected_.destroy_all();
   }
 
   return true;

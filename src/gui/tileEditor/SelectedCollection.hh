@@ -23,20 +23,27 @@ public:
   using iterator = std::vector<entt::entity>::iterator;
   using const_iterator = std::vector<entt::entity>::const_iterator;
 
+  /**
+   * Clears the selection container of selected entities.
+   * This does not remove entities from the registry but removes the selected marker component
+   * on all entities entities stored before clearing the internal storage
+   */
   void clear();
+
+  /**
+   * Clears the selection container AND removes the entities from the registry
+   */
+  void destroy_all();
+
+  /**
+   * Removes the entity from the collection and it's selection component
+   */
   void remove(entt::entity);
-  void push_back(entt::entity);
 
-  reference at(size_type);
-  const_reference at(size_type) const;
-  reference operator[](size_type);
-  const_reference operator[](size_type) const;
-
-  void pop_back() noexcept;
-
-  inline entt::entity back() const noexcept {
-    return selected_.back();
-  }
+  /**
+   * Inserts the entity into the collection
+   */
+  void insert(entt::entity);
 
   inline size_type size() const {
     return selected_.size();

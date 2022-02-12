@@ -43,23 +43,13 @@ void PainterTool::renderToolAttributes(Rectangle const& position) {
   bool matches = true;
 
   if (selectedTiles_.size() > 0) {
-
-    auto first = selectedTiles_.at(0);
+    auto first = *selectedTiles_.begin();
     auto &flipFirst = registry_.get<Components::Flipable>(first);
     auto &renderFirst = registry_.get<Components::Renderable>(first);
 
-    matches = std::all_of(selectedTiles_.begin(), selectedTiles_.end(), [this, &flipFirst, &renderFirst](entt::entity &e) {
-      auto flip = registry_.get<Components::Flipable>(e);
-      auto render = registry_.get<Components::Renderable>(e);
-
-      return flip.hFlipped == flipFirst.hFlipped && render.alpha == renderFirst.alpha;
-    });
-
-    if (matches) {
-      alpha = renderFirst.alpha;
-      vFlip = flipFirst.vFlipped;
-      hFlip = flipFirst.hFlipped;
-    }
+    alpha = renderFirst.alpha;
+    vFlip = flipFirst.vFlipped;
+    hFlip = flipFirst.hFlipped;
   }
 
   GuiSpinnerEx({position.x + 55.f, position.y + 10.f, 125.f, 20.f}, "Alpha:", &alpha, 0.f, 1.f, 0.01f, false);
@@ -74,7 +64,7 @@ void PainterTool::renderToolAttributes(Rectangle const& position) {
   GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
 
   if (selectedTiles_.size() > 0) {
-    auto e = selectedTiles_.at(0);
+    auto e = *selectedTiles_.begin();
     auto &flipable = registry_.get<Components::Flipable>(e);
     flipable.hFlipped = hFlip;
     flipable.vFlipped = vFlip;
@@ -129,7 +119,7 @@ void PainterTool::execute() {
       registry_.emplace<Components::Quad>(entity, tileFrame.frameDimensions);
 
       selectedTiles_.clear();
-      selectedTiles_.push_back(entity);
+      selectedTiles_.insert(entity);
     }
   }
 }

@@ -88,10 +88,62 @@ void MultiSelectTool::execute() {
         bool is_colliding = CheckCollisionRecs(spriteBox, flippedBoundaries);
 
         if (render.layer == currentLayer_ && is_colliding) {
-          selections_.push_back(entity);
+          selections_.insert(entity);
         }
       }
     }
-
   }
+}
+
+void MultiSelectTool::onSelected() {
+  cache_.reset();
+}
+
+
+void MultiSelectTool::renderToolAttributes(Rectangle const& position) {
+  if (selections_.size() == 0) GuiDisable();
+
+  if (selections_.size() > 0 && !cacheReadIn_) {
+
+    auto first = *selections_.begin();
+    auto &flipFirst = registry_.get<Components::Flipable>(first);
+    auto &renderFirst = registry_.get<Components::Renderable>(first);
+
+    bool matches = std::all_of(selections_.begin(), selections_.end(), [this, &flipFirst, &renderFirst](entt::entity &e) {
+      auto flip = registry_.get<Components::Flipable>(e);
+      auto render = registry_.get<Components::Renderable>(e);
+
+      return flip.hFlipped == flipFirst.hFlipped && render.alpha == renderFirst.alpha;
+    });
+
+    if (matches) {
+      cache_.alpha = renderFirst.alpha;
+      cache_.vFlip = flipFirst.vFlipped;
+      cache_.hFlip = flipFirst.hFlipped;
+      cacheReadIn_ = true;
+    }
+  }
+
+  GuiSpinnerEx({position.x + 55.f, position.y + 10.f, 125.f, 20.f}, "Alpha:", &cache_.alpha, 0.f, 1.f, 0.01f, false);
+
+  auto oldTextAlign = GuiGetStyle(CHECKBOX, TEXT_ALIGNMENT);
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+
+  cache_.hFlip = GuiCheckBox({position.x + 90.f, position.y + 10.f + (25.f * 1.f), 20.f, 20.f}, "Horizontal Flip:", cache_.hFlip);
+
+  cache_.vFlip = GuiCheckBox({position.x + 90.f, position.y + 10.f + (25.f * 2.f), 20.f, 20.f}, "Vertical Flip:", cache_.vFlip);
+
+  GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, oldTextAlign);
+
+  if (GuiButton({position.x + 10.f, position.y + 10.f + (25.f * 3.f), 45.f, 20.f}, "Apply")) {
+    std::for_each(selections_.begin(), selections_.end(), [&](entt::entity e) {
+      auto &flipable = registry_.get<Components::Flipable>(e);
+      flipable.hFlipped = cache_.hFlip;
+      flipable.vFlipped = cache_.vFlip;
+      registry_.get<Components::Renderable>(e).alpha = cache_.alpha;
+    });
+    cacheReadIn_ = false;
+  }
+
+  if (selections_.size() == 0) GuiEnable();
 }

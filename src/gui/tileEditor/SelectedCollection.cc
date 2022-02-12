@@ -11,7 +11,18 @@ SelectedCollection::SelectedCollection(entt::registry &r)
 
 void SelectedCollection::clear() {
   for (auto &e : selected_) {
-    registry_.remove<Components::Debug>(e);
+    if (registry_.valid(e)) {
+      registry_.remove<Components::Debug>(e);
+    }
+  }
+  selected_.clear();
+}
+
+void SelectedCollection::destroy_all() {
+  for (auto &e : selected_) {
+    if (registry_.valid(e)) {
+      registry_.destroy(e);
+    }
   }
   selected_.clear();
 }
@@ -28,33 +39,9 @@ void SelectedCollection::remove(entt::entity e) {
   }
 }
 
-void SelectedCollection::push_back(entt::entity e) {
+void SelectedCollection::insert(entt::entity e) {
   if (!registry_.all_of<Components::Debug>(e)) {
     registry_.emplace<Components::Debug>(e);
   }
   selected_.push_back(e);
-}
-
-SelectedCollection::reference SelectedCollection::at(SelectedCollection::size_type i) {
-  return selected_.at(i);
-}
-
-SelectedCollection::const_reference SelectedCollection::at(SelectedCollection::size_type i) const {
-  return selected_.at(i);
-}
-
-SelectedCollection::reference SelectedCollection::operator[](SelectedCollection::size_type i) {
-  return selected_[i];
-}
-
-SelectedCollection::const_reference SelectedCollection::operator[](SelectedCollection::size_type i) const {
-  return selected_[i];
-}
-
-void SelectedCollection::pop_back() noexcept {
-  auto e = selected_.back();
-  if (!registry_.all_of<Components::Debug>(e)) {
-    registry_.emplace<Components::Debug>(e);
-  }
-  return selected_.pop_back();
 }
