@@ -49,7 +49,7 @@ void MultiSelectTool::execute() {
   auto mousePosition = GetMousePosition();
   auto world = GetScreenToWorld2D(mousePosition, camera_);
 
-  if (CheckCollisionPointRec(mousePosition, {0, 0, Constants::screenWidth, Constants::screenHeight})) {
+  if (CheckCollisionPointRec(mousePosition, Constants::screenRectangle)) {
     auto &active_comp = registry_.get<Components::Active>(selectionBox_);
 
 

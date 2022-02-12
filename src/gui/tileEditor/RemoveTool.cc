@@ -16,7 +16,7 @@ RemoveTool::RemoveTool(entt::registry &reg, Camera2D &camera, int &currentLayerI
 void RemoveTool::execute() {
   if (IsMouseButtonPressed(0)) {
     auto mousePosition = GetMousePosition();
-    if (CheckCollisionPointRec(mousePosition, {0, 0, Constants::screenWidth, Constants::screenHeight})) {
+    if (CheckCollisionPointRec(mousePosition, Constants::screenRectangle)) {
       mousePosition = GetScreenToWorld2D(mousePosition, camera_);
 
       auto entity = TilePicker::findClickedTile(registry_, mousePosition, currentLayerId_);

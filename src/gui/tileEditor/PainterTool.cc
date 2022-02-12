@@ -78,7 +78,7 @@ void PainterTool::renderToolAttributes(Rectangle const& position) {
 
 void PainterTool::execute() {
   auto mousePosition = GetMousePosition();
-  if (CheckCollisionPointRec(mousePosition, {0, 0, Constants::screenWidth, Constants::screenHeight})) {
+  if (CheckCollisionPointRec(mousePosition, Constants::screenRectangle)) {
     auto selectedTileSet_ = selector_.getSelectedFrame();
 
     auto &tileFrame = selectedTileSet_->set.frames[selectedTileSet_->frameIndex];
