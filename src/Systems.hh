@@ -28,11 +28,19 @@ namespace {
     DrawLineEx({endX, endY}, {endX - lineLength, endY}, thick, color);
     DrawLineEx({endX, endY}, {endX, endY - lineLength}, thick, color);
   }
+
+  float scaleLineWidth(float lineWidth, float zoom) {
+    if ( 0.5f <= zoom && zoom < 1.f) {
+      lineWidth *= 2.5f;
+    }
+    return lineWidth;
+  }
 }
 
 namespace Systems {
 
   inline void draw(entt::registry &reg, Camera2D &cam) {
+    float w = scaleLineWidth(1.f, cam.zoom);
 
     auto spriteGroup = reg.group<Components::Renderable>(
       entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>
@@ -87,7 +95,7 @@ namespace Systems {
         const Components::Quad>();
 
     for(auto [debug, position, dimension]: selection.each()) {
-      drawCornerBox({position.x, position.y, dimension.quad.width, dimension.quad.height});
+      drawCornerBox({position.x, position.y, dimension.quad.width, dimension.quad.height}, w);
     }
 
     auto view = reg.view<const Components::Position, const Components::Dimensions>(entt::exclude<Components::Debug>);
@@ -104,12 +112,12 @@ namespace Systems {
         // Note drawing with lines not the rectangle, as the rectangle drawing function cannot flip the orientation
 
         // horizontal lines
-        DrawLineEx({quad.quad.x, quad.quad.y}, {quad.quad.x + quad.quad.width, quad.quad.y}, 1.f, WHITE);
-        DrawLineEx({quad.quad.x, quad.quad.y + quad.quad.height}, {quad.quad.x + quad.quad.width, quad.quad.y + quad.quad.height}, 1.f, WHITE);
+        DrawLineEx({quad.quad.x, quad.quad.y}, {quad.quad.x + quad.quad.width, quad.quad.y}, w, WHITE);
+        DrawLineEx({quad.quad.x, quad.quad.y + quad.quad.height}, {quad.quad.x + quad.quad.width, quad.quad.y + quad.quad.height}, w, WHITE);
 
         // vertical lines
-        DrawLineEx({quad.quad.x, quad.quad.y}, {quad.quad.x, quad.quad.y + quad.quad.height}, 1.f, WHITE);
-        DrawLineEx({quad.quad.x + quad.quad.width, quad.quad.y}, {quad.quad.x + quad.quad.width, quad.quad.y + quad.quad.height}, 1.f, WHITE);
+        DrawLineEx({quad.quad.x, quad.quad.y}, {quad.quad.x, quad.quad.y + quad.quad.height}, w, WHITE);
+        DrawLineEx({quad.quad.x + quad.quad.width, quad.quad.y}, {quad.quad.x + quad.quad.width, quad.quad.y + quad.quad.height}, w, WHITE);
       }
     }
 
