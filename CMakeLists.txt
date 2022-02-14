@@ -13,6 +13,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 add_subdirectory(libs/raygui/projects/CMake/ EXCLUDE_FROM_ALL)
 add_subdirectory(libs/nativefiledialog/ EXCLUDE_FROM_ALL)
+add_subdirectory(libs/cereal-1.3.1/ EXCLUDE_FROM_ALL)
 
 add_executable(main "" src/Constants.hh)
 target_sources(main
@@ -20,10 +21,11 @@ target_sources(main
         src/Main.cc
         src/gui/GuiUnity.cc
 )
+
 target_link_libraries(main
     PRIVATE
         EnTT::EnTT
-        ${RAYLIB_LIBRARIES}
+        ${raylib_LIBRARIES}
         ${CMAKE_DL_LIBS}
         ${CMAKE_THREAD_LIBS_INIT}
         raygui
@@ -31,10 +33,11 @@ target_link_libraries(main
         nativefiledialog_static
         nlohmann_json
         nlohmann_json::nlohmann_json
+        cereal::cereal
 )
 target_include_directories(main
     PRIVATE
-        ${RAYLIB_LIBRARIES}
+        ${raylib_INCLUDE_DIRS}
         src/
 )
 
