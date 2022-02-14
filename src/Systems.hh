@@ -67,10 +67,10 @@ namespace Systems {
 
         for (float i = -width; i <= width; i += 20.f)
         {
-          DrawLineEx({-width, i}, {width, i}, 1.f, Fade(coloring.color, 0.8f));
+          DrawLineEx({-width, i}, {width, i}, w, Fade(coloring.color, 0.8f));
           for (float j = -height; j <= height; j += 20.f)
           {
-            DrawLineEx({j, -height}, {j, height}, 1.f, Fade(coloring.color, 0.8f));
+            DrawLineEx({j, -height}, {j, height}, w, Fade(coloring.color, 0.8f));
           }
         }
 
