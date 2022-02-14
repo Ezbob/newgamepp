@@ -86,8 +86,8 @@ void PainterTool::execute() {
 
     auto midPointMouse = midPoint({mousePosition.x,
                                    mousePosition.y,
-                                   tileFrame.frameDimensions.width,
-                                   tileFrame.frameDimensions.height});
+                                   tileFrame.frameDimensions.width * camera_.zoom,
+                                   tileFrame.frameDimensions.height * camera_.zoom});
 
     midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
 
@@ -99,7 +99,6 @@ void PainterTool::execute() {
       midPointMouse.x = midPointMouse.x < 0.f ? -roundedX : roundedX;
       midPointMouse.y = midPointMouse.y < 0.f ? -roundedY : roundedY;
     }
-
 
     BeginMode2D(camera_);
     DrawTextureRec(
