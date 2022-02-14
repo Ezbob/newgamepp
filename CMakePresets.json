@@ -13,6 +13,10 @@
         "BUILD_RAYGUI_EXAMPLES": {
           "type": "BOOL",
           "value": "OFF"
+        },
+        "SKIP_PERFORMANCE_COMPARISON": {
+          "type": "BOOL",
+          "value": "ON"
         }
       },
       "toolchainFile": "$env{VCPKG_CMAKE_TOOLCHAIN}"
