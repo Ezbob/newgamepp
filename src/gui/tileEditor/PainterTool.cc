@@ -86,8 +86,8 @@ void PainterTool::execute() {
 
     auto midPointMouse = midPoint({mousePosition.x,
                                    mousePosition.y,
-                                   tileFrame.frameDimensions.width * camera_.zoom,
-                                   tileFrame.frameDimensions.height * camera_.zoom});
+                                   frame.width * camera_.zoom,
+                                   frame.height * camera_.zoom});
 
     midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
 
