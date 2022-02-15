@@ -2,7 +2,7 @@
 #pragma once
 
 #include "AsepriteParser.hh"
-#include "IFileOpener.hh"
+#include "IFileOperations.hh"
 #include "ITileParser.hh"
 #include "TileSet.hh"
 #include "raylib.h"
@@ -11,7 +11,7 @@
 
 class TileSetSelector {
 public:
-  TileSetSelector(Rectangle, IFileOpener &);
+  TileSetSelector(Rectangle, IFileOperations &);
 
   void render();
 
@@ -37,7 +37,7 @@ private:
 
   ITileParser *selectParser(int);
 
-  IFileOpener &fileOpener_;
+  IFileOperations &fileOpener_;
 
   enum class TilesetErrors {
     no_error,

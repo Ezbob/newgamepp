@@ -16,18 +16,13 @@
 #include "ricons.h"
 
 
-TileWindow::TileWindow(entt::registry &registry, IFileOpener &fileOpener, Camera2D &camera)
-    : registry_(registry)
-    , tileSetSelector_({windowBoundary_.x + 5.f,
-                        windowBoundary_.height - 325.f,
-                        windowBoundary_.width - 10.f,
-                        325.f - 5.f}, fileOpener)
-    , camera_(camera)
-    , selected_(registry_)
-    , painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_)
-    , removeTool_(registry_, camera_, currentLayerId_, selected_)
-    , multiSelectTool_(registry_, currentLayerId_, selected_, camera_)
-    , currentTileTool_(&nullTool_) {
+TileWindow::TileWindow(entt::registry &registry, IFileOperations &fileOpener, Camera2D &camera)
+    : registry_(registry), tileSetSelector_({windowBoundary_.x + 5.f,
+                                             windowBoundary_.height - 325.f,
+                                             windowBoundary_.width - 10.f,
+                                             325.f - 5.f},
+                                            fileOpener),
+      camera_(camera), selected_(registry_), painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_), removeTool_(registry_, camera_, currentLayerId_, selected_), multiSelectTool_(registry_, currentLayerId_, selected_, camera_), currentTileTool_(&nullTool_) {
   addNewLayer();
   grid_ = registry_.create();
   registry_.emplace<Components::Coloring>(grid_, Fade(GRAY, 0.3f));
@@ -135,21 +130,19 @@ bool TileWindow::render() {
     return false;
   }
 
-  Rectangle gridColorbutton {
-    windowBoundary_.x + 10.f,
-    windowBoundary_.y + 32.f,
-    100.f,
-    30.f
-  };
+  Rectangle gridColorbutton{
+          windowBoundary_.x + 10.f,
+          windowBoundary_.y + 32.f,
+          100.f,
+          30.f};
 
   renderTools(gridColorbutton);
 
-  Rectangle toolAttribute {
-    gridColorbutton.x + (windowBoundary_.width / 2),
-    gridColorbutton.y + 60.f,
-    (windowBoundary_.width / 2) - 20.f,
-    60.f + (40.f * 3.f)
-  };
+  Rectangle toolAttribute{
+          gridColorbutton.x + (windowBoundary_.width / 2),
+          gridColorbutton.y + 60.f,
+          (windowBoundary_.width / 2) - 20.f,
+          60.f + (40.f * 3.f)};
   GuiGroupBox(toolAttribute, "Tool attributes");
 
   currentTileTool_->renderToolAttributes(toolAttribute);

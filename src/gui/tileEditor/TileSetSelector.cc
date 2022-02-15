@@ -6,7 +6,7 @@
 #include "raylib.h"
 
 
-TileSetSelector::TileSetSelector(Rectangle r, IFileOpener &fo) : boundary_(r), fileOpener_(fo) {}
+TileSetSelector::TileSetSelector(Rectangle r, IFileOperations &fo) : boundary_(r), fileOpener_(fo) {}
 
 std::optional<TileSet> TileSetSelector::openTilesetFile(Rectangle const &tileBox) {
   const char *extensions = tileParser_->getFileExtensions();// a semi-colon seperated list of extensions

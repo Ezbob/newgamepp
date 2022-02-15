@@ -19,7 +19,7 @@
 
 class TileWindow : public IRenderable {
 public:
-  TileWindow(entt::registry &, IFileOpener &, Camera2D &);
+  TileWindow(entt::registry &, IFileOperations &, Camera2D &);
 
   bool render() override;
 
