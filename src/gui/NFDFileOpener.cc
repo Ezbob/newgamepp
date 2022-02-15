@@ -3,7 +3,7 @@
 #include "nfd.h"
 
 
-bool NFDFileOpener::openFile(std::string const &extensionList, std::filesystem::path &out) {
+bool NFDFileOpener::openFile(std::filesystem::path &out, std::string const &extensionList) {
   nfdchar_t *path = NULL;
 
   nfdresult_t result = NFD_OpenDialog(extensionList.c_str(), nullptr, &path);

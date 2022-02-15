@@ -12,7 +12,7 @@ std::optional<TileSet> TileSetSelector::openTilesetFile(Rectangle const &tileBox
   const char *extensions = tileParser_->getFileExtensions();// a semi-colon seperated list of extensions
   std::filesystem::path path;
 
-  if (fileOpener_.openFile(extensions, path)) {
+  if (fileOpener_.openFile(path, extensions)) {
     auto parsedResults = tileParser_->parse(path);
 
     if (std::holds_alternative<TileSet>(parsedResults)) {
