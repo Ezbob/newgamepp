@@ -17,12 +17,18 @@
 
 
 TileWindow::TileWindow(entt::registry &registry, IFileOperations &fileOpener, Camera2D &camera)
-    : registry_(registry), tileSetSelector_({windowBoundary_.x + 5.f,
-                                             windowBoundary_.height - 325.f,
-                                             windowBoundary_.width - 10.f,
-                                             325.f - 5.f},
-                                            fileOpener),
-      camera_(camera), selected_(registry_), painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_), removeTool_(registry_, camera_, currentLayerId_, selected_), multiSelectTool_(registry_, currentLayerId_, selected_, camera_), currentTileTool_(&nullTool_) {
+    : registry_(registry)
+    , tileSetSelector_({windowBoundary_.x + 5.f,
+                        windowBoundary_.height - 325.f,
+                        windowBoundary_.width - 10.f,
+                        325.f - 5.f}, fileOpener)
+    , camera_(camera)
+    , selected_(registry_)
+    , painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_)
+    , removeTool_(registry_, camera_, currentLayerId_, selected_)
+    , multiSelectTool_(registry_, currentLayerId_, selected_, camera_)
+    , currentTileTool_(&nullTool_)
+    , fileOps_(fileOpener) {
   addNewLayer();
   grid_ = registry_.create();
   registry_.emplace<Components::Coloring>(grid_, Fade(GRAY, 0.3f));
@@ -124,6 +130,38 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
   if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
 
+void TileWindow::renderFileOperations() {
+  Rectangle box = {
+    windowBoundary_.x + 10.f,
+    windowBoundary_.y + 192.f,
+    (windowBoundary_.width / 2) - 20.f,
+    80.f
+  };
+  GuiGroupBox(box, "File");
+
+  GuiLabel({box.x + 10.f, box.y + 10.f, 40.f, 25.f}, "Current File:");
+  GuiTextBox({box.x + 85.f, box.y + 10.f, 180.f, 25.f}, filePath_.data(), filePath_.size(), false);
+
+  if (path_.empty()) GuiDisable();
+
+  if (GuiButton({box.x + 10.f, box.y + 45.f, 60.f, 25.f}, "Save")) {
+    // TODO: fix me
+  }
+
+  if (path_.empty()) GuiEnable();
+
+  if (GuiButton({box.x + 90.f, box.y + 45.f, 70.f, 25.f}, "Select file")) {
+    fileOps_.saveFile(path_, "mt");
+
+    if (!path_.has_extension()) {
+      path_.replace_extension("mt");
+    }
+    auto s = path_.filename().string();
+    filePath_.assign(s.begin(), s.end());
+    filePath_.push_back('\0');
+  }
+}
+
 
 bool TileWindow::render() {
   if (GuiWindowBox(windowBoundary_, "Tile debugger")) {
@@ -137,6 +175,8 @@ bool TileWindow::render() {
           30.f};
 
   renderTools(gridColorbutton);
+
+  renderFileOperations();
 
   Rectangle toolAttribute{
           gridColorbutton.x + (windowBoundary_.width / 2),

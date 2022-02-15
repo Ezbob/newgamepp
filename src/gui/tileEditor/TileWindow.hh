@@ -38,6 +38,11 @@ private:
 
   void renderTools(Rectangle const &);
 
+  void renderFileOperations();
+
+  std::vector<char> filePath_ = {'\0'};
+  std::filesystem::path path_;
+
   entt::registry &registry_;
 
   TileSetSelector tileSetSelector_;
@@ -60,4 +65,5 @@ private:
   MultiSelectTool multiSelectTool_;
 
   ITileTool *currentTileTool_;
+  IFileOperations &fileOps_;
 };
