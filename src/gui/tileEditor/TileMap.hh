@@ -11,6 +11,7 @@
 #include "cereal/types/vector.hpp"
 #include "cereal/types/string.hpp"
 #include "cereal/types/unordered_map.hpp"
+#include "cereal/archives/binary.hpp"
 
 #include "TileSet.hh"
 
@@ -39,6 +40,11 @@ struct TileMap {
     ar(tileSetLocations, tilePositions);
   }
 
-  void save(std::filesystem::path const& p);
+  template<typename Archive = cereal::BinaryOutputArchive>
+  void save(std::filesystem::path const& p) {
+    std::ofstream file(p);
+    Archive ar(file);
+    ar(*this);
+  }
 };
 
