@@ -11,6 +11,7 @@
 #include <cmath>
 #include <functional>
 #include <stdint.h>
+#include "TileMap.hh"
 
 #define RAYGUI_CUSTOM_RICONS
 #include "ricons.h"
@@ -130,6 +131,41 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
   if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
 
+
+void TileWindow::saveToFile(std::filesystem::path const &path) {
+  TileMap map;
+
+  auto spriteGroup = registry_.group<Components::Renderable>(
+    entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>
+  );
+
+  for (auto [entity, render, texture, pos, quad, flip] : spriteGroup.each()) {
+    TileMap::TilePosition tile;
+
+    tile.alpha = render.alpha;
+    tile.layer = render.layer;
+    tile.x = pos.x;
+    tile.y = pos.y;
+
+    tile.tileSetIndex = texture.loadedIndex;
+
+    tile.fx = quad.quad.x;
+    tile.fy = quad.quad.y;
+    tile.w = quad.quad.width;
+    tile.h = quad.quad.height;
+
+    map.tilePositions.push_back(tile);
+  }
+
+  auto tileSets = tileSetSelector_.getSelectedTileSets();
+  for (auto &tileSet : tileSets) {
+    map.tileSetLocations.push_back(tileSet.image_path.string());
+  }
+
+  map.save(path);
+}
+
+
 void TileWindow::renderFileOperations() {
   Rectangle box = {
     windowBoundary_.x + 10.f,
@@ -145,13 +181,13 @@ void TileWindow::renderFileOperations() {
   if (path_.empty()) GuiDisable();
 
   if (GuiButton({box.x + 10.f, box.y + 45.f, 60.f, 25.f}, "Save")) {
-    // TODO: fix me
+    saveToFile(path_);
   }
 
   if (path_.empty()) GuiEnable();
 
   if (GuiButton({box.x + 90.f, box.y + 45.f, 70.f, 25.f}, "Select file")) {
-    fileOps_.saveFile(path_, "mt");
+    fileOps_.saveFileDialog(path_, "mt");
 
     if (!path_.has_extension()) {
       path_.replace_extension("mt");
@@ -159,6 +195,7 @@ void TileWindow::renderFileOperations() {
     auto s = path_.filename().string();
     filePath_.assign(s.begin(), s.end());
     filePath_.push_back('\0');
+    saveToFile(path_);
   }
 }
 

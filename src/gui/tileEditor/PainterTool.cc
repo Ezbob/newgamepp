@@ -13,7 +13,11 @@ PainterTool::PainterTool(
         Camera2D &camera,
         SelectedCollection &selectionTiles,
         int &currentLayer)
-    : registry_(reg), selector_(selector), camera_(camera), selectedTiles_(selectionTiles), currentLayer_(currentLayer) {
+    : registry_(reg)
+    , selector_(selector)
+    , camera_(camera)
+    , selectedTiles_(selectionTiles)
+    , currentLayer_(currentLayer) {
 }
 
 int PainterTool::roundDownTo(int N, int n) const {
@@ -111,7 +115,7 @@ void PainterTool::execute() {
     if (IsMouseButtonPressed(0)) {
       entt::entity entity = registry_.create();
 
-      registry_.emplace<Components::SpriteTexture>(entity, selectedTileSet_->set.texture);
+      registry_.emplace<Components::SpriteTexture>(entity, selectedTileSet_->tileSetIndex, selectedTileSet_->set.texture);
       registry_.emplace<Components::Renderable>(entity, 1.f, currentLayer_);
       registry_.emplace<Components::Position>(entity, midPointMouse.x, midPointMouse.y);
       registry_.emplace<Components::Flipable>(entity);

@@ -10,3 +10,4 @@
 #include "tileEditor/TilePicker.cc"
 #include "tileEditor/TileSetSelector.cc"
 #include "tileEditor/TileWindow.cc"
+#include "tileEditor/TileMap.cc"

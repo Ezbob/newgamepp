@@ -4,39 +4,44 @@
 #include "TileSetSelector.hh"
 #include "raygui.h"
 #include "raylib.h"
-
+#include <algorithm>
 
 TileSetSelector::TileSetSelector(Rectangle r, IFileOperations &fo) : boundary_(r), fileOpener_(fo) {}
 
-std::optional<TileSet> TileSetSelector::openTilesetFile(Rectangle const &tileBox) {
+TileSet *TileSetSelector::openTilesetFile(Rectangle const &tileBox) {
   const char *extensions = tileParser_->getFileExtensions();// a semi-colon seperated list of extensions
   std::filesystem::path path;
 
-  if (extensions && fileOpener_.openFile(path, extensions)) {
+  if (extensions && fileOpener_.openFileDialog(path, extensions)) {
     auto parsedResults = tileParser_->parse(path);
 
     if (std::holds_alternative<TileSet>(parsedResults)) {
       auto tilesetDefinition = std::get<TileSet>(parsedResults);
       std::string id = tilesetDefinition.image_name;
 
-      if (tilesets_.find(id) != tilesets_.end()) {
+      auto it = std::find_if(tilesets_.begin(), tilesets_.end(), [&id](TileSet const& t) {
+        return id == t.image_name;
+      });
+
+      if (it != tilesets_.end()) {
         tilesetError_ = TilesetErrors::tileset_already_loaded;
-        return std::nullopt;
+        return nullptr;
       }
 
       if (!std::filesystem::exists(tilesetDefinition.image_path)) {
         tilesetError_ = TilesetErrors::file_not_found;
-        return std::nullopt;
+        return nullptr;
       }
 
       std::string path = tilesetDefinition.image_path.string();
       tilesetDefinition.texture = LoadTexture(path.c_str());
-      tilesets_[id] = tilesetDefinition;
-      return tilesets_[id];
+      tilesets_.push_back(tilesetDefinition);
+      selectedTileSetIndex_ = (tilesets_.size() - 1);
+      return &tilesets_.back();
     }
   }
 
-  return std::nullopt;
+  return nullptr;
 }
 
 ITileParser *TileSetSelector::selectParser(int index) {
@@ -46,7 +51,6 @@ ITileParser *TileSetSelector::selectParser(int index) {
   }
   return nullptr;
 }
-
 
 void TileSetSelector::drawTileSetSection(Rectangle const &tileBox) {
   GuiGroupBox(tileBox, "Tilesets");
@@ -122,8 +126,10 @@ void TileSetSelector::drawTileSetSection(Rectangle const &tileBox) {
               tileFrame.frameDimensions.height};
       if (isGuiNormal && mousePressed && CheckCollisionPointRec(GetMousePosition(), tileRect)) {
         SelectedTileFrame selectedFrame = {
-                *selectedTileSet_,
-                static_cast<int>(i)};
+          *selectedTileSet_,
+          static_cast<int>(i),
+          selectedTileSetIndex_
+        };
 
         selectedFrame_.emplace(selectedFrame);
         selectedFrameSample_ = tileRect;
@@ -143,10 +149,14 @@ void TileSetSelector::drawTileSetSection(Rectangle const &tileBox) {
       float maxWidth = 100.f;
       std::vector<const char *> labels;
       for (auto &tilesetEntry : tilesets_) {
-        labels.push_back(tilesetEntry.first.c_str());
+        labels.push_back(tilesetEntry.image_name.c_str());
       }
 
-      GuiToggleGroupEx({tileBox.x + 10.f, (boundary_.y + boundary_.height) - 10.f - 30.f, maxWidth, 30.f}, static_cast<unsigned>(labels.size()), labels.data(), 0);
+      selectedTileSetIndex_ = GuiToggleGroupEx({
+        tileBox.x + 10.f,
+        (boundary_.y + boundary_.height) - 10.f - 30.f,
+        maxWidth, 30.f
+      }, static_cast<unsigned>(labels.size()), labels.data(), selectedTileSetIndex_);
     }
   }
 }

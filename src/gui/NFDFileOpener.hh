@@ -6,6 +6,6 @@
 class NFDFileOpener : public IFileOperations {
 public:
   NFDFileOpener() = default;
-  bool openFile(std::filesystem::path &, std::string_view const) override;
-  bool saveFile(std::filesystem::path &, std::string_view const) override;
+  bool openFileDialog(std::filesystem::path &, std::string_view const) override;
+  bool saveFileDialog(std::filesystem::path &, std::string_view const) override;
 };

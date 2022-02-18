@@ -23,7 +23,6 @@ public:
     return selectedFrame_.has_value();
   }
 
-
 private:
   Rectangle boundary_;
 
@@ -31,7 +30,7 @@ private:
 
   void drawTileSetSection(Rectangle const &);
 
-  std::optional<TileSet> openTilesetFile(Rectangle const &);
+  TileSet *openTilesetFile(Rectangle const &);
 
   void renderTileSet(Rectangle const &);
 
@@ -46,7 +45,6 @@ private:
     tileset_parse_error
   } tilesetError_ = TilesetErrors::no_error;
 
-
   bool chooseParseMethod_ = false;
 
   int parseMethodChosen_ = 0;
@@ -55,7 +53,7 @@ private:
 
   Vector2 panelScroller_ = {5.f, 5.f};
 
-  std::unordered_map<std::string, TileSet> tilesets_;
+  std::vector<TileSet> tilesets_;
 
   AsepriteParser aseprite_;
 
@@ -64,12 +62,18 @@ private:
   struct SelectedTileFrame {
     TileSet &set;
     int frameIndex;
+    int tileSetIndex;
   };
 
-  std::optional<TileSet> selectedTileSet_;
+  int selectedTileSetIndex_ = -1;
+  TileSet *selectedTileSet_;
   std::optional<SelectedTileFrame> selectedFrame_;
 
 public:
+  inline std::vector<TileSet> getSelectedTileSets() const {
+    return tilesets_;
+  }
+
   inline std::optional<SelectedTileFrame> getSelectedFrame() const {
     return selectedFrame_;
   }

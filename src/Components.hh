@@ -53,6 +53,7 @@ namespace Components {
   };
 
   struct SpriteTexture {
+    int loadedIndex = -1;
     Texture texture;
   };
 
