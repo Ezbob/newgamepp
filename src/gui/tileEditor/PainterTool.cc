@@ -119,7 +119,7 @@ void PainterTool::execute() {
       registry_.emplace<Components::Renderable>(entity, 1.f, currentLayer_);
       registry_.emplace<Components::Position>(entity, midPointMouse.x, midPointMouse.y);
       registry_.emplace<Components::Flipable>(entity);
-      registry_.emplace<Components::Quad>(entity, tileFrame.frameDimensions);
+      registry_.emplace<Components::Quad>(entity, static_cast<int>(tileFrame.index), tileFrame.frameDimensions);
 
       selectedTiles_.clear();
       selectedTiles_.insert(entity);

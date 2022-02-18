@@ -58,6 +58,7 @@ namespace Components {
   };
 
   struct Quad {
+    int index = -1;
     Rectangle quad;
   };
 

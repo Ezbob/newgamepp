@@ -148,19 +148,13 @@ void TileWindow::saveToFile(std::filesystem::path const &path) {
     tile.y = pos.y;
 
     tile.tileSetIndex = texture.loadedIndex;
-
-    tile.fx = quad.quad.x;
-    tile.fy = quad.quad.y;
-    tile.w = quad.quad.width;
-    tile.h = quad.quad.height;
+    tile.tileFrameIndex = quad.index;
 
     map.tilePositions.push_back(tile);
   }
 
-  auto tileSets = tileSetSelector_.getSelectedTileSets();
-  for (auto &tileSet : tileSets) {
-    map.tileSetLocations.push_back(tileSet.image_path.string());
-  }
+  auto &tileSets = tileSetSelector_.getSelectedTileSets();
+  std::copy(tileSets.begin(), tileSets.end(), std::back_inserter(map.tileSetLocations));
 
   map.save(path);
 }

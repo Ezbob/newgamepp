@@ -179,8 +179,6 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
     tileFrame.frameDimensions.y = frameDimensions["y"];
     tileFrame.frameDimensions.width = frameDimensions["w"];
     tileFrame.frameDimensions.height = frameDimensions["h"];
-    tileFrame.rotated = frame["rotated"];
-    tileFrame.trimmed = frame["trimmed"];
 
     result.frames.emplace_back(tileFrame);
   }

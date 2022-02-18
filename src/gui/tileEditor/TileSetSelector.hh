@@ -70,11 +70,11 @@ private:
   std::optional<SelectedTileFrame> selectedFrame_;
 
 public:
-  inline std::vector<TileSet> getSelectedTileSets() const {
+  inline std::vector<TileSet> &getSelectedTileSets() {
     return tilesets_;
   }
 
-  inline std::optional<SelectedTileFrame> getSelectedFrame() const {
+  inline std::optional<SelectedTileFrame> &getSelectedFrame() {
     return selectedFrame_;
   }
 };

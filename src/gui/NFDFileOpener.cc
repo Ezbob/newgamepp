@@ -4,7 +4,7 @@
 #include <string>
 
 
-bool NFDFileOpener::openFile(std::filesystem::path &out, std::string_view const extensionList) {
+bool NFDFileOpener::openFileDialog(std::filesystem::path &out, std::string_view const extensionList) {
   nfdchar_t *path = nullptr;
   std::string extensions{extensionList};
 
@@ -20,7 +20,7 @@ bool NFDFileOpener::openFile(std::filesystem::path &out, std::string_view const 
 }
 
 
-bool NFDFileOpener::saveFile(std::filesystem::path &out, std::string_view const extensionList) {
+bool NFDFileOpener::saveFileDialog(std::filesystem::path &out, std::string_view const extensionList) {
   nfdchar_t *path = nullptr;
   std::string extensions{extensionList};
 
