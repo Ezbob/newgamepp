@@ -74,6 +74,22 @@
     "iostream": "cpp",
     "any": "cpp",
     "ranges": "cpp",
-    "span": "cpp"
+    "span": "cpp",
+    "bitset": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "condition_variable": "cpp",
+    "csignal": "cpp",
+    "deque": "cpp",
+    "future": "cpp",
+    "mutex": "cpp",
+    "queue": "cpp",
+    "random": "cpp",
+    "regex": "cpp",
+    "stack": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp",
+    "typeindex": "cpp",
+    "string_view": "cpp"
   }
 }

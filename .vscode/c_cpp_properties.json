@@ -17,7 +17,8 @@
                 "${workspaceFolder}/libs/raygui/src",
                 "${env:VCPKG_ROOT}/installed/x64-windows/include",
                 "${workspaceFolder}/libs/nativefiledialog/src/include",
-                "${workspaceFolder}/build-debug/vcpkg_installed/x64-windows/include"
+                "${workspaceFolder}/build-debug/vcpkg_installed/x64-windows/include",
+                "${workspaceFolder}/libs/cereal-1.3.1/include"
             ]
         },
         {
@@ -32,6 +33,7 @@
                 "${workspaceFolder}/src/",
                 "${workspaceFolder}/src/gui",
                 "${workspaceFolder}/libs/raygui/src",
+                "${workspaceFolder}/libs/cereal-1.3.1/include",
                 "${env:VCPKG_ROOT}/installed/x64-linux/include"
             ]
         }
