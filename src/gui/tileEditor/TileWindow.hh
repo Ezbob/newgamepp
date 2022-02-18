@@ -41,6 +41,7 @@ private:
   void renderFileOperations();
 
   void saveToFile(std::filesystem::path const &);
+  void loadFromFile(std::filesystem::path const &);
 
   std::vector<char> filePath_ = {'\0'};
   std::filesystem::path path_;

@@ -131,6 +131,9 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
   if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
 
+void TileWindow::loadFromFile(std::filesystem::path const &path) {
+  
+}
 
 void TileWindow::saveToFile(std::filesystem::path const &path) {
   TileMap map;
@@ -180,7 +183,7 @@ void TileWindow::renderFileOperations() {
 
   if (path_.empty()) GuiEnable();
 
-  if (GuiButton({box.x + 90.f, box.y + 45.f, 70.f, 25.f}, "Select file")) {
+  if (GuiButton({box.x + 105.f, box.y + 45.f, 70.f, 25.f}, "Save as")) {
     fileOps_.saveFileDialog(path_, "mt");
 
     if (!path_.has_extension()) {
@@ -190,6 +193,14 @@ void TileWindow::renderFileOperations() {
     filePath_.assign(s.begin(), s.end());
     filePath_.push_back('\0');
     saveToFile(path_);
+  }
+
+  if (GuiButton({box.x + 205.f, box.y + 45.f, 60.f, 25.f}, "Load")) {
+    fileOps_.openFileDialog(path_, "mt");
+    auto s = path_.filename().string();
+    filePath_.assign(s.begin(), s.end());
+    filePath_.push_back('\0');
+    loadFromFile(path_);
   }
 }
 
