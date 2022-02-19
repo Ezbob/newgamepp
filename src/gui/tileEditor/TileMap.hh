@@ -32,12 +32,14 @@ struct TileMap {
     }
   };
 
+  uint32_t maxLayer;
+
   std::vector<TileSet> tileSetLocations;
   std::vector<TilePosition> tilePositions;
 
   template<typename Archive>
   void serialize(Archive &ar) {
-    ar(tileSetLocations, tilePositions);
+    ar(maxLayer, tileSetLocations, tilePositions);
   }
 
   template<typename Archive = cereal::BinaryOutputArchive>

@@ -138,6 +138,8 @@ void TileWindow::loadFromFile(std::filesystem::path const &path) {
 void TileWindow::saveToFile(std::filesystem::path const &path) {
   TileMap map;
 
+  map.maxLayer = (layers_.size() - 1);
+
   auto spriteGroup = registry_.group<Components::Renderable>(
     entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>
   );
