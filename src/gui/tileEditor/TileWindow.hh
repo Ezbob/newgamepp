@@ -38,7 +38,7 @@ private:
 
   void renderTools(Rectangle const &);
 
-  void renderFileOperations();
+  void renderFileOperations(Rectangle const &);
 
   void saveToFile(std::filesystem::path const &);
   void loadFromFile(std::filesystem::path const &);

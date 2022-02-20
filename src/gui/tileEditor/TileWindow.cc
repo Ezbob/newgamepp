@@ -3,6 +3,7 @@
 #include "Components.hh"
 #include "Constants.hh"
 
+#include "TileMap.hh"
 #include "fmt/core.h"
 #include "raygui.h"
 #include "raymath.h"
@@ -11,25 +12,18 @@
 #include <cmath>
 #include <functional>
 #include <stdint.h>
-#include "TileMap.hh"
 
 #define RAYGUI_CUSTOM_RICONS
 #include "ricons.h"
 
 
 TileWindow::TileWindow(entt::registry &registry, IFileOperations &fileOpener, Camera2D &camera)
-    : registry_(registry)
-    , tileSetSelector_({windowBoundary_.x + 5.f,
-                        windowBoundary_.height - 325.f,
-                        windowBoundary_.width - 10.f,
-                        325.f - 5.f}, fileOpener)
-    , camera_(camera)
-    , selected_(registry_)
-    , painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_)
-    , removeTool_(registry_, camera_, currentLayerId_, selected_)
-    , multiSelectTool_(registry_, currentLayerId_, selected_, camera_)
-    , currentTileTool_(&nullTool_)
-    , fileOps_(fileOpener) {
+    : registry_(registry), tileSetSelector_({windowBoundary_.x + 5.f,
+                                             windowBoundary_.height - 325.f,
+                                             windowBoundary_.width - 10.f,
+                                             325.f - 5.f},
+                                            fileOpener),
+      camera_(camera), selected_(registry_), painterTool_(registry_, tileSetSelector_, camera_, selected_, currentLayerId_), removeTool_(registry_, camera_, currentLayerId_, selected_), multiSelectTool_(registry_, currentLayerId_, selected_, camera_), currentTileTool_(&nullTool_), fileOps_(fileOpener) {
   addNewLayer();
   grid_ = registry_.create();
   registry_.emplace<Components::Coloring>(grid_, Fade(GRAY, 0.3f));
@@ -132,7 +126,6 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
 }
 
 void TileWindow::loadFromFile(std::filesystem::path const &path) {
-  
 }
 
 void TileWindow::saveToFile(std::filesystem::path const &path) {
@@ -141,8 +134,7 @@ void TileWindow::saveToFile(std::filesystem::path const &path) {
   map.maxLayer = (layers_.size() - 1);
 
   auto spriteGroup = registry_.group<Components::Renderable>(
-    entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>
-  );
+          entt::get<Components::SpriteTexture, Components::Position, Components::Quad, Components::Flipable>);
 
   for (auto [entity, render, texture, pos, quad, flip] : spriteGroup.each()) {
     TileMap::TilePosition tile;
@@ -165,13 +157,7 @@ void TileWindow::saveToFile(std::filesystem::path const &path) {
 }
 
 
-void TileWindow::renderFileOperations() {
-  Rectangle box = {
-    windowBoundary_.x + 10.f,
-    windowBoundary_.y + 192.f,
-    (windowBoundary_.width / 2) - 20.f,
-    80.f
-  };
+void TileWindow::renderFileOperations(Rectangle const &box) {
   GuiGroupBox(box, "File");
 
   GuiLabel({box.x + 10.f, box.y + 10.f, 40.f, 25.f}, "Current File:");
@@ -220,7 +206,13 @@ bool TileWindow::render() {
 
   renderTools(gridColorbutton);
 
-  renderFileOperations();
+  Rectangle fileOpsBox{
+          windowBoundary_.x + 10.f,
+          windowBoundary_.y + 192.f,
+          (windowBoundary_.width / 2) - 20.f,
+          80.f};
+
+  renderFileOperations(fileOpsBox);
 
   Rectangle toolAttribute{
           gridColorbutton.x + (windowBoundary_.width / 2),
