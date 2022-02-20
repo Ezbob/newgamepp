@@ -37,6 +37,7 @@ Vector2 PainterTool::midPoint(Rectangle r) const {
 }
 
 void PainterTool::renderToolAttributes(Rectangle const& position) {
+  GuiGroupBox(position, "Tool attributes");
 
   if (selectedTiles_.size() == 0) GuiDisable();
 

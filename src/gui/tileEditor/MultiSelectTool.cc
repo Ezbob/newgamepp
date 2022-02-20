@@ -108,6 +108,8 @@ void MultiSelectTool::onSelected() {
 
 
 void MultiSelectTool::renderToolAttributes(Rectangle const& position) {
+  GuiGroupBox(position, "Tool attributes");
+
   if (selections_.size() == 0) GuiDisable();
 
   if (selections_.size() > 0 && !cacheReadIn_) {
