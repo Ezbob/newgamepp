@@ -87,19 +87,19 @@ void PainterTool::execute() {
     auto selectedTileSet_ = selector_.getSelectedFrame();
 
     auto &tileFrame = selectedTileSet_->set.frames[selectedTileSet_->frameIndex];
-    auto frame = tileFrame.frameDimensions;
+    //auto frame = tileFrame.frameDimensions;
 
     auto midPointMouse = midPoint({mousePosition.x,
                                    mousePosition.y,
-                                   frame.width * camera_.zoom,
-                                   frame.height * camera_.zoom});
+                                   tileFrame.width * camera_.zoom,
+                                   tileFrame.height * camera_.zoom});
 
     midPointMouse = GetScreenToWorld2D(midPointMouse, camera_);
 
     if (!IsKeyDown(KEY_LEFT_SHIFT)) {
       // snapping to tile width/height
-      float roundedX = (float) roundDownTo(static_cast<int>(frame.width), abs(static_cast<int>(midPointMouse.x)));
-      float roundedY = (float) roundDownTo(static_cast<int>(frame.height), abs(static_cast<int>(midPointMouse.y)));
+      float roundedX = (float) roundDownTo(static_cast<int>(tileFrame.width), abs(static_cast<int>(midPointMouse.x)));
+      float roundedY = (float) roundDownTo(static_cast<int>(tileFrame.height), abs(static_cast<int>(midPointMouse.y)));
 
       midPointMouse.x = midPointMouse.x < 0.f ? -roundedX : roundedX;
       midPointMouse.y = midPointMouse.y < 0.f ? -roundedY : roundedY;
@@ -108,7 +108,7 @@ void PainterTool::execute() {
     BeginMode2D(camera_);
     DrawTextureRec(
             selectedTileSet_->set.texture,
-            frame,
+            {tileFrame.x, tileFrame.y, tileFrame.width, tileFrame.height},
             midPointMouse,
             ColorAlpha(WHITE, 0.6f));
     EndMode2D();
@@ -116,11 +116,17 @@ void PainterTool::execute() {
     if (IsMouseButtonPressed(0)) {
       entt::entity entity = registry_.create();
 
+      Rectangle r = {
+        tileFrame.x,
+        tileFrame.y,
+        tileFrame.width,
+        tileFrame.height
+      };
       registry_.emplace<Components::SpriteTexture>(entity, selectedTileSet_->tileSetIndex, selectedTileSet_->set.texture);
       registry_.emplace<Components::Renderable>(entity, 1.f, currentLayer_);
       registry_.emplace<Components::Position>(entity, midPointMouse.x, midPointMouse.y);
       registry_.emplace<Components::Flipable>(entity);
-      registry_.emplace<Components::Quad>(entity, static_cast<int>(tileFrame.index), tileFrame.frameDimensions);
+      registry_.emplace<Components::Quad>(entity, static_cast<int>(tileFrame.index), r);
 
       selectedTiles_.clear();
       selectedTiles_.insert(entity);

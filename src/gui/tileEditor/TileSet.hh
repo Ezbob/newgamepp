@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <filesystem>
 #include "raylib.h"
 
 #include "cereal/types/vector.hpp"
@@ -11,7 +10,7 @@
 
 struct TileSet {
   std::string image_name;
-  std::filesystem::path image_path;
+  std::string image_path;
 
   Texture texture;
   size_t width;
@@ -19,17 +18,20 @@ struct TileSet {
 
   struct TileFrame {
     size_t index;
-    Rectangle frameDimensions;
+    float x;
+    float y;
+    float width;
+    float height;
 
     template<typename Archive>
     void serialize(Archive &ar) {
-      ar(index, frameDimensions.x, frameDimensions.y, frameDimensions.width, frameDimensions.height);
+      ar(index, x, y, width, height);
     }
   };
   std::vector<TileFrame> frames;
 
   template<typename Archive>
   void serialize(Archive &ar) {
-    ar(image_path.string(), width, height, frames);
+    ar(image_name, image_path, width, height, frames);
   }
 };

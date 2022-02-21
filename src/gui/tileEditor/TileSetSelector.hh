@@ -11,6 +11,15 @@
 
 class TileSetSelector {
 public:
+  enum class TilesetErrors {
+    no_error,
+    file_not_found,
+    tileset_already_loaded,
+    tileset_load_error,
+    tileset_parse_error
+  } tilesetError_ = TilesetErrors::no_error;
+
+
   TileSetSelector(Rectangle, IFileOperations &);
 
   void render();
@@ -23,14 +32,19 @@ public:
     return selectedFrame_.has_value();
   }
 
+  TilesetErrors loadTileSet(TileSet &tileset);
+
 private:
+
   Rectangle boundary_;
+
+  void nextTileSet();
 
   void showTilesetError(Rectangle const &);
 
   void drawTileSetSection(Rectangle const &);
 
-  TileSet *openTilesetFile(Rectangle const &);
+  void openTilesetFile(Rectangle const &);
 
   void renderTileSet(Rectangle const &);
 
@@ -38,18 +52,11 @@ private:
 
   IFileOperations &fileOpener_;
 
-  enum class TilesetErrors {
-    no_error,
-    file_not_found,
-    tileset_already_loaded,
-    tileset_parse_error
-  } tilesetError_ = TilesetErrors::no_error;
-
   bool chooseParseMethod_ = false;
 
   int parseMethodChosen_ = 0;
 
-  ITileParser *tileParser_;
+  ITileParser *tileParser_ = nullptr;
 
   Vector2 panelScroller_ = {5.f, 5.f};
 
@@ -65,8 +72,8 @@ private:
     int tileSetIndex;
   };
 
-  int selectedTileSetIndex_ = -1;
-  TileSet *selectedTileSet_;
+  int selectedTileSetIndex_ = 0;
+  TileSet *selectedTileSet_ = nullptr;
   std::optional<SelectedTileFrame> selectedFrame_;
 
 public:

@@ -125,7 +125,32 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
   if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
 
+
+
 void TileWindow::loadFromFile(std::filesystem::path const &path) {
+  TileMap map;
+  map.load(path);
+
+  for (size_t i = 0; i < map.maxLayer; ++i) {
+    addNewLayer();
+  }
+
+  auto &selected = tileSetSelector_.getSelectedTileSets();
+
+  for (auto &t : map.tileSetLocations) {
+    fmt::print("{} {} {}\n", t.image_name, t.image_path, t.frames.size());
+
+    auto loadedTileSet = tileSetSelector_.loadTileSet(t);
+
+    if (loadedTileSet != TileSetSelector::TilesetErrors::no_error) {
+      TraceLog(LOG_ERROR, "Could not load tileset");
+    }
+
+  }
+
+/*
+  for (auto &)
+*/
 }
 
 void TileWindow::saveToFile(std::filesystem::path const &path) {

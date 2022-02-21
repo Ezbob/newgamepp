@@ -154,8 +154,11 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
 
   TileSet result;
   result.image_name = meta["image"];
-  result.image_path = std::filesystem::path(filename);
-  result.image_path.replace_filename(result.image_name);
+
+  auto path_to_image = std::filesystem::path(filename);
+  path_to_image.replace_filename(result.image_name);
+
+  result.image_path = path_to_image.string();
   result.width = size["w"];
   result.height = size["h"];
 
@@ -175,10 +178,10 @@ std::variant<TileSet, ITileParser::TileParseFault> AsepriteParser::parse(std::st
 
     auto &frameDimensions = frame["frame"];
 
-    tileFrame.frameDimensions.x = frameDimensions["x"];
-    tileFrame.frameDimensions.y = frameDimensions["y"];
-    tileFrame.frameDimensions.width = frameDimensions["w"];
-    tileFrame.frameDimensions.height = frameDimensions["h"];
+    tileFrame.x = frameDimensions["x"];
+    tileFrame.y = frameDimensions["y"];
+    tileFrame.width = frameDimensions["w"];
+    tileFrame.height = frameDimensions["h"];
 
     result.frames.emplace_back(tileFrame);
   }

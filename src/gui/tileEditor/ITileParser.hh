@@ -3,6 +3,7 @@
 
 #include <variant>
 #include <string>
+#include <filesystem>
 #include "TileSet.hh"
 
 class ITileParser {

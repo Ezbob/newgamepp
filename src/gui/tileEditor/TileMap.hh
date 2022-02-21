@@ -51,7 +51,7 @@ struct TileMap {
 
   template<typename Archive = cereal::BinaryInputArchive>
   void load(std::filesystem::path const& p) {
-    std::ofstream file(p);
+    std::ifstream file(p);
     Archive ar(file);
     ar(*this);
   }
