@@ -35,7 +35,6 @@ public:
   TilesetErrors loadTileSet(TileSet &tileset);
 
 private:
-
   Rectangle boundary_;
 
   void nextTileSet();
@@ -77,7 +76,7 @@ private:
   std::optional<SelectedTileFrame> selectedFrame_;
 
 public:
-  inline std::vector<TileSet> &getSelectedTileSets() {
+  inline std::vector<TileSet> &getLoadedTileSets() {
     return tilesets_;
   }
 

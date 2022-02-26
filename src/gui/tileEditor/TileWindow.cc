@@ -112,6 +112,8 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
     currentTileTool_ = &removeTool_;
   }
 
+  if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
+
   if (GuiToggle({initialButton.x + (35.f * 2.f), initialButton.y, initialButton.width, initialButton.height},
                 GuiIconText(RAYGUI_ICON_CURSOR_SCALE, nullptr),
                 currentTileTool_ == &multiSelectTool_)) {
@@ -121,10 +123,7 @@ void TileWindow::renderTools(Rectangle const &gridColorbutton) {
   if (oldSelection != currentTileTool_) {
     currentTileTool_->onSelected();
   }
-
-  if (!tileSetSelector_.isTileFrameSelected()) GuiEnable();
 }
-
 
 
 void TileWindow::loadFromFile(std::filesystem::path const &path) {
@@ -135,22 +134,38 @@ void TileWindow::loadFromFile(std::filesystem::path const &path) {
     addNewLayer();
   }
 
-  auto &selected = tileSetSelector_.getSelectedTileSets();
+  auto &loaded = tileSetSelector_.getLoadedTileSets();
 
   for (auto &t : map.tileSetLocations) {
-    fmt::print("{} {} {}\n", t.image_name, t.image_path, t.frames.size());
-
     auto loadedTileSet = tileSetSelector_.loadTileSet(t);
 
     if (loadedTileSet != TileSetSelector::TilesetErrors::no_error) {
       TraceLog(LOG_ERROR, "Could not load tileset");
     }
-
   }
 
-/*
-  for (auto &)
-*/
+  for (auto &tile : map.tilePositions) {
+    if (tile.tileSetIndex > loaded.size()) {
+      TraceLog(LOG_ERROR, "Could not load tileset");
+      continue;
+    }
+
+    auto const &tileSet = loaded.at(tile.tileSetIndex);
+    auto const &frame = tileSet.frames.at(tile.tileFrameIndex);
+
+    Rectangle quad{
+            frame.x,
+            frame.y,
+            frame.width,
+            frame.height};
+
+    auto entity = registry_.create();
+    registry_.emplace<Components::SpriteTexture>(entity, static_cast<int>(tile.tileSetIndex), tileSet.texture);
+    registry_.emplace<Components::Renderable>(entity, tile.alpha, static_cast<int>(tile.layer));
+    registry_.emplace<Components::Position>(entity, static_cast<float>(tile.x), static_cast<float>(tile.y));
+    registry_.emplace<Components::Flipable>(entity);
+    registry_.emplace<Components::Quad>(entity, static_cast<int>(tile.tileFrameIndex), quad);
+  }
 }
 
 void TileWindow::saveToFile(std::filesystem::path const &path) {
@@ -175,7 +190,7 @@ void TileWindow::saveToFile(std::filesystem::path const &path) {
     map.tilePositions.push_back(tile);
   }
 
-  auto &tileSets = tileSetSelector_.getSelectedTileSets();
+  auto &tileSets = tileSetSelector_.getLoadedTileSets();
   std::copy(tileSets.begin(), tileSets.end(), std::back_inserter(map.tileSetLocations));
 
   map.save(path);

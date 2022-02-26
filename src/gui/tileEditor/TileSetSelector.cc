@@ -9,9 +9,6 @@
 TileSetSelector::TileSetSelector(Rectangle r, IFileOperations &fo) : boundary_(r), fileOpener_(fo) {}
 
 void TileSetSelector::nextTileSet() {
-  if (tilesets_.size() <= 0) {
-    return;
-  }
   selectedTileSet_ = &tilesets_.back();
   selectedTileSetIndex_ = (tilesets_.size() - 1);
 }
