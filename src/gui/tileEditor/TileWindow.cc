@@ -212,8 +212,7 @@ void TileWindow::renderFileOperations(Rectangle const &box) {
   if (path_.empty()) GuiEnable();
 
   if (GuiButton({box.x + 105.f, box.y + 45.f, 70.f, 25.f}, "Save as")) {
-    fileOps_.saveFileDialog(path_, "mt");
-
+    if (fileOps_.saveFileDialog(path_, "mt") ) {
     if (!path_.has_extension()) {
       path_.replace_extension("mt");
     }
@@ -221,14 +220,16 @@ void TileWindow::renderFileOperations(Rectangle const &box) {
     filePath_.assign(s.begin(), s.end());
     filePath_.push_back('\0');
     saveToFile(path_);
+    }
   }
 
   if (GuiButton({box.x + 205.f, box.y + 45.f, 60.f, 25.f}, "Load")) {
-    fileOps_.openFileDialog(path_, "mt");
+    if ( fileOps_.openFileDialog(path_, "mt") ) {
     auto s = path_.filename().string();
     filePath_.assign(s.begin(), s.end());
     filePath_.push_back('\0');
     loadFromFile(path_);
+    }
   }
 }
 
