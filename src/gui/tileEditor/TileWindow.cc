@@ -163,7 +163,7 @@ void TileWindow::loadFromFile(std::filesystem::path const &path) {
     registry_.emplace<Components::SpriteTexture>(entity, static_cast<int>(tile.tileSetIndex), tileSet.texture);
     registry_.emplace<Components::Renderable>(entity, tile.alpha, static_cast<int>(tile.layer));
     registry_.emplace<Components::Position>(entity, static_cast<float>(tile.x), static_cast<float>(tile.y));
-    registry_.emplace<Components::Flipable>(entity);
+    registry_.emplace<Components::Flipable>(entity, tile.hFlipped, tile.vFlipped);
     registry_.emplace<Components::Quad>(entity, static_cast<int>(tile.tileFrameIndex), quad);
   }
 }
@@ -183,6 +183,9 @@ void TileWindow::saveToFile(std::filesystem::path const &path) {
     tile.layer = render.layer;
     tile.x = pos.x;
     tile.y = pos.y;
+
+    tile.hFlipped = flip.hFlipped;
+    tile.vFlipped = flip.vFlipped;
 
     tile.tileSetIndex = texture.loadedIndex;
     tile.tileFrameIndex = quad.index;
@@ -213,22 +216,22 @@ void TileWindow::renderFileOperations(Rectangle const &box) {
 
   if (GuiButton({box.x + 105.f, box.y + 45.f, 70.f, 25.f}, "Save as")) {
     if (fileOps_.saveFileDialog(path_, "mt") ) {
-    if (!path_.has_extension()) {
-      path_.replace_extension("mt");
-    }
-    auto s = path_.filename().string();
-    filePath_.assign(s.begin(), s.end());
-    filePath_.push_back('\0');
-    saveToFile(path_);
+      if (!path_.has_extension()) {
+        path_.replace_extension("mt");
+      }
+      auto s = path_.filename().string();
+      filePath_.assign(s.begin(), s.end());
+      filePath_.push_back('\0');
+      saveToFile(path_);
     }
   }
 
   if (GuiButton({box.x + 205.f, box.y + 45.f, 60.f, 25.f}, "Load")) {
     if ( fileOps_.openFileDialog(path_, "mt") ) {
-    auto s = path_.filename().string();
-    filePath_.assign(s.begin(), s.end());
-    filePath_.push_back('\0');
-    loadFromFile(path_);
+      auto s = path_.filename().string();
+      filePath_.assign(s.begin(), s.end());
+      filePath_.push_back('\0');
+      loadFromFile(path_);
     }
   }
 }

@@ -17,18 +17,21 @@
 
 struct TileMap {
   struct TilePosition {
-    uint32_t x;
-    uint32_t y;
+    int64_t x;
+    int64_t y;
 
     float alpha;
     uint32_t layer;
+
+    bool vFlipped = false;
+    bool hFlipped = false;
 
     uint32_t tileSetIndex;
     uint32_t tileFrameIndex;
 
     template<typename Archive>
     void serialize(Archive &ar) {
-      ar(x, y, alpha, layer, tileSetIndex, tileFrameIndex);
+      ar(x, y, alpha, layer, tileSetIndex, tileFrameIndex, vFlipped, hFlipped);
     }
   };
 
