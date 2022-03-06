@@ -21,12 +21,12 @@ int main() {
 
   DebugGUI dgui(registry, cam);
 
-  auto whiteBlockInitializer = [&registry](float xpos, float ypos, float width, float height, std::string name) {
+  auto whiteBlockInitializer = [&registry](float xpos, float ypos, float width, float height, std::string_view const name) {
     const auto entity = registry.create();
     registry.emplace<Components::Position>(entity, xpos, ypos);
     registry.emplace<Components::Dimensions>(entity, width, height);
     registry.emplace<Components::Velocity>(entity, 0.f, 0.f);
-    registry.emplace<Components::Name>(entity, std::move(name));
+    registry.emplace<Components::Name>(entity, std::string(name));
   };
 
   whiteBlockInitializer(10.f, 10.f, 20.f, 20.f, "Hello");

@@ -98,7 +98,15 @@ namespace Systems {
       drawCornerBox({position.x, position.y, dimension.quad.width, dimension.quad.height}, w);
     }
 
-    auto view = reg.view<const Components::Position, const Components::Dimensions>(entt::exclude<Components::Debug>);
+    auto selection2 = reg.view<const Components::Debug,
+        const Components::Position,
+        const Components::Dimensions>();
+
+    for(auto [debug, position, dimension]: selection2.each()) {
+      drawCornerBox({position.x - 5.f, position.y - 5.f, dimension.w + 10.f, dimension.h + 10.f}, w);
+    }
+
+    auto view = reg.view<const Components::Position, const Components::Dimensions>();
 
     view.each([&cam](const Components::Position &pos, const Components::Dimensions &dim) {
       DrawRectangleRec({pos.x, pos.y, dim.w, dim.h}, WHITE);

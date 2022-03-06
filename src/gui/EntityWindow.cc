@@ -197,25 +197,11 @@ void EntityWindow::drawEntity() {
       clamp.top = 0.f;
     }
 
-    ++i;
-    GuiLabel(labelBounds(i, marginFields), "bottom: ");
-    renderTextField(fieldBounds(i, marginFields), mousepressed_, mousepos_, clamp.bottom, bottomScreenClampEditable_);
-
-    clamp.bottom = GuiSlider(sliderBounds(i, marginFields), "Min", "Max", clamp.bottom, -300.f, 300.f);
-
-    if (GuiButton(buttonBounds(i, marginFields), "reset")) {
-      clamp.bottom = 0.f;
-    }
-
-    DrawRectangleLinesEx({clamp.left, clamp.top, Constants::screenWidth - (clamp.right + clamp.left), Constants::screenHeight - (clamp.top + clamp.bottom)}, 1, RED);
   }
 
   /* drawing selection box */
-  if (registry_.any_of<Components::Position, Components::Dimensions>(entity)) {
-    auto &pos = registry_.get<Components::Position>(entity);
-    auto &dim = registry_.get<Components::Dimensions>(entity);
-
-    DrawRectangleLinesEx({(float) pos.x - 5.f, (float) pos.y - 5.f, (float) dim.w + 10.f, (float) dim.h + 10.f}, 1, GREEN);
+  if (registry_.any_of<Components::Position, Components::Dimensions>(entity) && !registry_.any_of<Components::Debug>(entity)) {
+    registry_.emplace<Components::Debug>(entity);
   }
 }
 
@@ -249,14 +235,26 @@ bool EntityWindow::render() {
   }
 
   GuiLabel({windowBoundary_.x + 10.f, windowBoundary_.y + 30.f, 150.f, 26.f}, "Choose entity:");
-  if (GuiDropdownBoxEx({windowBoundary_.x + windowBoundary_.width - 10.f - 150.f, windowBoundary_.y + 30.f, 150.f, 26.f},
-                       text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_)) {
+
+  int oldIndex = selectedIndex_;
+  if (GuiDropdownBoxEx({
+      windowBoundary_.x + windowBoundary_.width - 10.f - 150.f,
+      windowBoundary_.y + 30.f,
+      150.f,
+      26.f
+    }, text_.data(), static_cast<int>(text_.size()), &selectedIndex_, editable_)) {
     editable_ = !editable_;
   }
 
   if (selectedIndex_ > 0) {
+    if (oldIndex > 0 && selectedIndex_ != oldIndex) {
+      registry_.remove<Components::Debug>(selected_.value());
+    }
     selected_ = view[selectedIndex_ - 1];
   } else if (selectedIndex_ == 0) {
+    if (oldIndex > 0) {
+      registry_.remove<Components::Debug>(selected_.value());
+    }
     selected_.reset();
   }
 
