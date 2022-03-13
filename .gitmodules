@@ -4,3 +4,6 @@
 [submodule "libs/nativefiledialog"]
 	path = libs/nativefiledialog
 	url = git@github.com:Ezbob/nativefiledialog.git
+[submodule "libs/raylib-cpp"]
+	path = libs/raylib-cpp
+	url = https://github.com/Ezbob/raylib-cpp.git
